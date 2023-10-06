@@ -19,29 +19,36 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
-    let user = await User.findOne({ email });
+    if (password.length < 8)
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
 
-    if (user) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    if (phoneNumber.length !== 10)
+      return res
+        .status(400)
+        .json({ message: "Mobile number must be of 10 digits" });
+
+    let user = await User.findOne({ email });
+    let user2 = await User.findOne({ phoneNumber });
+    if (user)
+      return res
+        .status(400)
+        .json({ message: "User already exists with this email" });
+    if (user2) return res.status(400).json({ message: "User with this number already exists" });
 
     const split = name.split(" ")[0];
     let username = await generateUsername(split);
 
-    user = await User.create(
-      {
-        username: username,
-        name,
-        email,
-        password,
-        age,
-        phoneNumber,
-        address,
-      },
-      {
-        runValidators: true,
-      }
-    );
+    user = await User.create({
+      name,
+      email,
+      password,
+      username: username,
+      age,
+      phoneNumber,
+      address,
+    });
 
     res.status(201).json({
       success: true,
@@ -93,6 +100,9 @@ exports.updateProfile = async (req, res) => {
   try {
     const { name, email, age, phoneNumber, address } = req.body;
 
+    let user = await User.findOne({ phoneNumber });
+    if (user) return res.status(400).json({ message: "Some User already exists with this number" });
+
     const newUserData = {
       name,
       email,
@@ -103,7 +113,6 @@ exports.updateProfile = async (req, res) => {
 
     await User.findByIdAndUpdate(req.userId, newUserData, {
       new: true,
-      runValidators: true,
       useFindAndModify: false,
     });
 

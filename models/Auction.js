@@ -28,7 +28,7 @@ const schema = new mongoose.Schema(
       trim: true,
       ref: "Bid",
     },
-    status: {
+    status: { 
       type: String,
       enum: ["active", "inactive"],
       default: "inactive",

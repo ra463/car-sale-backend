@@ -13,13 +13,12 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Email is required"],
       unique: true,
-      lowercase: true,
       validate: [validator.isEmail, "Please enter a valid email"],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [8, "Password must be at least 8 characters long"],
+      trim: true,
       select: false,
     },
     role: {
@@ -29,7 +28,6 @@ const schema = new mongoose.Schema(
     },
     username: {
       type: String,
-      required: [true, "Username is required"],
       unique: [true, "Username already exists"],
       trim: true,
     },
@@ -46,8 +44,6 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Phone number is required"],
       trim: true,
-      minlength: [10, "Phone number must be at least 10 characters long"],
-      maxlength: [10, "Phone number must be at most 10 characters long"],
       unique: [true, "Phone number already exists"],
     },
     address: {
