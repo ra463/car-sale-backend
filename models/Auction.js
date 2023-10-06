@@ -13,14 +13,12 @@ const schema = new mongoose.Schema(
     auction_start_date: {
       type: Date,
       required: [true, "Auction start date is required"],
-      trim: true,
     },
     auction_end_date: {
       type: Date,
       required: [true, "Auction end date is required"],
-      trim: true,
     },
-    starting_bid: {
+    current_price: {
       type: Number,
       required: [true, "Starting bid is required"],
       trim: true,
@@ -45,4 +43,4 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Bid", schema);
+module.exports = mongoose.model("Auction", schema);

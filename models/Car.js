@@ -7,6 +7,11 @@ const schema = new mongoose.Schema(
       required: [true, "Make is required"],
       trim: true,
     },
+    registration_date: {
+      type: String,
+      required: [true, "Registration date is required"],
+      trim: true,
+    },
     model: {
       type: String,
       required: [true, "Model is required"],
@@ -22,40 +27,59 @@ const schema = new mongoose.Schema(
       required: [true, "Vehicle Identification Number is required"],
       trim: true,
     },
-    num_of_km_run: {
-      type: Number,
-      required: [true, "How many kilometers has the car run?"],
-      trim: true,
-    },
     color: {
       type: String,
       required: [true, "Color is required"],
       trim: true,
     },
+    fuel_type: {
+      type: String,
+      required: [true, "Fuel type is required"],
+    },
+    transmission_type: {
+      type: String,
+      required: [true, "Transmission type is required"],
+      trim: true,
+    },
+    engine_capacity: {
+      type: Number, // in cc
+      required: [true, "Engine capacity is required"],
+    },
+    economy: {
+      type: Number, //in kmpl
+      required: [true, "Economy is required"],
+    },
     description: {
       type: String,
-      required: [true, "Description is required"],
-      trim: true,
+    },
+    odometer_reading: {
+      type: Number,
+      required: [true, "Odometer reading is required"],
+    },
+    drive_type: {
+      type: String,
+      enum: ["AWD", "FWD", "RWD", "4WD"],
+      required: [true, "Drive type is required"],
+    },
+    num_of_cylinders: {
+      type: Number,
+      required: [true, "Number of cylinders is required"],
+    },
+    key_highlights: {
+      type: Array,
     },
     images: {
       type: Array,
       required: [true, "Images are required"],
-      trim: true,
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    bids: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Bid",
-      },
-    ],
   },
   {
     timestamps: true,
   }
 );
 
-const Car = mongoose.model("Car", schema);
+module.exports = mongoose.model("Car", schema);

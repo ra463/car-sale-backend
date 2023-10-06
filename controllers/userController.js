@@ -1,3 +1,4 @@
+const Car = require("../models/Car");
 const User = require("../models/User");
 const { generateUsername } = require("../utils/generateUsername");
 
@@ -24,17 +25,23 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    let username = await generateUsername(name);
+    const split = name.split(" ")[0];
+    let username = await generateUsername(split);
 
-    user = await User.create({
-      username,
-      name,
-      email,
-      password,
-      age,
-      phoneNumber,
-      address,
-    });
+    user = await User.create(
+      {
+        username: username,
+        name,
+        email,
+        password,
+        age,
+        phoneNumber,
+        address,
+      },
+      {
+        runValidators: true,
+      }
+    );
 
     res.status(201).json({
       success: true,
@@ -77,6 +84,60 @@ exports.myProfile = async (req, res) => {
       success: true,
       user,
     });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, email, age, phoneNumber, address } = req.body;
+
+    const newUserData = {
+      name,
+      email,
+      age,
+      phoneNumber,
+      address,
+    };
+
+    await User.findByIdAndUpdate(req.userId, newUserData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword)
+      return res.status(400).json({ message: "Please fill in all fields" });
+
+    const user = await User.findById(req.userId).select("+password");
+    const isMatched = await user.matchPassword(oldPassword);
+    if (!isMatched)
+      return res.status(400).json({ message: "Invalid OldPassword password" });
+
+    const isPasswordMatched = await user.matchPassword(newPassword);
+    if (isPasswordMatched)
+      return res
+        .status(400)
+        .json({ message: "New password cannot be the same as old password" });
+    user.password = newPassword;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password Changed successfully" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

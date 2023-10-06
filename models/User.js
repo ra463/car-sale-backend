@@ -30,7 +30,7 @@ const schema = new mongoose.Schema(
     username: {
       type: String,
       required: [true, "Username is required"],
-      unique: true,
+      unique: [true, "Username already exists"],
       trim: true,
     },
     profilePicUrl: {
@@ -45,12 +45,21 @@ const schema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       required: [true, "Phone number is required"],
-      unique: true,
+      trim: true,
+      minlength: [10, "Phone number must be at least 10 characters long"],
+      maxlength: [10, "Phone number must be at most 10 characters long"],
+      unique: [true, "Phone number already exists"],
     },
     address: {
       type: String,
       required: [true, "Address is required"],
     },
+    cars: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Car",
+      },
+    ],
     auctions: [
       {
         type: mongoose.Schema.Types.ObjectId,
