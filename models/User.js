@@ -33,7 +33,8 @@ const schema = new mongoose.Schema(
     },
     profilePicUrl: {
       type: String,
-      default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh1MxDvWeEQ39D04ETGLuJ_pnSkd_gZf47R7qkQaxbHotxVs-aBvYjsHmbvxcKhTGn9gI&usqp=CAU",
+      default:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh1MxDvWeEQ39D04ETGLuJ_pnSkd_gZf47R7qkQaxbHotxVs-aBvYjsHmbvxcKhTGn9gI&usqp=CAU",
     },
     age: {
       type: Number,
@@ -68,6 +69,9 @@ const schema = new mongoose.Schema(
         ref: "Bid",
       },
     ],
+    temp_code: {
+      type: String,
+    },
   },
   {
     timestamps: true,
