@@ -2,12 +2,13 @@ const Car = require("../models/Car");
 const User = require("../models/User");
 const { generateUsername } = require("../utils/generateUsername");
 
-const sendData = (user, statusCode, res) => {
+const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
 
   res.status(statusCode).json({
     user,
     token,
+    message,
   });
 };
 
@@ -23,11 +24,14 @@ exports.registerUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Password must be at least 6 characters" });
-
-    if (phoneNumber.length !== 10)
+    if (phoneNumber.length < 9)
       return res
         .status(400)
-        .json({ message: "Mobile number must be of 10 digits" });
+        .json({ message: "Phone number must be at least 9 digit long" });
+    if (phoneNumber.length > 12)
+      return res
+        .status(400)
+        .json({ message: "Phone number must be at most 12 digit long" });
 
     let user = await User.findOne({ email });
     let user2 = await User.findOne({ phoneNumber });
@@ -35,7 +39,10 @@ exports.registerUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "User already exists with this email" });
-    if (user2) return res.status(400).json({ message: "User with this number already exists" });
+    if (user2)
+      return res
+        .status(400)
+        .json({ message: "User with this number already exists" });
 
     const split = name.split(" ")[0];
     let username = await generateUsername(split);
@@ -50,11 +57,8 @@ exports.registerUser = async (req, res) => {
       address,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Account created successfully, now you can login.",
-      user,
-    });
+    user.password = undefined;
+    sendData(user, 201, res, `${user.name} registered successfully`);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -76,7 +80,7 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     user.password = undefined;
-    sendData(user, 200, res);
+    sendData(user, 200, res, `${user.name} logged in successfully`);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -101,7 +105,11 @@ exports.updateProfile = async (req, res) => {
     const { name, email, age, phoneNumber, address } = req.body;
 
     let user = await User.findOne({ phoneNumber });
-    if (user) return res.status(400).json({ message: "Some User already exists with this number" });
+    if (user && user._id.toString() !== req.userId.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Some User already exists with this number" });
+    }
 
     const newUserData = {
       name,
