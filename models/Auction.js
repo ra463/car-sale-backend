@@ -24,11 +24,10 @@ const schema = new mongoose.Schema(
       trim: true,
     },
     highest_bid: {
-      type: Number,
-      trim: true,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Bid",
     },
-    status: { 
+    status: {
       type: String,
       enum: ["active", "inactive"],
       default: "inactive",

@@ -16,9 +16,17 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, age, phoneNumber, address } = req.body;
+    const { name, email, password, age, role, phoneNumber, address } = req.body;
 
-    if (!name || !email || !password || !age || !phoneNumber || !address) {
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !age ||
+      !phoneNumber ||
+      !address ||
+      !role
+    ) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
@@ -55,6 +63,7 @@ exports.registerUser = async (req, res) => {
       password,
       username: username,
       age,
+      role,
       phoneNumber,
       address,
     });
@@ -226,5 +235,30 @@ exports.resetPassword = async (req, res) => {
     res.status(203).json({ message: "Password Updated Successfully." });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getAllUserBids = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate("bids");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({
+      success: true,
+      bids: user.bids,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getAllUserAuctions = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate("auctions");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ success: true, auctions: user.auctions });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

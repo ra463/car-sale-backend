@@ -20,6 +20,7 @@ exports.uploadCarDetails = async (req, res) => {
       odometer_reading,
       drive_type,
       num_of_cylinders,
+      description,
     } = req.body;
 
     const car = await Car.create({
@@ -37,6 +38,7 @@ exports.uploadCarDetails = async (req, res) => {
       drive_type,
       num_of_cylinders,
       seller: user._id,
+      description,
     });
 
     user.cars.unshift(car._id);
@@ -45,27 +47,6 @@ exports.uploadCarDetails = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Car details uploaded successfully",
-      car,
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.addDescription = async (req, res) => {
-  try {
-    const { description } = req.body;
-    if (!description)
-      return res.status(400).json({ message: "Please fill in all fields" });
-    const car = await Car.findById(req.params.id);
-
-    if (!car) return res.status(404).json({ message: "Car not found" });
-    car.description = description;
-
-    await car.save();
-    res.status(200).json({
-      success: true,
-      message: "Description added successfully",
       car,
     });
   } catch (error) {
@@ -96,12 +77,26 @@ exports.addKeyFeatures = async (req, res) => {
 
 exports.getCarDetails = async (req, res) => {
   try {
-    const car = await Car.findById(req.params.id).populate("seller","username email phoneNumber name")
+    const car = await Car.findById(req.params.id);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
     res.status(200).json({
       success: true,
       car,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getUserAllCars = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate("cars");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({
+      success:true,
+      cars: user.cars,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

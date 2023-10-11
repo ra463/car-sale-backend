@@ -21,11 +21,13 @@ app.use(
 const userRoutes = require("./routes/userRoutes");
 const carRoutes = require("./routes/carRoutes");
 const auctionRoutes = require("./routes/auctionRoutes");
+const biddingRoutes = require("./routes/biddingRoutes");
 
 // use Routes
 app.use("/api/user", userRoutes);
 app.use("/api/car", carRoutes);
 app.use("/api/auction", auctionRoutes);
+app.use("/api/bidding", biddingRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)

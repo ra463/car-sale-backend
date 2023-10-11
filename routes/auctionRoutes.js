@@ -1,6 +1,10 @@
 const express = require("express");
 const { auth } = require("../middlewares/auth");
-const { createAuction, getAuctionDetails, getAllAuctions } = require("../controllers/auctionControllers");
+const {
+  createAuction,
+  getAuctionDetails,
+  getAllAuctions,
+} = require("../controllers/auctionControllers");
 
 const router = express.Router();
 
