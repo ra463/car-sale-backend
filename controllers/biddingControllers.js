@@ -19,7 +19,7 @@ exports.createBidding = async (req, res) => {
     if (auction.status === "inactive")
       return res
         .status(400)
-        .json({ message: "Bid cannot be Placed. Auction is inactive" });
+        .json({ message: "Bid cannot be Placed. Auction is Inactive/Closed" });
 
     const bid = await Bid.create({
       auction: auction._id,

@@ -12,7 +12,13 @@ exports.createAuction = async (req, res) => {
       auction_end_time,
       current_price,
     } = req.body;
-    if (!auction_start_date || !auction_end_date || !current_price)
+    if (
+      !auction_start_date ||
+      !auction_end_date ||
+      !current_price ||
+      !auction_start_time ||
+      !auction_end_time
+    )
       return res.status(400).json({ message: "Please fill in all fields" });
 
     const user = await User.findById(req.userId);
@@ -34,6 +40,7 @@ exports.createAuction = async (req, res) => {
       "MM/dd/yyyy h:mm a",
       new Date()
     );
+
     let utcFormat_start = format(
       parsedDateTime_start,
       "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",

@@ -29,7 +29,7 @@ const schema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["active", "inactive", "closed"],
       default: "inactive",
     },
     bids: [

@@ -10,6 +10,7 @@ const {
   resetPassword,
   getAllUserBids,
   getAllUserAuctions,
+  getAllUserCars,
 } = require("../controllers/userController");
 const { auth } = require("../middlewares/auth");
 
@@ -25,5 +26,6 @@ router.route("/validate-code").post(validateCode);
 router.route("/reset-password").put(resetPassword);
 router.route("/get-all-bids").get(auth, getAllUserBids);
 router.route("/get-all-user-auctions").get(auth, getAllUserAuctions);
+router.route("/get-all-user-cars").get(auth, getAllUserCars);
 
 module.exports = router;
