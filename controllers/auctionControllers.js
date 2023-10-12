@@ -1,6 +1,7 @@
 const Auction = require("../models/Auction");
 const Car = require("../models/Car");
 const User = require("../models/User");
+const { parse, format } = require("date-fns");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -20,12 +21,38 @@ exports.createAuction = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
+    const auction_start = `${auction_start_date} ${auction_start_time}`;
+    const auction_end = `${auction_end_date} ${auction_end_time}`;
+
+    const parsedDateTime_start = parse(
+      auction_start,
+      "MM/dd/yyyy h:mm a",
+      new Date()
+    );
+    const parsedDateTime_end = parse(
+      auction_end,
+      "MM/dd/yyyy h:mm a",
+      new Date()
+    );
+    const utcFormat_start = format(
+      parsedDateTime_start,
+      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
+      { timeZone: "UTC" }
+    );
+    const utcFormat_end = format(
+      parsedDateTime_end,
+      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
+      { timeZone: "UTC" }
+    );
+    console.log(utcFormat_start);
+    console.log(utcFormat_end);
+
     const auction = await Auction.create({
       car,
       seller: req.userId,
-      auction_start_date,
+      auction_start_date: new Date(utcFormat_start),
       auction_start_time,
-      auction_end_date,
+      auction_end_date: new Date(utcFormat_end),
       auction_end_time,
       current_price,
     });
@@ -66,6 +93,3 @@ exports.getAllAuctions = async (req, res) => {
     res.status(200).json({ success: true, auctions });
   } catch (error) {}
 };
-
-// start date and time / end date and time are comming in the local time zone and format 
-// for eg - date - 2021-08-20

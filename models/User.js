@@ -23,6 +23,7 @@ const schema = new mongoose.Schema(
     },
     role: {
       type: String,
+      enum: ["buyer", "seller", "admin"],
       required: [true, "Role is required"],
     },
     username: {
