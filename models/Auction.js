@@ -10,21 +10,13 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    auction_start_date: {
+    auction_start: {
       type: Date,
       required: [true, "Auction start date is required"],
     },
-    auction_start_time: {
-      type: String,
-      required: [true, "Auction start time is required"],
-    },
-    auction_end_date: {
+    auction_end: {
       type: Date,
       required: [true, "Auction end date is required"],
-    },
-    auction_end_time: {
-      type: String,
-      required: [true, "Auction end time is required"],
     },
     current_price: {
       type: Number,

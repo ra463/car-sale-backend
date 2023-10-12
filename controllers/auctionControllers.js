@@ -34,26 +34,25 @@ exports.createAuction = async (req, res) => {
       "MM/dd/yyyy h:mm a",
       new Date()
     );
-    const utcFormat_start = format(
+    let utcFormat_start = format(
       parsedDateTime_start,
       "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
       { timeZone: "UTC" }
     );
-    const utcFormat_end = format(
+    let utcFormat_end = format(
       parsedDateTime_end,
       "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
       { timeZone: "UTC" }
     );
-    console.log(utcFormat_start);
-    console.log(utcFormat_end);
+
+    utcFormat_start = utcFormat_start.split("+")[0] + "Z";
+    utcFormat_end = utcFormat_end.split("+")[0] + "Z";
 
     const auction = await Auction.create({
       car,
       seller: req.userId,
-      auction_start_date: new Date(utcFormat_start),
-      auction_start_time,
-      auction_end_date: new Date(utcFormat_end),
-      auction_end_time,
+      auction_start: new Date(utcFormat_start),
+      auction_end: new Date(utcFormat_end),
       current_price,
     });
 
