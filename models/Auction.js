@@ -14,9 +14,17 @@ const schema = new mongoose.Schema(
       type: Date,
       required: [true, "Auction start date is required"],
     },
+    auction_start_time: {
+      type: String,
+      required: [true, "Auction start time is required"],
+    },
     auction_end_date: {
       type: Date,
       required: [true, "Auction end date is required"],
+    },
+    auction_end_time: {
+      type: String,
+      required: [true, "Auction end time is required"],
     },
     current_price: {
       type: Number,

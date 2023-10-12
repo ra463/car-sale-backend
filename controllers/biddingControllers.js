@@ -4,17 +4,22 @@ const User = require("../models/User");
 
 exports.createBidding = async (req, res) => {
   try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     const auction = await Auction.findById(req.params.auctionId).populate(
       "bids"
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
     const { bid_amount } = req.body;
     if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
+
+    if (auction.status === "inactive")
+      return res
+        .status(400)
+        .json({ message: "Bid cannot be Placed. Auction is inactive" });
 
     const bid = await Bid.create({
       auction: auction._id,
@@ -51,7 +56,12 @@ exports.createBidding = async (req, res) => {
 
 exports.getAuctionBids = async (req, res) => {
   try {
-    const auction = await Auction.findById(req.params.auctionId).populate("bids");
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const auction = await Auction.findById(req.params.auctionId).populate(
+      "bids"
+    );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
     res.status(200).json({

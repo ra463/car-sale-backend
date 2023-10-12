@@ -4,7 +4,13 @@ const User = require("../models/User");
 
 exports.createAuction = async (req, res) => {
   try {
-    const { auction_start_date, auction_end_date, current_price } = req.body;
+    const {
+      auction_start_date,
+      auction_start_time,
+      auction_end_date,
+      auction_end_time,
+      current_price,
+    } = req.body;
     if (!auction_start_date || !auction_end_date || !current_price)
       return res.status(400).json({ message: "Please fill in all fields" });
 
@@ -18,7 +24,9 @@ exports.createAuction = async (req, res) => {
       car,
       seller: req.userId,
       auction_start_date,
+      auction_start_time,
       auction_end_date,
+      auction_end_time,
       current_price,
     });
 
