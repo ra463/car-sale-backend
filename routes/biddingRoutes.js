@@ -7,7 +7,7 @@ const {
 
 const router = express.Router();
 
-router.route("/create-bidding/:auctionId").post(auth, createBidding);
+router.route("/create-bid/:auctionId").post(auth, createBidding);
 router.route("/get-auction-bids/:auctionId").get(auth, getAuctionBids);
 
 module.exports = router;

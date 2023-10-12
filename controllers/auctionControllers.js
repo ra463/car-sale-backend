@@ -17,7 +17,7 @@ exports.createAuction = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const car = await Car.findById(req.params.id);
+    const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
     const auction = await Auction.create({
@@ -45,7 +45,7 @@ exports.createAuction = async (req, res) => {
 
 exports.getAuctionDetails = async (req, res) => {
   try {
-    const auction = await Auction.findById(req.params.id)
+    const auction = await Auction.findById(req.params.auctionId)
       .populate("car", "-seller")
       .populate("seller", "name email phoneNumber profilePicUrl");
 
@@ -66,3 +66,6 @@ exports.getAllAuctions = async (req, res) => {
     res.status(200).json({ success: true, auctions });
   } catch (error) {}
 };
+
+// start date and time / end date and time are comming in the local time zone and format 
+// for eg - date - 2021-08-20
