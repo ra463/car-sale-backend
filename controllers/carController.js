@@ -28,11 +28,6 @@ exports.uploadCarDetails = async (req, res) => {
     //   return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const files = req.files;
-    if (files.length > 5)
-      return res
-        .status(400)
-        .json({ message: "You can upload a maximum of 5 images" });
-
     let images = [];
     const result = await s3UploadMulti(files, user._id);
     const location = result.map((item) => item.Location);
