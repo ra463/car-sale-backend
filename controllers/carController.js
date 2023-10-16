@@ -28,6 +28,7 @@ exports.uploadCarDetails = async (req, res) => {
     //   return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const files = req.files;
+    
     let images = [];
     const result = await s3UploadMulti(files, user._id);
     const location = result.map((item) => item.Location);
@@ -143,7 +144,13 @@ exports.deleteCar = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
-    await s3delete(car.images, user._id);
+    // delete all images
+    await Promise.all(
+      car.images.map(async (image) => {
+        await s3delete(image, user._id);
+      })
+    );
+    
     await car.remove();
 
     res.status(200).json({

@@ -70,16 +70,13 @@ exports.s3delete = async (file, id) => {
     region: process.env.AWS_BUCKET_REGION,
   });
 
-  const params = file.map((image) => {
-    return {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `uploads/user-${id}/car/${image.split("/")[6]}`,
-    };
-  });
+  const key1 = file.split("/")[6];
+  const param = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `uploads/user-${id}/car/${key1}`,
+  };
 
-  return await Promise.all(
-    params.map((param) => s3.deleteObject(param).promise())
-  );
+  return await s3.deleteObject(param).promise();
 };
 
 exports.s3UploadMulti = async (files, id) => {
@@ -127,7 +124,7 @@ const fileFilter2 = (req, file, cb) => {
 exports.upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5100660, files: 5 },
+  limits: { fileSize: 11006600, files: 5 },
 });
 
 exports.upload2 = multer({
