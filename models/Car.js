@@ -51,6 +51,7 @@ const schema = new mongoose.Schema(
     },
     description: {
       type: String,
+      required: [true, "Description is required"],
     },
     odometer_reading: {
       type: Number,

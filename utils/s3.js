@@ -5,7 +5,6 @@ const multer = require("multer");
 const dotenv = require("dotenv");
 dotenv.config();
 
-// to upload file to s3
 exports.s3Uploadv2 = async (file, id) => {
   const s3 = new S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -13,17 +12,17 @@ exports.s3Uploadv2 = async (file, id) => {
     region: process.env.AWS_BUCKET_REGION,
   });
 
-  if (file.mimetype.split("/")[0] === "video") {
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `uploads/user-${id}/car/${Date.now().toString()}-${
-        file.originalname
-      }`,
-      Body: file.buffer,
-    };
+  // if (file.mimetype.split("/")[0] === "video") {
+  //   const params = {
+  //     Bucket: process.env.AWS_BUCKET_NAME,
+  //     Key: `uploads/user-${id}/car/${Date.now().toString()}-${
+  //       file.originalname
+  //     }`,
+  //     Body: file.buffer,
+  //   };
 
-    return await s3.upload(params).promise();
-  }
+  //   return await s3.upload(params).promise();
+  // }
 
   if (file.mimetype.split("/")[0] === "image") {
     const params = {
@@ -45,7 +44,7 @@ exports.s3Update = async (file, oldFile, id) => {
     region: process.env.AWS_BUCKET_REGION,
   });
 
-  const key1 = oldFile.split("/")[4];
+  const key1 = oldFile.split("/")[6];
   const param = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `uploads/user-${id}/profile-pictures/${key1}`,
@@ -62,6 +61,25 @@ exports.s3Update = async (file, oldFile, id) => {
   };
 
   return await s3.upload(params).promise();
+};
+
+exports.s3delete = async (file, id) => {
+  const s3 = new S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_BUCKET_REGION,
+  });
+
+  const params = file.map((image) => {
+    return {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `uploads/user-${id}/car/${image.split("/")[6]}`,
+    };
+  });
+
+  return await Promise.all(
+    params.map((param) => s3.deleteObject(param).promise())
+  );
 };
 
 exports.s3UploadMulti = async (files, id) => {

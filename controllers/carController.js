@@ -1,6 +1,6 @@
 const Car = require("../models/Car");
 const User = require("../models/User");
-const { s3UploadMulti } = require("../utils/s3");
+const { s3UploadMulti, s3delete } = require("../utils/s3");
 
 exports.uploadCarDetails = async (req, res) => {
   try {
@@ -28,6 +28,11 @@ exports.uploadCarDetails = async (req, res) => {
       return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const files = req.files;
+    if (files.length > 5)
+      return res
+        .status(400)
+        .json({ message: "You can upload a maximum of 5 images" });
+
     let images = [];
     const result = await s3UploadMulti(files, user._id);
     const location = result.map((item) => item.Location);
@@ -86,7 +91,7 @@ exports.addKeyFeatures = async (req, res) => {
   }
 };
 
-exports.uploadCarImages = async (req, res) => {
+exports.uploadMoreCarImages = async (req, res) => {
   try {
     const files = req.files;
     if (!files)
@@ -106,6 +111,49 @@ exports.uploadCarImages = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Car images uploaded successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteCarImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const car = await Car.findById(req.params.carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    const index = car.images.findIndex((image) => image === req.body.image);
+    if (index === -1)
+      return res.status(404).json({ message: "Image not found" });
+
+    await s3delete(req.body.image, user._id);
+    car.images.splice(index, 1);
+    await car.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Car image deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteCar = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const car = await Car.findById(req.params.carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    await s3delete(car.images, user._id);
+    await car.remove();
+
+    res.status(200).json({
+      success: true,
+      message: "Car deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -4,7 +4,9 @@ const {
   uploadCarDetails,
   addKeyFeatures,
   getCarDetails,
-  uploadCarImages,
+  uploadMoreCarImages,
+  deleteCarImage,
+  deleteCar,
 } = require("../controllers/carController");
 const { upload } = require("../utils/s3");
 
@@ -15,8 +17,10 @@ router
   .post(upload.array("image"), auth, uploadCarDetails);
 router.route("/add-features/:carId").post(auth, addKeyFeatures);
 router
-  .route("/upload-car-images/:carId")
-  .post(upload.array("image"), auth, uploadCarImages);
+  .route("/upload-more-car-images/:carId")
+  .put(upload.array("image"), auth, uploadMoreCarImages);
 router.route("/get-car-details/:carId").get(auth, getCarDetails);
+router.route("/delete-car-image/:carId").delete(auth, deleteCarImage);
+router.route("/delete-car/:carId").delete(auth, deleteCar);
 
 module.exports = router;
