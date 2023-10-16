@@ -10,7 +10,9 @@ const { upload } = require("../utils/s3");
 
 const router = express.Router();
 
-router.route("/upload-car-details").post(auth, uploadCarDetails);
+router
+  .route("/upload-car-details")
+  .post(upload.array("image"), auth, uploadCarDetails);
 router.route("/add-features/:carId").post(auth, addKeyFeatures);
 router
   .route("/upload-car-images/:carId")

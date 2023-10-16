@@ -27,8 +27,18 @@ exports.createAuction = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
-    const auction_start = `${auction_start_date} ${auction_start_time}`;
-    const auction_end = `${auction_end_date} ${auction_end_time}`;
+    const auction_start_time_12hrs = format(
+      parse(auction_start_time, "HH:mm", new Date()),
+      "h:mm a"
+    );
+
+    const auction_end_time_12hrs = format(
+      parse(auction_end_time, "HH:mm", new Date()),
+      "h:mm a"
+    );
+
+    const auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
+    const auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
 
     const parsedDateTime_start = parse(
       auction_start,
@@ -56,7 +66,7 @@ exports.createAuction = async (req, res) => {
     utcFormat_end = utcFormat_end.split("+")[0] + "Z";
 
     const auction = await Auction.create({
-      car,
+      car: car._id,
       seller: req.userId,
       auction_start: new Date(utcFormat_start),
       auction_end: new Date(utcFormat_end),
@@ -97,5 +107,7 @@ exports.getAllAuctions = async (req, res) => {
       .populate("seller", "name profilePicUrl");
 
     res.status(200).json({ success: true, auctions });
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
