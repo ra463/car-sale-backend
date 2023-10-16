@@ -14,7 +14,7 @@ const router = express.Router();
 
 router
   .route("/upload-car-details")
-  .post(upload.array("image"), auth, uploadCarDetails);
+  .post(upload.array("images"), auth, uploadCarDetails);
 router.route("/add-features/:carId").post(auth, addKeyFeatures);
 router
   .route("/upload-more-car-images/:carId")
