@@ -147,13 +147,11 @@ exports.deleteCar = async (req, res) => {
     if (!car) return res.status(404).json({ message: "Car not found" });
 
     // delete all images
-    await Promise.all(
-      car.images.map(async (image) => {
-        await s3delete(image, user._id);
-      })
-    );
+    for (let i = 0; i < car.images.length; i++) {
+      await s3delete(car.images[i], user._id);
+    }
 
-    await car.remove();
+    await car.deleteOne();
 
     res.status(200).json({
       success: true,
