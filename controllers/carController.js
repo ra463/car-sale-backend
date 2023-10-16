@@ -29,8 +29,8 @@ exports.uploadCarDetails = async (req, res) => {
 
     const files = req.files;
 
+    let images = [];
     if (files) {
-      let images = [];
       const result = await s3UploadMulti(files, user._id);
       const location = result.map((item) => item.Location);
       images.push(...location);
