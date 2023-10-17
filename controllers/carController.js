@@ -24,8 +24,8 @@ exports.uploadCarDetails = async (req, res) => {
       description,
     } = req.body;
 
-    // if (unique_identification_number.length !== 17)
-    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
+    if (unique_identification_number.length !== 17)
+      return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const files = req.files;
 
@@ -170,6 +170,70 @@ exports.getCarDetails = async (req, res) => {
     res.status(200).json({
       success: true,
       car,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getCarImages = async (req, res) => {
+  try {
+    const car = await Car.findById(req.params.carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    res.status(200).json({
+      success: true,
+      images: car.images,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.editCarDetails = async (req, res) => {
+  try {
+    const car = await Car.findById(req.params.carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    const {
+      manufacture_company,
+      registration_date,
+      model,
+      manufacture_year,
+      unique_identification_number,
+      color,
+      fuel_type,
+      transmission_type,
+      engine_capacity,
+      economy,
+      odometer_reading,
+      drive_type,
+      num_of_cylinders,
+      description,
+    } = req.body;
+
+    if (unique_identification_number.length !== 17)
+      return res.status(400).json({ message: "VIN must be of 17 characters" });
+
+    if(manufacture_company) car.manufacture_company = manufacture_company;
+    if(registration_date) car.registration_date = registration_date;
+    if(model) car.model = model;
+    if(manufacture_year) car.manufacture_year = manufacture_year;
+    if(unique_identification_number) car.unique_identification_number = unique_identification_number;
+    if(color) car.color = color;
+    if(fuel_type) car.fuel_type = fuel_type;
+    if(transmission_type) car.transmission_type = transmission_type;
+    if(engine_capacity) car.engine_capacity = engine_capacity;
+    if(economy) car.economy = economy;
+    if(odometer_reading) car.odometer_reading = odometer_reading;
+    if(drive_type) car.drive_type = drive_type;
+    if(num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+    if(description) car.description = description;
+
+    await car.save();
+    res.status(200).json({
+      success: true,
+      message: "Car details updated successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
