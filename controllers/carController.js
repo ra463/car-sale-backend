@@ -24,8 +24,8 @@ exports.uploadCarDetails = async (req, res) => {
       description,
     } = req.body;
 
-    if (unique_identification_number.length !== 17)
-      return res.status(400).json({ message: "VIN must be of 17 characters" });
+    // if (unique_identification_number.length !== 17)
+    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const files = req.files;
 
