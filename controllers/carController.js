@@ -52,7 +52,7 @@ exports.uploadCarDetails = async (req, res) => {
       num_of_cylinders,
       seller: user._id,
       description,
-      images: all_images ? all_images : [],
+      images: all_images,
     });
 
     user.cars.unshift(car._id);
