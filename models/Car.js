@@ -8,7 +8,7 @@ const schema = new mongoose.Schema(
       trim: true,
     },
     registration_date: {
-      type: Date,
+      type: String,
       required: [true, "Registration date is required"],
       trim: true,
     },
