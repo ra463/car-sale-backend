@@ -5,12 +5,13 @@ const schema = new mongoose.Schema(
     manufacture_company: {
       type: String,
       required: [true, "Make is required"],
-      trim: true,
     },
     registration_date: {
       type: String,
       required: [true, "Registration date is required"],
-      trim: true,
+    },
+    registration_no: {
+      type: Number,
     },
     model: {
       type: String,
@@ -30,7 +31,6 @@ const schema = new mongoose.Schema(
     color: {
       type: String,
       required: [true, "Color is required"],
-      trim: true,
     },
     fuel_type: {
       type: String,
@@ -38,16 +38,12 @@ const schema = new mongoose.Schema(
     },
     transmission_type: {
       type: String,
-      required: [true, "Transmission type is required"],
-      trim: true,
     },
     engine_capacity: {
       type: Number, // in cc
-      required: [true, "Engine capacity is required"],
     },
     economy: {
       type: Number, //in kmpl
-      required: [true, "Economy is required"],
     },
     description: {
       type: String,
@@ -68,6 +64,12 @@ const schema = new mongoose.Schema(
     },
     key_highlights: {
       type: Array,
+    },
+    seller_address: {
+      type: String,
+    },
+    car_location: {
+      type: String,
     },
     images: {
       type: Array,

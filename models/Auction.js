@@ -32,6 +32,14 @@ const schema = new mongoose.Schema(
       enum: ["active", "inactive", "closed"],
       default: "inactive",
     },
+    seller_type: {
+      type: String,
+      enum: ["private", "company"],
+      default: "private",
+    },
+    company_name: {
+      type: String,
+    },
     bids: [
       {
         type: mongoose.Schema.Types.ObjectId,

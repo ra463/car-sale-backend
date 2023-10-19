@@ -1,9 +1,9 @@
 const express = require("express");
 const { auth } = require("../middlewares/auth");
 const {
-  createAuction,
   getAuctionDetails,
   getAllAuctions,
+  createAuction,
 } = require("../controllers/auctionControllers");
 
 const router = express.Router();

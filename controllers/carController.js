@@ -12,6 +12,7 @@ exports.uploadCarDetails = async (req, res) => {
       registration_date,
       model,
       manufacture_year,
+      registration_no,
       unique_identification_number,
       color,
       fuel_type,
@@ -22,6 +23,8 @@ exports.uploadCarDetails = async (req, res) => {
       drive_type,
       num_of_cylinders,
       description,
+      seller_address,
+      car_location,
     } = req.body;
 
     if (unique_identification_number.length !== 17)
@@ -41,6 +44,7 @@ exports.uploadCarDetails = async (req, res) => {
       registration_date,
       model,
       manufacture_year,
+      registration_no,
       unique_identification_number,
       color,
       fuel_type,
@@ -50,6 +54,8 @@ exports.uploadCarDetails = async (req, res) => {
       odometer_reading,
       drive_type,
       num_of_cylinders,
+      seller_address,
+      car_location,
       seller: user._id,
       description,
       images: all_images,
@@ -60,7 +66,7 @@ exports.uploadCarDetails = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Car details uploaded successfully",
+      message: "Car uploaded successfully",
       car,
     });
   } catch (error) {
@@ -200,6 +206,7 @@ exports.editCarDetails = async (req, res) => {
       registration_date,
       model,
       manufacture_year,
+      registration_no,
       unique_identification_number,
       color,
       fuel_type,
@@ -210,6 +217,8 @@ exports.editCarDetails = async (req, res) => {
       drive_type,
       num_of_cylinders,
       description,
+      seller_address,
+      car_location,
     } = req.body;
 
     if (
@@ -220,6 +229,7 @@ exports.editCarDetails = async (req, res) => {
 
     if (manufacture_company) car.manufacture_company = manufacture_company;
     if (registration_date) car.registration_date = registration_date;
+    if (registration_no) car.registration_no = registration_no;
     if (model) car.model = model;
     if (manufacture_year) car.manufacture_year = manufacture_year;
     if (unique_identification_number)
@@ -232,12 +242,14 @@ exports.editCarDetails = async (req, res) => {
     if (odometer_reading) car.odometer_reading = odometer_reading;
     if (drive_type) car.drive_type = drive_type;
     if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+    if (seller_address) car.seller_address = seller_address;
+    if (car_location) car.car_location = car_location;
     if (description) car.description = description;
 
     await car.save();
     res.status(200).json({
       success: true,
-      message: "Car details updated successfully",
+      message: "Details updated successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

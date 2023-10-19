@@ -10,14 +10,19 @@ exports.createAuction = async (req, res) => {
       auction_start_time,
       auction_end_date,
       auction_end_time,
+      seller_type,
+      company_name,
       current_price,
     } = req.body;
+
     if (
       !auction_start_date ||
       !auction_end_date ||
       !current_price ||
+      !seller_type ||
       !auction_start_time ||
-      !auction_end_time
+      !auction_end_time ||
+      !company_name
     )
       return res.status(400).json({ message: "Please fill in all fields" });
 
@@ -70,6 +75,8 @@ exports.createAuction = async (req, res) => {
       seller: req.userId,
       auction_start: new Date(utcFormat_start),
       auction_end: new Date(utcFormat_end),
+      seller_type,
+      company_name,
       current_price,
     });
 
