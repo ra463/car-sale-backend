@@ -14,7 +14,6 @@ const updateStatus = async () => {
       auction.status = "active";
       await auction.save();
     });
-    console.log("Auction status updated to active");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -33,7 +32,6 @@ const updateStatusToClosed = async () => {
       auction.status = "closed";
       await auction.save();
     });
-    console.log("Auction status updated to closed");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

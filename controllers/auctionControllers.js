@@ -21,8 +21,7 @@ exports.createAuction = async (req, res) => {
       !current_price ||
       !seller_type ||
       !auction_start_time ||
-      !auction_end_time ||
-      !company_name
+      !auction_end_time
     )
       return res.status(400).json({ message: "Please fill in all fields" });
 
