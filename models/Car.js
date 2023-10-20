@@ -11,7 +11,7 @@ const schema = new mongoose.Schema(
       required: [true, "Registration date is required"],
     },
     registration_no: {
-      type: Number,
+      type: String,
     },
     model: {
       type: String,
@@ -38,6 +38,7 @@ const schema = new mongoose.Schema(
     },
     transmission_type: {
       type: String,
+      enum: ["Automatic", "Manual"],
     },
     engine_capacity: {
       type: Number, // in cc
