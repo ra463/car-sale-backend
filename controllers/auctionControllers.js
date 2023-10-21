@@ -109,16 +109,17 @@ exports.getAuctionDetails = async (req, res) => {
 
 exports.getAllAuctions = async (req, res) => {
   try {
-    const query = await Auction.aggregate();
+    // const query = await Auction.aggregate();
     const auctionCount = await Auction.countDocuments();
     const apiFeatures = new APIFeatures(
       Auction.find().sort({ createdAt: -1 }),
-      query,
+      // query,
       req.query
-    ).auctionSearch();
+      // ).auctionSearch();
+    ).search("status");
 
     let auctions = await apiFeatures.query;
-    let filteredAuctionsCount = auctions.length;
+    const filteredAuctionsCount = auctions.length;
 
     if (req.query.resultPerPage && req.query.currentPage) {
       apiFeatures.pagination();

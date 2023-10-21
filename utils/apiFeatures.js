@@ -1,29 +1,42 @@
-// const Car = require("../models/Car");
-// const User = require("../models/User");
 class APIFeatures {
   constructor(query, queryStr) {
     this.query = query;
     this.queryStr = queryStr;
   }
 
-  auctionSearch() {
-    if (this.queryStr.keyword) {
-      this.query = this.query.aggregate([
-        {
-          $lookup: {
-            from: "Car",
-            localField: "car",
-            foreignField: "_id",
-            as: "newField",
+  // auctionSearch() {
+  //   if (this.queryStr.keyword) {
+  //     this.query = this.query.aggregate([
+  //       {
+  //         $lookup: {
+  //           from: "Car",
+  //           localField: "car",
+  //           foreignField: "_id",
+  //           as: "newField",
+  //         },
+  //       },
+  //       {
+  //         $match: {
+  //           "newField.model": this.queryStr.keyword,
+  //         },
+  //       },
+  //     ]);
+  //   }
+  //   return this;
+  // }
+
+  search(key) {
+    const keyword = this.queryStr.keyword
+      ? {
+          [key]: {
+            $regex: this.queryStr.keyword,
+            $options: "i",
           },
-        },
-        {
-          $match: {
-            "newField.model": this.queryStr.keyword,
-          },
-        },
-      ]);
-    }
+        }
+      : {};
+
+    console.log("keyword", keyword);
+    this.query = this.query.find({ ...keyword });
     return this;
   }
 
@@ -35,10 +48,10 @@ class APIFeatures {
       "keyword",
       "currentPage",
       "resultPerPage",
-      "manufacture_company",
-      "color",
-      "transmission_type",
-      "drive_type",
+      // "manufacture_company",
+      // "color",
+      // "transmission_type",
+      // "drive_type",
     ];
     removeFields.forEach((key) => delete queryCopy[key]);
 
@@ -51,54 +64,54 @@ class APIFeatures {
     return this;
   }
 
-  filterByMake() {
-    if (this.queryStr.manufacture_company) {
-      this.query = this.query.aggregate([
-        {
-          $lookup: {
-            from: "Car",
-            localField: "car",
-            foreignField: "_id",
-            as: "cars",
-          },
-        },
-        {
-          $match: {
-            "cars.manufacture_company": this.queryStr.manufacture_company,
-          },
-        },
-      ]);
-    }
-    return this;
-  }
+  // filterByMake() {
+  //   if (this.queryStr.manufacture_company) {
+  //     this.query = this.query.aggregate([
+  //       {
+  //         $lookup: {
+  //           from: "Car",
+  //           localField: "car",
+  //           foreignField: "_id",
+  //           as: "cars",
+  //         },
+  //       },
+  //       {
+  //         $match: {
+  //           "cars.manufacture_company": this.queryStr.manufacture_company,
+  //         },
+  //       },
+  //     ]);
+  //   }
+  //   return this;
+  // }
 
-  filterByColor() {
-    if (this.queryStr.color) {
-      this.query = this.query.find({
-        color: {
-          $regex: this.queryStr.color,
-          $options: "i",
-        },
-      });
-    }
-    return this;
-  }
+  // filterByColor() {
+  //   if (this.queryStr.color) {
+  //     this.query = this.query.find({
+  //       color: {
+  //         $regex: this.queryStr.color,
+  //         $options: "i",
+  //       },
+  //     });
+  //   }
+  //   return this;
+  // }
 
-  filterByTransmissionType() {
-    if (this.queryStr.transmission_type) {
-      this.query = this.query.find({
-        transmission_type: this.queryStr.transmission_type,
-      });
-    }
-    return this;
-  }
+  // filterByTransmissionType() {
+  //   if (this.queryStr.transmission_type) {
+  //     this.query = this.query.find({
+  //       transmission_type: this.queryStr.transmission_type,
+  //     });
+  //   }
+  //   return this;
+  // }
 
-  filterByDriveType() {
-    if (this.queryStr.drive_type) {
-      this.query = this.query.find({ drive_type: this.queryStr.drive_type });
-    }
-    return this;
-  }
+  // filterByDriveType() {
+  //   if (this.queryStr.drive_type) {
+  //     this.query = this.query.find({ drive_type: this.queryStr.drive_type });
+  //   }
+  //   return this;
+  // }
 
   pagination() {
     const currentPage = Number(this.queryStr.currentPage);
