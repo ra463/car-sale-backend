@@ -2,7 +2,7 @@ const Auction = require("../models/Auction");
 const cron = require("node-cron");
 
 // function to update status of auction to active
-const updateStatus = async () => {
+const updateStatus = async (res, req) => {
   try {
     const currentTime = new Date();
     const auctions = await Auction.find({
@@ -20,7 +20,7 @@ const updateStatus = async () => {
 };
 
 // function to update status of auction to closed
-const updateStatusToClosed = async () => {
+const updateStatusToClosed = async (res, req) => {
   try {
     const currentTime = new Date();
     const auctions = await Auction.find({

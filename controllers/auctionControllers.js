@@ -2,6 +2,7 @@ const Auction = require("../models/Auction");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const { parse, format } = require("date-fns");
+const APIFeatures = require("../utils/apiFeatures");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -108,11 +109,28 @@ exports.getAuctionDetails = async (req, res) => {
 
 exports.getAllAuctions = async (req, res) => {
   try {
-    const auctions = await Auction.find({})
-      .populate("car", "-seller")
-      .populate("seller", "name profilePicUrl");
+    const query = await Auction.aggregate();
+    const auctionCount = await Auction.countDocuments();
+    const apiFeatures = new APIFeatures(
+      Auction.find().sort({ createdAt: -1 }),
+      query,
+      req.query
+    ).auctionSearch();
 
-    res.status(200).json({ success: true, auctions });
+    let auctions = await apiFeatures.query;
+    let filteredAuctionsCount = auctions.length;
+
+    if (req.query.resultPerPage && req.query.currentPage) {
+      apiFeatures.pagination();
+      auctions = await apiFeatures.query.clone();
+    }
+
+    res.status(200).json({
+      success: true,
+      auctions,
+      auctionCount,
+      filteredAuctionsCount,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
