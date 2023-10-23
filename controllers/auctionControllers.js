@@ -112,7 +112,7 @@ exports.getAllAuctions = async (req, res) => {
     // const query = await Auction.aggregate();
     const auctionCount = await Auction.countDocuments();
     const apiFeatures = new APIFeatures(
-      Auction.find().sort({ createdAt: -1 }),
+      Auction.find().sort({ createdAt: -1 }).populate("car", "-seller"),
       // query,
       req.query
       // ).auctionSearch();
