@@ -1,4 +1,5 @@
 const Auction = require("../models/Auction");
+const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const generateCode = require("../utils/generateCode");
@@ -277,7 +278,7 @@ exports.getAllUserAuctions = async (req, res) => {
 
 exports.getAllUserCars = async (req, res) => {
   try {
-    const cars = await Car.find({ user: req.userId });
+    const cars = await Car.find({ seller: req.userId });
     if (!cars) return res.status(404).json({ message: "Cars not found" });
 
     res.status(200).json({ success: true, cars });
