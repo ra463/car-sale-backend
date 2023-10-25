@@ -61,7 +61,6 @@ exports.uploadCarDetails = async (req, res) => {
       images: all_images,
     });
 
-    user.cars.unshift(car._id);
     await user.save();
 
     res.status(201).json({

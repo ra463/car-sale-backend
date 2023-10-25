@@ -40,6 +40,9 @@ const schema = new mongoose.Schema(
     company_name: {
       type: String,
     },
+    abn:{
+      type: String,
+    },
     bids: [
       {
         type: mongoose.Schema.Types.ObjectId,

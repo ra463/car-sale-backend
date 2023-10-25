@@ -51,24 +51,6 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Address is required"],
     },
-    cars: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Car",
-      },
-    ],
-    auctions: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Auction",
-      },
-    ],
-    bids: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Bid",
-      },
-    ],
     temp_code: {
       type: String,
     },

@@ -14,6 +14,7 @@ exports.createAuction = async (req, res) => {
       seller_type,
       company_name,
       current_price,
+      abn,
     } = req.body;
 
     if (
@@ -31,6 +32,12 @@ exports.createAuction = async (req, res) => {
 
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
+
+    if (car.isAuction_created === true) {
+      return res
+        .status(400)
+        .json({ message: "Auction already created for this car" });
+    }
 
     const auction_start_time_12hrs = format(
       parse(auction_start_time, "HH:mm", new Date()),
@@ -70,6 +77,14 @@ exports.createAuction = async (req, res) => {
     utcFormat_start = utcFormat_start.split("+")[0] + "Z";
     utcFormat_end = utcFormat_end.split("+")[0] + "Z";
 
+    if (seller_type === "company") {
+      if (!company_name || !abn) {
+        return res
+          .status(400)
+          .json({ message: "Company name and ABN is required" });
+      }
+    }
+
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
@@ -78,9 +93,9 @@ exports.createAuction = async (req, res) => {
       seller_type,
       company_name,
       current_price,
+      abn,
     });
 
-    user.auctions.unshift(auction._id);
     await user.save();
 
     res.status(201).json({
@@ -96,7 +111,7 @@ exports.createAuction = async (req, res) => {
 exports.getAuctionDetails = async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.auctionId)
-      .populate("car", "-seller")
+      .populate("car")
       .populate("seller", "name email phoneNumber profilePicUrl");
 
     if (!auction) return res.status(404).json({ message: "Auction not found" });
@@ -112,7 +127,7 @@ exports.getAllAuctions = async (req, res) => {
     // const query = await Auction.aggregate();
     const auctionCount = await Auction.countDocuments();
     const apiFeatures = new APIFeatures(
-      Auction.find().sort({ createdAt: -1 }).populate("car", "-seller"),
+      Auction.find().sort({ createdAt: -1 }).populate("car","-seller"),
       // query,
       req.query
       // ).auctionSearch();

@@ -72,6 +72,10 @@ const schema = new mongoose.Schema(
     car_location: {
       type: String,
     },
+    isAuction_created: {
+      type: Boolean,
+      default: false,
+    },
     images: {
       type: Array,
       required: [true, "Images are required"],
