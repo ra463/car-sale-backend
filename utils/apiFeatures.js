@@ -35,7 +35,7 @@ class APIFeatures {
         }
       : {};
 
-    console.log("keyword", keyword);
+    // console.log("keyword", keyword);
     this.query = this.query.find({ ...keyword });
     return this;
   }

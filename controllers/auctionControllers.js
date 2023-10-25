@@ -118,7 +118,8 @@ exports.getAllAuctions = async (req, res) => {
         .populate(
           "car",
           "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
-        ),
+        )
+        .populate("highest_bid", "bid_amount"),
       // query,
       req.query
       // ).auctionSearch();
