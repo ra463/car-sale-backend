@@ -27,6 +27,7 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Vehicle Identification Number is required"],
       trim: true,
+      unique: [true, "VIN already exists"],
     },
     color: {
       type: String,
@@ -56,7 +57,7 @@ const schema = new mongoose.Schema(
     },
     drive_type: {
       type: String,
-      enum: ["AWD", "FWD", "RWD", "4WD"],
+      // enum: ["AWD", "FWD", "RWD", "4WD"],
       required: [true, "Drive type is required"],
     },
     num_of_cylinders: {
@@ -66,10 +67,20 @@ const schema = new mongoose.Schema(
     key_highlights: {
       type: Array,
     },
-    seller_address: {
+    sellerStreet: {
       type: String,
     },
-    car_location: {
+    sellerCity: { type: String },
+    sellerLandmark: {
+      type: String,
+    },
+    carLocationStreet: {
+      type: String,
+    },
+    carLocationCity: {
+      type: String,
+    },
+    carLocationLandmark: {
       type: String,
     },
     isAuction_created: {

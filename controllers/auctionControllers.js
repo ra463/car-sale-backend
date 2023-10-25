@@ -108,26 +108,17 @@ exports.createAuction = async (req, res) => {
   }
 };
 
-exports.getAuctionDetails = async (req, res) => {
-  try {
-    const auction = await Auction.findById(req.params.auctionId)
-      .populate("car")
-      .populate("seller", "name email phoneNumber profilePicUrl");
-
-    if (!auction) return res.status(404).json({ message: "Auction not found" });
-
-    res.status(200).json({ success: true, auction });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.getAllAuctions = async (req, res) => {
   try {
     // const query = await Auction.aggregate();
     const auctionCount = await Auction.countDocuments();
     const apiFeatures = new APIFeatures(
-      Auction.find().sort({ createdAt: -1 }).populate("car", "-seller"),
+      Auction.find()
+        .sort({ createdAt: -1 })
+        .populate(
+          "car",
+          "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
+        ),
       // query,
       req.query
       // ).auctionSearch();
@@ -147,6 +138,21 @@ exports.getAllAuctions = async (req, res) => {
       auctionCount,
       filteredAuctionsCount,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAuctionDetails = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.auctionId)
+      .populate("car")
+      .populate("seller", "name email phoneNumber profilePicUrl")
+      .populate("highest_bid", "bid_amount");
+
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    res.status(200).json({ success: true, auction });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
