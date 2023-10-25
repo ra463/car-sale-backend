@@ -1,3 +1,4 @@
+const Auction = require("../models/Auction");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const generateCode = require("../utils/generateCode");
@@ -240,12 +241,15 @@ exports.resetPassword = async (req, res) => {
 
 exports.getAllUserBids = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate("bids");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const bids = await Bid.find({
+      bidder: req.userId,
+    });
+
+    if (!bids) return res.status(404).json({ message: "Bids not found" });
 
     res.status(200).json({
       success: true,
-      bids: user.bids,
+      bids,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -254,10 +258,18 @@ exports.getAllUserBids = async (req, res) => {
 
 exports.getAllUserAuctions = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate("auctions");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const auctions = await Auction.find({ seller: req.userId }).populate(
+      "car",
+      "-seller"
+    );
 
-    res.status(200).json({ success: true, auctions: user.auctions });
+    if (!auctions)
+      return res.status(404).json({ message: "Auctions not found" });
+
+    res.status(200).json({
+      success: true,
+      auctions,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -265,10 +277,10 @@ exports.getAllUserAuctions = async (req, res) => {
 
 exports.getAllUserCars = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate("cars");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const cars = await Car.find({ user: req.userId });
+    if (!cars) return res.status(404).json({ message: "Cars not found" });
 
-    res.status(200).json({ success: true, cars: user.cars });
+    res.status(200).json({ success: true, cars });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
