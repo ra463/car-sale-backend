@@ -112,14 +112,14 @@ const fileFilter = (req, file, cb) => {
 };
 
 // for video
-const fileFilter2 = (req, file, cb) => {
-  if (file.mimetype.split("/")[0] === "video") {
-    req.video_file = true;
-    cb(null, true);
-  } else {
-    cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE"), false);
-  }
-};
+// const fileFilter2 = (req, file, cb) => {
+//   if (file.mimetype.split("/")[0] === "video") {
+//     req.video_file = true;
+//     cb(null, true);
+//   } else {
+//     cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE"), false);
+//   }
+// };
 
 exports.upload = multer({
   storage,
@@ -127,11 +127,11 @@ exports.upload = multer({
   limits: { fileSize: 11006600, files: 5 },
 });
 
-exports.upload2 = multer({
-  storage,
-  fileFilter: fileFilter2,
-  limits: {
-    fileSize: 51006600,
-    files: 5,
-  },
-});
+// exports.upload2 = multer({
+//   storage,
+//   fileFilter: fileFilter2,
+//   limits: {
+//     fileSize: 51006600,
+//     files: 5,
+//   },
+// });
