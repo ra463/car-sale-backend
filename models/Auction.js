@@ -20,7 +20,7 @@ const schema = new mongoose.Schema(
     },
     current_price: {
       type: Number,
-      required: [true, "Starting bid is required"],
+      required: [true, "Asking Price is required"],
       trim: true,
     },
     highest_bid: {

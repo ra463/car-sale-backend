@@ -39,7 +39,7 @@ exports.createBidding = async (req, res) => {
         });
       } else {
         return res.status(400).json({
-          message: "Bid cannot be Placed. Bid Amount is less than Asking Bid",
+          message: "Bid cannot be Placed. Bid Amount is less than Asking Price",
         });
       }
     }
@@ -60,7 +60,7 @@ exports.createBidding = async (req, res) => {
         bidPlaced = true;
       }
 
-      if (bidPlaced) {
+      if (bidPlaced === true) {
         return res.status(400).json({
           message: "Bid Placed Successfully",
         });
@@ -82,9 +82,16 @@ exports.getAuctionBids = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const auction = await Auction.findById(req.params.auctionId).populate(
-      "bids"
-    );
+    const auction = await Auction.findById(req.params.auctionId)
+      .populate("bids")
+      .populate({
+        path: "bids",
+        populate: {
+          path: "bidder",
+          model: "User",
+          select: "name email",
+        },
+      });
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
     res.status(200).json({

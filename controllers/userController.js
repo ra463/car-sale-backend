@@ -244,7 +244,7 @@ exports.getAllUserBids = async (req, res) => {
   try {
     const bids = await Bid.find({
       bidder: req.userId,
-    });
+    }).populate("bidder","name email")
 
     if (!bids) return res.status(404).json({ message: "Bids not found" });
 
