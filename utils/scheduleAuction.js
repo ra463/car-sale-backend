@@ -1,4 +1,5 @@
 const Auction = require("../models/Auction");
+const Car = require("../models/Car");
 const cron = require("node-cron");
 
 // function to update status of auction to active
@@ -32,6 +33,16 @@ const updateStatusToClosed = async (res, req) => {
       auction.status = "closed";
       await auction.save();
     });
+
+    // find the auctin which is closed and and car is true in isActionncreated
+    // const closedAuctions = await Auction.find({
+    //   status: "closed",
+    // }).populate("car");
+
+    // closedAuctions.forEach(async (auction) => {
+    //   auction.car.isAuction_created = false;
+    //   await auction.car.save();
+    // });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

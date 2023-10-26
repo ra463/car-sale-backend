@@ -110,34 +110,76 @@ exports.createAuction = async (req, res) => {
 
 exports.getAllAuctions = async (req, res) => {
   try {
-    // const query = await Auction.aggregate();
     const auctionCount = await Auction.countDocuments();
-    const apiFeatures = new APIFeatures(
-      Auction.find()
-        .sort({ createdAt: -1 })
-        .populate(
-          "car",
-          "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
-        )
-        .populate("highest_bid", "bid_amount"),
-      // query,
-      req.query
-      // ).auctionSearch();
-    ).search("status");
 
-    let auctions = await apiFeatures.query;
-    const filteredAuctionsCount = auctions.length;
+    let query = Auction.find()
+      .sort({ createdAt: -1 })
+      .populate(
+        "car",
+        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color"
+      )
+      .populate("highest_bid", "bid_amount");
 
-    if (req.query.resultPerPage && req.query.currentPage) {
-      apiFeatures.pagination();
-      auctions = await apiFeatures.query.clone();
+    if (Object.keys(req.query).length > 0) {
+      const aggregation = Auction.aggregate();
+
+      aggregation
+        .lookup({
+          from: "cars",
+          localField: "car",
+          foreignField: "_id",
+          as: "carsInf",
+        })
+        .unwind("$carsInf");
+
+      const matchFilter = {
+        $match: {
+          "carsInf.color": {
+            $regex: new RegExp(req.query.color, "i"),
+          },
+          "carsInf.model": {
+            $regex: new RegExp(req.query.model, "i"),
+          },
+          "carsInf.manufacture_company": {
+            $regex: new RegExp(req.query.manufacture_company, "i"),
+          },
+          "carsInf.fuel_type": {
+            $regex: new RegExp(req.query.fuel_type, "i"),
+          },
+          "carsInf.drive_type": {
+            $regex: new RegExp(req.query.drive_type, "i"),
+          },
+        },
+      };
+
+      aggregation.append(matchFilter);
+
+      const result = await aggregation.exec();
+      const auctionIds = result.map((results) => results._id);
+
+      query = query.where("_id").in(auctionIds);
     }
+
+    if (req.query.status) {
+      query = query.where("status").equals(req.query.status);
+    }
+
+    const currentPage = Number(req.query.currentPage) || 1;
+    const resultPerPage = Number(req.query.resultPerPage) || 10;
+
+    const skip = resultPerPage * (currentPage - 1);
+
+    query = query.limit(resultPerPage).skip(skip);
+
+    const auctions = await query.exec();
+    const filteredAuctionsCount = auctions.length;
 
     res.status(200).json({
       success: true,
       auctions,
       auctionCount,
       filteredAuctionsCount,
+      currentPage,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

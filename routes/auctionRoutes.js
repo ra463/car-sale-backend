@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router.route("/create-auction/:carId").post(auth, createAuction);
-router.route("/get-auction-details/:auctionId").get(auth, getAuctionDetails);
-router.route("/get-all-auctions").get(auth, getAllAuctions);
+router.route("/get-all-auctions").get(getAllAuctions);
+router.route("/get-auction-details/:auctionId").get(getAuctionDetails);
 
 module.exports = router;
