@@ -116,7 +116,7 @@ exports.getAllAuctions = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate(
         "car",
-        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color"
+        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
       )
       .populate("highest_bid", "bid_amount");
 
@@ -148,6 +148,9 @@ exports.getAllAuctions = async (req, res) => {
           },
           "carsInf.drive_type": {
             $regex: new RegExp(req.query.drive_type, "i"),
+          },
+          "carsInf.transmission_type": {
+            $regex: new RegExp(req.query.transmission_type, "i"),
           },
         },
       };

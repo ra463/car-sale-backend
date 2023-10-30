@@ -195,9 +195,12 @@ exports.getAllUniqueCarNames = async (req, res) => {
     const uniqueNames = [
       ...new Set(cars.map((car) => car.manufacture_company)),
     ];
+
+    const uniqueFuelTypes = [...new Set(cars.map((car) => car.fuel_type))];
     res.status(200).json({
       success: true,
       uniqueNames,
+      uniqueFuelTypes,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
