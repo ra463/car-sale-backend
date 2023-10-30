@@ -189,6 +189,21 @@ exports.getCarDetails = async (req, res) => {
   }
 };
 
+exports.getAllUniqueCarNames = async (req, res) => {
+  try {
+    const cars = await Car.find({});
+    const uniqueNames = [
+      ...new Set(cars.map((car) => car.manufacture_company)),
+    ];
+    res.status(200).json({
+      success: true,
+      uniqueNames,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 exports.getCarImages = async (req, res) => {
   try {
     const car = await Car.findById(req.params.carId);
