@@ -2,7 +2,6 @@ const Auction = require("../models/Auction");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const { parse, format } = require("date-fns");
-const APIFeatures = require("../utils/apiFeatures");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -168,24 +167,14 @@ exports.getAllAuctions = async (req, res) => {
       query = query.where("status").equals(req.query.status);
     }
 
-    // const currentPage = Number(req.query.currentPage);
-    // const resultPerPage = Number(req.query.resultPerPage);
+    const currentPage = Number(req.query.currentPage) || 1;
+    const resultPerPage = Number(req.query.resultPerPage) || 10;
 
-    // const skip = resultPerPage * (currentPage - 1);
+    const skip = resultPerPage * (currentPage - 1);
+    query = query.limit(resultPerPage).skip(skip);
 
-    // query = query.limit(resultPerPage).skip(skip);
-
-    const features = new APIFeatures(query, req.query);
-    let auctions = await features.query;
-
-    // const auctions = await query.exec();
-    // const filteredAuctionsCount = auctions.length;
-
+    const auctions = await query.exec();
     const filteredAuctionsCount = auctions.length;
-    if (req.query.resultPerPage && req.query.currentPage) {
-      features.pagination();
-      auctions = await features.query.clone();
-    }
 
     res.status(200).json({
       success: true,
