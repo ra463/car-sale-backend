@@ -167,11 +167,13 @@ exports.getAllAuctions = async (req, res) => {
       query = query.where("status").equals(req.query.status);
     }
 
-    const currentPage = Number(req.query.currentPage) || 1;
-    const resultPerPage = Number(req.query.resultPerPage) || 10;
+    const currentPage = Number(req.query.currentPage);
+    const resultPerPage = Number(req.query.resultPerPage);
 
     const skip = resultPerPage * (currentPage - 1);
     query = query.limit(resultPerPage).skip(skip);
+
+    const numOfPages = Math.ceil(auctionCount / resultPerPage);
 
     const auctions = await query.exec();
     const filteredAuctionsCount = auctions.length;
@@ -181,7 +183,7 @@ exports.getAllAuctions = async (req, res) => {
       auctions,
       auctionCount,
       filteredAuctionsCount,
-      // currentPage,
+      numOfPages,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

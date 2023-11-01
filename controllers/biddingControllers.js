@@ -17,9 +17,9 @@ exports.createBidding = async (req, res) => {
       return res.status(400).json({ message: "Bidding Amount is required" });
 
     if (auction.status === "inactive" || auction.status === "closed")
-      return res
-        .status(400)
-        .json({ message: "Bid cannot be Placed. Auction is Inactive/Closed" });
+      return res.status(400).json({
+        message: "Bid cannot be Placed. Auction is Inactive/Closed",
+      });
 
     if (auction.bids.length === 0) {
       if (bid_amount > auction.current_price) {
@@ -39,6 +39,7 @@ exports.createBidding = async (req, res) => {
         });
       } else {
         return res.status(400).json({
+          success: false,
           message: "Bid cannot be Placed. Bid Amount is less than Asking Price",
         });
       }
@@ -61,12 +62,13 @@ exports.createBidding = async (req, res) => {
       }
 
       if (bidPlaced === true) {
-        return res.status(400).json({
+        return res.status(201).json({
+          success: true,
           message: "Bid Placed Successfully",
         });
       } else {
-        return res.status(201).json({
-          success: true,
+        return res.status(400).json({
+          success: false,
           message:
             "Bid cannot be Placed. Bid Amount is less than Current Highest bid",
         });
