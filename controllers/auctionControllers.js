@@ -96,7 +96,8 @@ exports.createAuction = async (req, res) => {
       abn,
     });
 
-    await user.save();
+    car.isAuction_created = true;
+    await car.save();
 
     res.status(201).json({
       success: true,
@@ -167,22 +168,31 @@ exports.getAllAuctions = async (req, res) => {
       query = query.where("status").equals(req.query.status);
     }
 
-    const currentPage = Number(req.query.currentPage) || 1;
-    const resultPerPage = Number(req.query.resultPerPage) || 10;
+    // const currentPage = Number(req.query.currentPage);
+    // const resultPerPage = Number(req.query.resultPerPage);
 
-    const skip = resultPerPage * (currentPage - 1);
+    // const skip = resultPerPage * (currentPage - 1);
 
-    query = query.limit(resultPerPage).skip(skip);
+    // query = query.limit(resultPerPage).skip(skip);
 
-    const auctions = await query.exec();
+    const features = new APIFeatures(query, req.query);
+    let auctions = await features.query;
+
+    // const auctions = await query.exec();
+    // const filteredAuctionsCount = auctions.length;
+
     const filteredAuctionsCount = auctions.length;
+    if (req.query.resultPerPage && req.query.currentPage) {
+      features.pagination();
+      auctions = await features.query.clone();
+    }
 
     res.status(200).json({
       success: true,
       auctions,
       auctionCount,
       filteredAuctionsCount,
-      currentPage,
+      // currentPage,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
