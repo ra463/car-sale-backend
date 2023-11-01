@@ -12,6 +12,11 @@ exports.createBidding = async (req, res) => {
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
+    if (auction.seller.toString() === user._id.toString())
+      return res.status(400).json({
+        message: "Bid cannot be Placed. You are the Seller of this Auction",
+      });
+
     const { bid_amount } = req.body;
     if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
