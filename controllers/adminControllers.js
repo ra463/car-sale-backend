@@ -89,6 +89,38 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) return next(new ErrorHandler("User not found!", 404));
 
+  // delete all the cars of this user
+  const cars = await Car.find({ seller: user._id });
+  if (cars.length > 0) {
+    cars.forEach(async (car) => {
+      car.images.forEach(async (image) => {
+        await s3delete(image, user._id);
+      });
+      await car.remove();
+    });
+  }
+
+  // delete all the auctions of this user
+  const auctions = await Auction.find({ seller: user._id });
+  if (auctions.length > 0) {
+    auctions.forEach(async (auction) => {
+      // delete all the bids of this auction
+      const bids = await Bid.find({ auction: auction._id });
+      bids.forEach(async (bid) => {
+        await bid.remove();
+      });
+      await auction.remove();
+    });
+  }
+
+  // delete all the bids of this user
+  const bids = await Bid.find({ bidder: user._id });
+  if (bids.length > 0) {
+    bids.forEach(async (bid) => {
+      await bid.remove();
+    });
+  }
+
   await user.remove();
 
   res.status(200).json({
@@ -167,7 +199,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (car2 && car2._id.toString() !== car._id.toString()) {
     return res.status(400).json({ message: "VIN already exists" });
   }
-  
+
   const files = req.files;
 
   let all_images = [];
