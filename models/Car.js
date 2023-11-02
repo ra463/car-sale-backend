@@ -44,9 +44,6 @@ const schema = new mongoose.Schema(
     engine_capacity: {
       type: Number, // in cc
     },
-    economy: {
-      type: Number, //in kmpl
-    },
     description: {
       type: String,
       required: [true, "Description is required"],

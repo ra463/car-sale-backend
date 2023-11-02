@@ -22,7 +22,7 @@ const orderSchema = new mongoose.Schema(
       enum: ["PENDING", "COMPLETED", "CANCELLED"],
       default: "PENDING",
     },
-    paypalOrderId: {
+    StripeOrderId: {
       type: String,
     },
   },
