@@ -244,7 +244,18 @@ exports.getAllUserBids = async (req, res) => {
   try {
     const bids = await Bid.find({
       bidder: req.userId,
-    }).populate("bidder","name email")
+    })
+      .populate("bidder", "name email")
+      .populate("auction", "highest_bid")
+      .populate({
+        path: "auction",
+        populate: {
+          path: "car",
+          model: "Car",
+          select:
+            "model manufacture_company color fuel_type transmission_type images",
+        },
+      });
 
     if (!bids) return res.status(404).json({ message: "Bids not found" });
 
