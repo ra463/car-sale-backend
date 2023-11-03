@@ -246,7 +246,6 @@ exports.getAllUserBids = async (req, res) => {
       bidder: req.userId,
     })
       .populate("bidder", "name email")
-      .populate("auction", "highest_bid")
       .populate({
         path: "auction",
         populate: {
@@ -255,7 +254,9 @@ exports.getAllUserBids = async (req, res) => {
           select:
             "model manufacture_company color fuel_type transmission_type images",
         },
-      });
+      })
+      .populate("auction", "highest_bid car")
+      .sort({ createdAt: -1 });
 
     if (!bids) return res.status(404).json({ message: "Bids not found" });
 
