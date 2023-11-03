@@ -245,7 +245,7 @@ exports.getAllUserBids = async (req, res) => {
     const bids = await Bid.find({
       bidder: req.userId,
     })
-      .populate("bidder", "name email")
+      .populate("bidder", "name email bid_amount")
       .populate({
         path: "auction",
         select: "car highest_bid.bid_amount auction_start auction_end",
