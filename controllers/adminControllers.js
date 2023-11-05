@@ -299,7 +299,7 @@ exports.deleteAuction = catchAsyncError(async (req, res, next) => {
     await bid.remove();
   });
 
-  await auction.remove();
+  await auction.deleteOne();
 
   res.status(200).json({
     success: true,
@@ -356,7 +356,7 @@ exports.deleteBid = catchAsyncError(async (req, res, next) => {
     auction.highest_bid = auction.bids[0]._id;
   }
   await auction.save();
-  await bid.remove();
+  await bid.deleteOne();
 
   res.status(200).json({
     success: true,
