@@ -296,7 +296,7 @@ exports.deleteAuction = catchAsyncError(async (req, res, next) => {
   // also delete all the bids of this auction
   const bids = await Bid.find({ auction: auction._id });
   bids.forEach(async (bid) => {
-    await bid.remove();
+    await bid.deleteOne();
   });
 
   await auction.deleteOne();
@@ -341,22 +341,31 @@ exports.getBidById = catchAsyncError(async (req, res, next) => {
 });
 
 exports.deleteBid = catchAsyncError(async (req, res, next) => {
-  const bid = await Bid.findById(req.params.id).populate("auction");
+  const bid = await Bid.findById(req.params.id);
   if (!bid) return next(new ErrorHandler("Bid not found!", 404));
 
-  const auction = await Auction.findById(bid.auction._id).populate(
+  const auction = await Auction.findById(bid.auction).populate(
     "bids highest_bid"
   );
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
 
-  const index = auction.bids.findIndex((bid) => bid === req.params.id);
-  auction.bids.splice(index, 1);
-
-  if (auction.highest_bid._id.toString() === req.params.id) {
-    auction.highest_bid = auction.bids[0]._id;
+  if (auction.bids.length === 1) {
+    await bid.deleteOne();
+    auction.bids = [];
+    auction.highest_bid = null;
+    await auction.save();
   }
-  await auction.save();
-  await bid.deleteOne();
+
+  if (auction.bids.length > 1) {
+    const index = auction.bids.findIndex((bid) => bid === req.params.id);
+    auction.bids.splice(index, 1);
+
+    if (auction.highest_bid._id.toString() === req.params.id) {
+      auction.highest_bid = auction.bids[0]._id;
+    }
+    await bid.deleteOne();
+    await auction.save();
+  }
 
   res.status(200).json({
     success: true,
