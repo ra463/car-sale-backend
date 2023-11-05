@@ -310,7 +310,7 @@ exports.deleteAuction = catchAsyncError(async (req, res, next) => {
 exports.getAllBids = catchAsyncError(async (req, res, next) => {
   const bidCount = await Bid.countDocuments();
   const apiFeatures = new APIFeatures(
-    Bid.find().sort({ createdAt: -1 }),
+    Bid.find().populate("bidder").sort({ createdAt: -1 }),
     req.query
   ).search("bid_amount");
 
