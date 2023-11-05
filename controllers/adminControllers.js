@@ -257,7 +257,7 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
 exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
   const auctionCount = await Auction.countDocuments();
   const apiFeatures = new APIFeatures(
-    Auction.find().populate("car seller highest_bid").sort({ createdAt: -1 }),
+    Auction.find().populate("highest_bid").sort({ createdAt: -1 }),
     req.query
   ).search("status");
 
@@ -279,7 +279,7 @@ exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
 
 exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.id).populate(
-    "bids car seller"
+    "bids car seller highest_bid"
   );
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
 

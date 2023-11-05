@@ -6,7 +6,6 @@ const cron = require("node-cron");
 const updateStatus = async (res, req) => {
   try {
     const currentTime = new Date();
-    console.log(currentTime);
     const auctions = await Auction.find({
       status: "inactive",
       auction_start: { $lte: currentTime },
