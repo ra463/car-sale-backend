@@ -240,12 +240,19 @@ exports.getAllUserBids = async (req, res) => {
       .populate({
         path: "auction",
         select: "car highest_bid auction_start auction_end",
-        populate: {
-          path: "car",
-          model: "Car",
-          select:
-            "model manufacture_company color fuel_type transmission_type images",
-        },
+        populate: [
+          {
+            path: "car",
+            model: "Car",
+            select:
+              "model manufacture_company color fuel_type transmission_type images unique_identification_number",
+          },
+          {
+            path: "highest_bid",
+            model: "Bid",
+            select: "bid_amount",
+          },
+        ],
       })
       .sort({ createdAt: -1 });
 
