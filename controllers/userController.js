@@ -18,17 +18,9 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, age, role, phoneNumber, address } = req.body;
+    const { name, email, password, age, phoneNumber, address } = req.body;
 
-    if (
-      !name ||
-      !email ||
-      !password ||
-      !age ||
-      !phoneNumber ||
-      !address ||
-      !role
-    ) {
+    if (!name || !email || !password || !age || !phoneNumber || !address) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
@@ -65,7 +57,6 @@ exports.registerUser = async (req, res) => {
       password,
       username: username,
       age,
-      role,
       phoneNumber,
       address,
     });
