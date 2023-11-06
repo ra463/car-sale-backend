@@ -14,7 +14,7 @@ exports.createBidding = async (req, res) => {
 
     if (auction.seller.toString() === user._id.toString())
       return res.status(400).json({
-        message: "Bid cannot be Placed. You are the Seller of this Auction",
+        message: "You cannot place bid on your own auction",
       });
 
     const { bid_amount } = req.body;
@@ -45,7 +45,7 @@ exports.createBidding = async (req, res) => {
       } else {
         return res.status(400).json({
           success: false,
-          message: "Bid cannot be Placed. Bid Amount is less than Asking Price",
+          message: "Bid Amount is Less/Equal to the Asking Price",
         });
       }
     }
@@ -74,8 +74,7 @@ exports.createBidding = async (req, res) => {
       } else {
         return res.status(400).json({
           success: false,
-          message:
-            "Bid cannot be Placed. Bid Amount is less than Current Highest bid",
+          message: "Bid Amount should be greater than the current highest bid",
         });
       }
     }
