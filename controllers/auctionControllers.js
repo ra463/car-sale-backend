@@ -116,7 +116,7 @@ exports.getAllAuctions = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate(
         "car",
-        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
+        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
       )
       .populate("highest_bid", "bid_amount");
 
