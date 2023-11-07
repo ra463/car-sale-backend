@@ -134,7 +134,10 @@ exports.getAllAuctions = async (req, res) => {
 
       const matchFilter = {
         $match: {
-          // "carsInf.manufacture_year": req.query.manufacture_year,
+          // "carsInf.manufacture_year": {
+          //   $type: "number",
+          //   $eq: parseInt(req.query.manufacture_year),
+          // },
           "carsInf.model": {
             $regex: new RegExp(req.query.model, "i"),
           },
@@ -152,6 +155,15 @@ exports.getAllAuctions = async (req, res) => {
           },
         },
       };
+
+      if (req.query.manufacture_year) {
+        matchFilter.$match["carsInf.manufacture_year"] = {
+          $type: "number",
+          $eq: parseInt(req.query.manufacture_year),
+        };
+      }
+
+      // console.log("Debug: matchFilter", JSON.stringify(matchFilter, null, 2));
 
       aggregation.append(matchFilter);
 
