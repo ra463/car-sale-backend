@@ -372,3 +372,6 @@ exports.deleteBid = catchAsyncError(async (req, res, next) => {
     message: "Bid deleted successfully!",
   });
 });
+
+exports.getAdminStats = catchAsyncError(async (req, res, next) => {
+});
