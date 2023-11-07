@@ -134,9 +134,7 @@ exports.getAllAuctions = async (req, res) => {
 
       const matchFilter = {
         $match: {
-          // "carsInf.manufacture_year": {
-          //   $regex: new RegExp(req.query.manufacture_year, "i"),
-          // },
+          "carsInf.manufacture_year": req.query.manufacture_year,
           "carsInf.model": {
             $regex: new RegExp(req.query.model, "i"),
           },
