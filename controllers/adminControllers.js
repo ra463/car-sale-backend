@@ -81,7 +81,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
   await user.save();
 
   res.status(200).json({
-    user,
+    success: true,
   });
 });
 
