@@ -200,14 +200,14 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     return res.status(400).json({ message: "VIN already exists" });
   }
 
-  const files = req.files;
+  // const files = req.files;
 
-  let all_images = [];
-  if (files) {
-    const result = await s3UploadMulti(files, car.seller._id);
-    const location = result.map((item) => item.Location);
-    all_images.push(...location);
-  }
+  // let all_images = [];
+  // if (files) {
+  //   const result = await s3UploadMulti(files, car.seller._id);
+  //   const location = result.map((item) => item.Location);
+  //   all_images.push(...location);
+  // }
 
   if (manufacture_company) car.manufacture_company = manufacture_company;
   if (registration_date) car.registration_date = registration_date;
@@ -230,7 +230,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (carLocationStreet) car.carLocationStreet = carLocationStreet;
   if (carLocationCity) car.carLocationCity = carLocationCity;
   if (carLocationLandmark) car.carLocationLandmark = carLocationLandmark;
-  if (all_images.length > 0) car.images = all_images;
+  // if (all_images.length > 0) car.images = all_images;
 
   res.status(201).json({
     success: true,
