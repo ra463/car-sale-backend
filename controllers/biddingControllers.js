@@ -88,21 +88,33 @@ exports.getAuctionBids = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const auction = await Auction.findById(req.params.auctionId)
-      .populate("bids")
-      .populate({
-        path: "bids",
+    const auction = await Auction.findById(req.params.auctionId).populate(
+      "bids"
+    );
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+    if (auction.seller.toString() !== user._id.toString())
+      return res.status(400).json({
+        message: "You cannot view bids on this auction",
+      });
+
+    if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      await auction.populate({
+        path: "highest_bid",
         populate: {
           path: "bidder",
           model: "User",
-          select: "name email",
+          select: "name email phoneNumber",
         },
       });
-    if (!auction) return res.status(404).json({ message: "Auction not found" });
+    }
 
     res.status(200).json({
       success: true,
       bids: auction.bids,
+      highest_bid: auction.highest_bid,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

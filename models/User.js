@@ -15,9 +15,6 @@ const schema = new mongoose.Schema(
       unique: true,
       validate: [validator.isEmail, "Please enter a valid email"],
     },
-    customerID: {
-      type: String,
-    },
     password: {
       type: String,
       required: [true, "Password is required"],

@@ -118,7 +118,7 @@ exports.getAllAuctions = async (req, res) => {
         "car",
         "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
       )
-      .populate("highest_bid", "bid_amount");
+      .populate("highest_bid", "bid_amount bidder");
 
     if (Object.keys(req.query).length > 0) {
       const aggregation = Auction.aggregate();
@@ -164,7 +164,6 @@ exports.getAllAuctions = async (req, res) => {
       }
 
       // console.log("Debug: matchFilter", JSON.stringify(matchFilter, null, 2));
-
       aggregation.append(matchFilter);
 
       const result = await aggregation.exec();
@@ -203,11 +202,16 @@ exports.getAllAuctions = async (req, res) => {
 exports.getAuctionDetails = async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.auctionId)
-      .populate("car")
-      .populate("seller", "sellerCity carLocationCity")
-      .populate("highest_bid", "bid_amount");
+      .populate("car", "-seller")
+      .populate("highest_bid", "bid_amount bidder");
 
     if (!auction) return res.status(404).json({ message: "Auction not found" });
+    if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      await auction.populate("seller", "name email phoneNumber");
+    }
 
     res.status(200).json({ success: true, auction });
   } catch (error) {

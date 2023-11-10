@@ -40,8 +40,16 @@ const schema = new mongoose.Schema(
     company_name: {
       type: String,
     },
-    abn:{
+    abn: {
       type: String,
+    },
+    is_Seller_paid10_percent: {
+      type: Boolean,
+      default: false,
+    },
+    is_Winner_paid10_percent: {
+      type: Boolean,
+      default: false,
     },
     bids: [
       {

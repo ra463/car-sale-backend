@@ -2,27 +2,24 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    buyer: {
+    user:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    seller: {
+    auction: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Auction",
     },
-    car: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Car",
-    },
-    price: {
+    amount: {
       type: Number,
+      required: true,
     },
     status: {
       type: String,
       enum: ["PENDING", "COMPLETED", "CANCELLED"],
       default: "PENDING",
     },
-    StripeOrderId: {
+    paypalOrderId: {
       type: String,
     },
   },
