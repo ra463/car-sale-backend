@@ -232,6 +232,8 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (carLocationLandmark) car.carLocationLandmark = carLocationLandmark;
   // if (all_images.length > 0) car.images = all_images;
 
+  await car.save();
+
   res.status(201).json({
     success: true,
     message: "Car updated successfully",
