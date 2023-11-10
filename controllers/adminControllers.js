@@ -246,7 +246,20 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
     await s3delete(image, car.seller._id);
   });
 
-  await car.remove();
+  // delete all the auctions of this car
+  const auctions = await Auction.find({ car: car._id });
+  if (auctions.length > 0) {
+    auctions.forEach(async (auction) => {
+      // delete all the bids of this auction
+      const bids = await Bid.find({ auction: auction._id });
+      bids.forEach(async (bid) => {
+        await bid.deleteOne();
+      });
+      await auction.deleteOne();
+    });
+  }
+
+  await car.deleteOne();
 
   res.status(200).json({
     success: true,
