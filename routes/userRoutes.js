@@ -11,6 +11,7 @@ const {
   getAllUserBids,
   getAllUserAuctions,
   getAllUserCars,
+  deleteUserAuction,
 } = require("../controllers/userController");
 const { auth } = require("../middlewares/auth");
 
@@ -27,5 +28,6 @@ router.route("/reset-password").put(resetPassword);
 router.route("/get-all-bids").get(auth, getAllUserBids);
 router.route("/get-all-user-auctions").get(auth, getAllUserAuctions);
 router.route("/get-all-user-cars").get(auth, getAllUserCars);
+router.route("/delete-user-auction/:id").delete(auth, deleteUserAuction);
 
 module.exports = router;

@@ -288,6 +288,40 @@ exports.getAllUserAuctions = async (req, res) => {
   }
 };
 
+exports.deleteUserAuction = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const auction = await Auction.findById(req.params.id);
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    if (auction.seller.toString() !== req.userId.toString())
+      return res
+        .status(400)
+        .json({ message: "You are not authorized to delete this auction" });
+
+    const car = await Car.findById(auction.car);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    car.isAuction_created = false;
+    await car.save();
+
+    const bids = await Bid.find({ auction: auction._id });
+    bids.forEach(async (bid) => {
+      await bid.deleteOne();
+    });
+    await auction.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Auction deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getAllUserCars = async (req, res) => {
   try {
     const cars = await Car.find({ seller: req.userId });

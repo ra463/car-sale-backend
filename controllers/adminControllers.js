@@ -5,6 +5,7 @@ const APIFeatures = require("../utils/apiFeatures");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const Bid = require("../models/Bid");
+const Transaction = require("../models/Transaction");
 
 const sendData = (user, statusCode, res) => {
   const token = user.getJWTToken();
@@ -373,5 +374,481 @@ exports.deleteBid = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getAdminStats = catchAsyncError(async (req, res, next) => {
+exports.getStatistics = catchAsyncError(async (req, res, next) => {
+  const { time } = req.params;
+  const date = new Date();
+  date.setHours(24, 0, 0, 0);
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  let startDate = new Date(date.getFullYear(), 0, 1);
+  var days = Math.floor((date - startDate) / (24 * 60 * 60 * 1000));
+  var week = Math.ceil(days / 7);
+
+  if (time == "all") {
+    const users = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const cars = await Car.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const auctions = await Auction.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bids = await Bid.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const transactions = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const amount = await Transaction.aggregate([
+      {
+        $project: {
+          amount: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return res.send({
+      users: users,
+      cars: cars,
+      auctions: auctions,
+      bids: bids,
+      transactions: transactions,
+      amount: amount,
+    });
+  }
+
+  if (time == "daily") {
+    const users = await User.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const cars = await Car.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const auctions = await Auction.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bids = await Bid.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const transactions = await Transaction.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const amount = await Transaction.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return res.send({
+      users: users,
+      cars: cars,
+      auctions: auctions,
+      bids: bids,
+      transactions: transactions,
+      amount: amount,
+    });
+  }
+  if (time == "weekly") {
+    const users = await User.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const cars = await Car.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const auctions = await Auction.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bids = await Bid.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const transactions = await Transaction.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const amount = await Transaction.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return res.send({
+      users: users,
+      cars: cars,
+      auctions: auctions,
+      bids: bids,
+      transactions: transactions,
+      amount: amount,
+    });
+  }
+
+  if (time == "monthly") {
+    const users = await User.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const cars = await Car.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const auctions = await Auction.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bids = await Bid.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const transactions = await Transaction.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const amount = await Transaction.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return res.send({
+      users: users,
+      cars: cars,
+      auctions: auctions,
+      bids: bids,
+      transactions: transactions,
+      amount: amount,
+    });
+  }
 });

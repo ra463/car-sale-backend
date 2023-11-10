@@ -15,6 +15,7 @@ const {
   getAllBids,
   getBidById,
   deleteBid,
+  getStatistics,
 } = require("../controllers/adminControllers");
 const { isAdmin, auth } = require("../middlewares/auth");
 
@@ -38,5 +39,7 @@ router.route("/deleteauction/:id").delete(auth, isAdmin, deleteAuction);
 router.route("/getallbids").get(auth, isAdmin, getAllBids);
 router.route("/getbid/:id").get(auth, isAdmin, getBidById);
 router.route("/deletebid/:id").delete(auth, isAdmin, deleteBid);
+
+router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 
 module.exports = router;
