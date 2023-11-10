@@ -97,7 +97,7 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
       car.images.forEach(async (image) => {
         await s3delete(image, user._id);
       });
-      await car.remove();
+      await car.deleteOne();
     });
   }
 
@@ -108,9 +108,9 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
       // delete all the bids of this auction
       const bids = await Bid.find({ auction: auction._id });
       bids.forEach(async (bid) => {
-        await bid.remove();
+        await bid.deleteOne();
       });
-      await auction.remove();
+      await auction.deleteOne();
     });
   }
 
@@ -118,11 +118,11 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
   const bids = await Bid.find({ bidder: user._id });
   if (bids.length > 0) {
     bids.forEach(async (bid) => {
-      await bid.remove();
+      await bid.deleteOne();
     });
   }
 
-  await user.remove();
+  await user.deleteOne();
 
   res.status(200).json({
     success: true,
