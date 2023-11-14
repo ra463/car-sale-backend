@@ -222,7 +222,9 @@ exports.getAuctionDetails = async (req, res) => {
 
 exports.showHighestBid = async (req, res) => {
   try {
-    const auction = await Auction.findById(req.params.auctionId);
+    const auction = await Auction.findById(req.params.auctionId).populate(
+      "highest_bid"
+    );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
     if (auction.seller.toString() !== req.userId.toString())
@@ -230,44 +232,50 @@ exports.showHighestBid = async (req, res) => {
         message: "You cannot confirm bids on this auction",
       });
 
-    const bids = await Bid.find({ auction: req.params.auctionId }).sort({
-      createdAt: -1,
-    });
-
-    if(bids.length === 0) return res.status(200).json({ message: "No bids found"});
-
     let bid = null;
-    if (bids[0].bid_amount > auction.current_price) {
-      bid = bids[0];
+    if (auction.highest_bid.bid_amount > auction.current_price) {
+      bid = auction.highest_bid;
     }
 
-    res.status(200).json({ success: true, allbid: bids, bid: bid });
+    res.status(200).json({ success: true, bid: bid });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// exports.confirmBids = async (req, res) => {
-//   try {
-//     const auction = await Auction.findById(req.params.auctionId);
-//     if (!auction) return res.status(404).json({ message: "Auction not found" });
+exports.confirmBid = async (req, res) => {
+  try {
+    const { bidId } = req.body;
+    if (!bidId) return res.status(400).json({ message: "Bid Id is required" });
+    const auction = await Auction.findById(req.params.auctionId).populate(
+      "highest_bid",
+      "bid_amount"
+    );
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
 
-//     const bids = await Bid.find({ auction: req.params.auctionId });
+    if (auction.seller.toString() !== req.userId.toString())
+      return res.status(400).json({
+        message: "You cannot confirm bids on this auction",
+      });
 
-//     if (auction.seller.toString() !== req.userId.toString())
-//       return res.status(400).json({
-//         message: "You cannot confirm bids on this auction",
-//       });
+    const bid = await Bid.findById(bidId);
+    if (!bid) return res.status(404).json({ message: "Bid not found" });
 
-//     if (bids.length > 0 && bids[0].is_crossed_highest_bid === true) {
-//       auction.auction_confirmed = true;
-//       await auction.save();
-//       return res.status(200).json({
-//         success: true,
-//         message: "Bid confirmed successfully",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    if (bid.bid_amount === auction.highest_bid.bid_amount) {
+      auction.auction_confirmed = true;
+      bid.is_confirmed_bid = true;
+      await bid.save();
+      await auction.save();
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Bid amount is not equal to the highest bid" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Bid Confirmed Successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
