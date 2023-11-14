@@ -220,29 +220,6 @@ exports.getAuctionDetails = async (req, res) => {
   }
 };
 
-exports.showHighestBid = async (req, res) => {
-  try {
-    const auction = await Auction.findById(req.params.auctionId).populate(
-      "highest_bid"
-    );
-    if (!auction) return res.status(404).json({ message: "Auction not found" });
-
-    if (auction.seller.toString() !== req.userId.toString())
-      return res.status(400).json({
-        message: "You cannot confirm bids on this auction",
-      });
-
-    let bid = null;
-    if (auction.highest_bid.bid_amount > auction.current_price) {
-      bid = auction.highest_bid;
-    }
-
-    res.status(200).json({ success: true, bid: bid });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.confirmBid = async (req, res) => {
   try {
     const { bidId } = req.body;
