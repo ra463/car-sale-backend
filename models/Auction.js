@@ -57,6 +57,10 @@ const schema = new mongoose.Schema(
         ref: "Bid",
       },
     ],
+    auction_confirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

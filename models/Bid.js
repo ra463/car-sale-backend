@@ -15,6 +15,10 @@ const schema = new mongoose.Schema(
       required: [true, "Bid amount is required"],
       trim: true,
     },
+    is_confirmed_bid: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

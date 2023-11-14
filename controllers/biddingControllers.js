@@ -12,13 +12,18 @@ exports.createBidding = async (req, res) => {
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
+    if (auction.auction_confirmed === true)
+      return res.status(400).json({
+        message: "Auction is already confirmed. You can't Place Bid Anymore",
+      });
+
     if (auction.seller.toString() === user._id.toString())
       return res.status(400).json({
         message: "You cannot place bid on your own auction",
       });
 
     const { bid_amount } = req.body;
-    if (!bid_amount)
+    if (!bid_amount || bid_amount === 0)
       return res.status(400).json({ message: "Bidding Amount is required" });
 
     if (auction.status === "inactive" || auction.status === "closed")
@@ -27,7 +32,7 @@ exports.createBidding = async (req, res) => {
       });
 
     if (auction.bids.length === 0) {
-      if (bid_amount > auction.current_price) {
+      if (bid_amount) {
         const bid = await Bid.create({
           auction: auction._id,
           bidder: user._id,
@@ -40,12 +45,12 @@ exports.createBidding = async (req, res) => {
 
         res.status(201).json({
           success: true,
-          message: "Bid Placed Successfully",
+          message: `Bid Placed Successfully`,
         });
       } else {
         return res.status(400).json({
           success: false,
-          message: "Bid Amount is Less/Equal to the Asking Price",
+          message: `Bid Amount should be greater than the minimum threshold amount of ${auction.min_threshold}`,
         });
       }
     }
@@ -88,9 +93,7 @@ exports.getAuctionBids = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const auction = await Auction.findById(req.params.auctionId).populate(
-      "bids"
-    );
+    const auction = await Auction.findById(req.params.auctionId);
     if (!auction) return res.status(404).json({ message: "Auction not found" });
     if (auction.seller.toString() !== user._id.toString())
       return res.status(400).json({

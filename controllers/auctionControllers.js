@@ -1,4 +1,5 @@
 const Auction = require("../models/Auction");
+const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const { parse, format } = require("date-fns");
@@ -218,3 +219,55 @@ exports.getAuctionDetails = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.showHighestBid = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.auctionId);
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    if (auction.seller.toString() !== req.userId.toString())
+      return res.status(400).json({
+        message: "You cannot confirm bids on this auction",
+      });
+
+    const bids = await Bid.find({ auction: req.params.auctionId }).sort({
+      createdAt: -1,
+    });
+
+    if(bids.length === 0) return res.status(200).json({ message: "No bids found"});
+
+    let bid = null;
+    if (bids[0].bid_amount > auction.current_price) {
+      bid = bids[0];
+    }
+
+    res.status(200).json({ success: true, allbid: bids, bid: bid });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// exports.confirmBids = async (req, res) => {
+//   try {
+//     const auction = await Auction.findById(req.params.auctionId);
+//     if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+//     const bids = await Bid.find({ auction: req.params.auctionId });
+
+//     if (auction.seller.toString() !== req.userId.toString())
+//       return res.status(400).json({
+//         message: "You cannot confirm bids on this auction",
+//       });
+
+//     if (bids.length > 0 && bids[0].is_crossed_highest_bid === true) {
+//       auction.auction_confirmed = true;
+//       await auction.save();
+//       return res.status(200).json({
+//         success: true,
+//         message: "Bid confirmed successfully",
+//       });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
