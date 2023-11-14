@@ -1,6 +1,7 @@
 const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
+const Transaction = require("../models/Transaction");
 const User = require("../models/User");
 const generateCode = require("../utils/generateCode");
 const { generateUsername } = require("../utils/generateUsername");
@@ -328,6 +329,30 @@ exports.getAllUserCars = async (req, res) => {
     if (!cars) return res.status(404).json({ message: "Cars not found" });
 
     res.status(200).json({ success: true, cars });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ user: req.userId })
+      .populate("order")
+      .populate({
+        path: "order",
+        select: "auction",
+        populate: {
+          path: "auction",
+          model: "Auction",
+          select:
+            "car auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent",
+        },
+      });
+
+    if (!transactions)
+      return res.status(404).json({ message: "Transactions not found" });
+
+    res.status(200).json({ success: true, transactions });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

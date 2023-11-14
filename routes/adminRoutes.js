@@ -18,6 +18,11 @@ const {
   getStatistics,
 } = require("../controllers/adminControllers");
 const { isAdmin, auth } = require("../middlewares/auth");
+const {
+  getAllTransactions,
+  getSingleTransaction,
+  deleteTransaction,
+} = require("../controllers/transactionController");
 
 const router = express.Router();
 
@@ -39,6 +44,10 @@ router.route("/deleteauction/:id").delete(auth, isAdmin, deleteAuction);
 router.route("/getallbids").get(auth, isAdmin, getAllBids);
 router.route("/getbid/:id").get(auth, isAdmin, getBidById);
 router.route("/deletebid/:id").delete(auth, isAdmin, deleteBid);
+
+router.get("/get-all-transaction", auth, isAdmin, getAllTransactions);
+router.get("/get-transaction/:id", auth, isAdmin, getSingleTransaction);
+router.delete("/delete-transaction/:id", auth, isAdmin, deleteTransaction);
 
 router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 

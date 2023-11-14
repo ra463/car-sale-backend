@@ -6,10 +6,7 @@ exports.getAllTransactions = async (req, res) => {
     const transactionCount = await Transaction.countDocuments();
 
     const apiFeatures = new APIFeatures(
-      Transaction.find()
-        .sort({ createdAt: -1 })
-        .populate("order")
-        .populate("user"),
+      Transaction.find().populate("user", "name").sort({ createdAt: -1 }),
       req.query
     ).search("transactionId");
 
@@ -38,6 +35,7 @@ exports.getSingleTransaction = async (req, res) => {
       .populate("order")
       .populate({
         path: "order",
+        select: "auction paypalOrderId",
         populate: {
           path: "auction",
           model: "Auction",
