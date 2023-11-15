@@ -203,6 +203,7 @@ exports.getAllAuctions = async (req, res) => {
 exports.getAuctionDetails = async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.auctionId)
+      .populate("bids", "bid_amount")
       .populate("car", "-seller")
       .populate("highest_bid", "bid_amount bidder");
 

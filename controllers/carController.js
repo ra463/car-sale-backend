@@ -28,6 +28,7 @@ exports.uploadCarDetails = async (req, res) => {
       carLocationStreet,
       carLocationCity,
       carLocationLandmark,
+      is_registered,
     } = req.body;
 
     if (unique_identification_number.length !== 17)
@@ -38,7 +39,9 @@ exports.uploadCarDetails = async (req, res) => {
     });
 
     if (carExists)
-      return res.status(400).json({ message: "Car already exists with this Vin" });
+      return res
+        .status(400)
+        .json({ message: "Car already exists with this Vin" });
 
     const files = req.files;
 
@@ -72,6 +75,7 @@ exports.uploadCarDetails = async (req, res) => {
       seller: user._id,
       description,
       images: all_images,
+      is_registered,
     });
 
     await user.save();
@@ -249,6 +253,7 @@ exports.editCarDetails = async (req, res) => {
       description,
       seller_address,
       car_location,
+      is_registered,
     } = req.body;
 
     if (
@@ -275,6 +280,7 @@ exports.editCarDetails = async (req, res) => {
     if (seller_address) car.seller_address = seller_address;
     if (car_location) car.car_location = car_location;
     if (description) car.description = description;
+    if (is_registered) car.is_registered = is_registered;
 
     await car.save();
     res.status(200).json({

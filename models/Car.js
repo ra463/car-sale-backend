@@ -10,6 +10,10 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Registration date is required"],
     },
+    is_registered: {
+      type: Boolean,
+      default: true,
+    },
     registration_no: {
       type: String,
     },

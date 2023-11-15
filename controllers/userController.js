@@ -240,7 +240,8 @@ exports.getAllUserBids = async (req, res) => {
       .populate("bidder bid_amount", "name email")
       .populate({
         path: "auction",
-        select: "car highest_bid auction_start auction_end status",
+        select:
+          "car highest_bid auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent",
         populate: [
           {
             path: "car",

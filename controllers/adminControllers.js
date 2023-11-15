@@ -187,6 +187,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     carLocationStreet,
     carLocationCity,
     carLocationLandmark,
+    is_registered,
   } = req.body;
 
   if (unique_identification_number.length !== 17)
@@ -230,7 +231,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (carLocationStreet) car.carLocationStreet = carLocationStreet;
   if (carLocationCity) car.carLocationCity = carLocationCity;
   if (carLocationLandmark) car.carLocationLandmark = carLocationLandmark;
-  // if (all_images.length > 0) car.images = all_images;
+  if (is_registered) car.is_registered = is_registered;
 
   await car.save();
 
