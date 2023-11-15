@@ -237,11 +237,10 @@ exports.getAllUserBids = async (req, res) => {
     const bids = await Bid.find({
       bidder: req.userId,
     })
-      .populate("bidder bid_amount", "name email")
       .populate({
         path: "auction",
         select:
-          "car highest_bid auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent",
+          "car highest_bid auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent seller",
         populate: [
           {
             path: "car",
@@ -257,8 +256,17 @@ exports.getAllUserBids = async (req, res) => {
         ],
       })
       .sort({ createdAt: -1 });
-
     if (!bids) return res.status(404).json({ message: "Bids not found" });
+
+    for (const bid of bids) {
+      if (
+        bid.auction &&
+        bid.auction.is_Seller_paid10_percent === true &&
+        bid.auction.is_Winner_paid10_percent === true
+      ) {
+        await bid.auction.populate("seller", "name email phoneNumber");
+      }
+    }
 
     res.status(200).json({
       success: true,
