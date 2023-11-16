@@ -315,6 +315,9 @@ exports.deleteAuction = catchAsyncError(async (req, res, next) => {
     await bid.deleteOne();
   });
 
+  const car = await Car.findById(auction.car);
+  car.isAuction_created = false;
+  await car.save();
   await auction.deleteOne();
 
   res.status(200).json({
