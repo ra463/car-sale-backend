@@ -346,6 +346,7 @@ exports.getAllUserCars = async (req, res) => {
 exports.getUserTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({ user: req.userId })
+      .populate("user", "name email")
       .populate("order")
       .populate({
         path: "order",
