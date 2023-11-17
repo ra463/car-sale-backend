@@ -32,6 +32,7 @@ exports.getAllTransactions = async (req, res) => {
 exports.getSingleTransaction = async (req, res) => {
   try {
     const transaction = await Transaction.findById(req.params.id)
+      .populate("user", "name")
       .populate("order")
       .populate({
         path: "order",
@@ -46,6 +47,11 @@ exports.getSingleTransaction = async (req, res) => {
             model: "Car",
             select:
               "manufacture_company model manufacture_year unique_identification_number transmission_type fuel_type",
+          },
+          populate: {
+            path: "seller",
+            model: "User",
+            select: "name email phone_number",
           },
         },
       });

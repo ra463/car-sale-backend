@@ -82,6 +82,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    user,
   });
 });
 
@@ -244,6 +245,12 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
 exports.deleteCar = catchAsyncError(async (req, res, next) => {
   const car = await Car.findById(req.params.id);
   if (!car) return next(new ErrorHandler("Car not found!", 404));
+
+  if (car.isAuction_created === true) {
+    return res
+      .status(400)
+      .json({ message: "Car is in auction. You cannot delete this Car" });
+  }
 
   car.images.forEach(async (image) => {
     await s3delete(image, car.seller._id);

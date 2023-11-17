@@ -113,7 +113,7 @@ exports.updateProfile = async (req, res) => {
     if (user && user._id.toString() !== req.userId.toString()) {
       return res
         .status(400)
-        .json({ message: "User with number already exists" });
+        .json({ message: "User  this phone number already exists" });
     }
     let user1 = await User.findOne({ email });
     if (user1 && user1._id.toString() !== req.userId.toString()) {
