@@ -41,18 +41,20 @@ exports.getSingleTransaction = async (req, res) => {
           path: "auction",
           model: "Auction",
           select:
-            "car seller auction_start auction_end highest_bid status seller_type company_name abn is_Seller_paid10_percent is_Winner_paid10_percent",
-          populate: {
-            path: "car",
-            model: "Car",
-            select:
-              "manufacture_company model manufacture_year unique_identification_number transmission_type fuel_type",
-          },
-          populate: {
-            path: "seller",
-            model: "User",
-            select: "name email phone_number",
-          },
+            "car seller is_Seller_paid10_percent is_Winner_paid10_percent",
+          populate: [
+            {
+              path: "car",
+              model: "Car",
+              select:
+                "manufacture_company model manufacture_year unique_identification_number transmission_type fuel_type",
+            },
+            {
+              path: "seller",
+              model: "User",
+              select: "name",
+            },
+          ],
         },
       });
 
