@@ -307,10 +307,11 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.id).populate("car seller");
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
 
-  const bids = await Bid.find({ auction: auction._id }).populate(
-    "bidder",
-    "name"
-  );
+  const bids = await Bid.find({ auction: auction._id })
+    .populate("bidder", "name")
+    .sort({
+      createdAt: -1,
+    });
 
   res.status(200).json({
     success: true,
