@@ -36,7 +36,7 @@ exports.getSingleTransaction = async (req, res) => {
       .populate("order")
       .populate({
         path: "order",
-        select: "auction paypalOrderId",
+        select: "auction paypalOrderId createdAt updatedAt", 
         populate: {
           path: "auction",
           model: "Auction",
