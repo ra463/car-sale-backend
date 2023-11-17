@@ -304,14 +304,18 @@ exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
-  const auction = await Auction.findById(req.params.id).populate(
-    "bids car seller highest_bid"
-  );
+  const auction = await Auction.findById(req.params.id).populate("car seller");
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
+
+  const bids = await Bid.find({ auction: auction._id }).populate(
+    "bidder",
+    "name"
+  );
 
   res.status(200).json({
     success: true,
     auction,
+    bids,
   });
 });
 
