@@ -25,6 +25,7 @@ const auctionRoutes = require("./routes/auctionRoutes");
 const biddingRoutes = require("./routes/biddingRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const queryRoutes = require("./routes/queryRoutes");
 
 // use Routes
 app.use("/api/user", userRoutes);
@@ -33,6 +34,7 @@ app.use("/api/auction", auctionRoutes);
 app.use("/api/bidding", biddingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/query", queryRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)

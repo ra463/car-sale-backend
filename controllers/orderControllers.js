@@ -99,44 +99,44 @@ exports.captureAuctionOrder = async (req, res) => {
 };
 
 exports.createAuctionWebhook = async (req, res) => {
-  try {
-    if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-      console.log("webhook payload:", req.body);
-      const orderId = req.body.resource.supplementary_data.related_ids.order_id;
-      console.log("webhook working...", orderId);
-      const order = await Order.findOne({ paypalOrderId: orderId });
-      if (!order) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Order not found" });
-      }
-
-      const transaction = await Transaction.findOne({ order: order._id });
-      if (!transaction) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Transaction not found" });
-      }
-      console.log("order status:", req.body.resource.status);
-      order.status = req.body.resource.status;
-      await order.save();
-
-      transaction.status = req.body.resource.status;
-      await transaction.save();
-
-      const auction = await Auction.findById(order.auction);
-      if (auction.seller.toString() === order.user.toString()) {
-        auction.is_Seller_paid10_percent = true;
-        await auction.save();
-      } else {
-        auction.is_Winner_paid10_percent = true;
-        await auction.save();
-      }
+  console.log("webhook working...");
+  console.log("webhook payload:", req.body);
+  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+    console.log("webhook payload:", req.body);
+    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
+    console.log("webhook working...", orderId);
+    const order = await Order.findOne({ paypalOrderId: orderId });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
-    res.status(200).json({ success: true, message: "Webhook closes working" });
-  } catch (error) {
-    console.error("Error in webhook:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.log("order status:", req.body.resource.status);
+    console.log("order payload:", order);
+
+    const transaction = await Transaction.findOne({ order: order._id });
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+    console.log("order status:", req.body.resource.status);
+    order.status = req.body.resource.status;
+    await order.save();
+
+    transaction.status = req.body.resource.status;
+    await transaction.save();
+
+    const auction = await Auction.findById(order.auction);
+    if (auction.seller.toString() === order.user.toString()) {
+      auction.is_Seller_paid10_percent = true;
+      await auction.save();
+    } else {
+      auction.is_Winner_paid10_percent = true;
+      await auction.save();
+    }
   }
+
+  res.status(200).json({ success: true, message: "Webhook closes working" });
 };

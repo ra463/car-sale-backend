@@ -24,6 +24,12 @@ const {
   deleteTransaction,
 } = require("../controllers/transactionController");
 
+const {
+  getAllQueries,
+  getSingleQuery,
+  deleteQuery,
+} = require("../controllers/queryControllers");
+
 const router = express.Router();
 
 router.route("/login").post(adminLogin);
@@ -48,6 +54,10 @@ router.route("/deletebid/:id").delete(auth, isAdmin, deleteBid);
 router.get("/get-all-transaction", auth, isAdmin, getAllTransactions);
 router.get("/get-transaction/:id", auth, isAdmin, getSingleTransaction);
 router.delete("/delete-transaction/:id", auth, isAdmin, deleteTransaction);
+
+router.route("/get-all-queries").get(auth, isAdmin, getAllQueries);
+router.route("/get-single-query/:id").get(auth, isAdmin, getSingleQuery);
+router.route("/delete-query/:id").delete(auth, isAdmin, deleteQuery);
 
 router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 
