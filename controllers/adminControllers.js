@@ -280,7 +280,10 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
 exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
   const auctionCount = await Auction.countDocuments();
   const apiFeatures = new APIFeatures(
-    Auction.find().populate("highest_bid").sort({ createdAt: -1 }),
+    Auction.find()
+      .populate("seller", "name")
+      .populate("highest_bid")
+      .sort({ createdAt: -1 }),
     req.query
   ).search("status");
 
