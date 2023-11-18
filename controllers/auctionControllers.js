@@ -52,6 +52,18 @@ exports.createAuction = async (req, res) => {
     const auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
     const auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
 
+    if (new Date(auction_start) < new Date())
+      return res
+        .status(400)
+        .json({ message: "Auction start date cannot be in the past" });
+
+
+    if (new Date(auction_end) < new Date(auction_start)) {
+      return res.status(400).json({
+        message: "Auction end date cannot be before auction start date",
+      });
+    }
+
     const parsedDateTime_start = parse(
       auction_start,
       "MM/dd/yyyy h:mm a",
