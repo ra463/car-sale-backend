@@ -68,20 +68,13 @@ const schema = new mongoose.Schema(
     key_highlights: {
       type: Array,
     },
-    sellerStreet: {
+    car_address: {
       type: String,
     },
-    sellerCity: { type: String },
-    sellerLandmark: {
+    car_city: {
       type: String,
     },
-    carLocationStreet: {
-      type: String,
-    },
-    carLocationCity: {
-      type: String,
-    },
-    carLocationLandmark: {
+    car_postal_code: {
       type: String,
     },
     isAuction_created: {

@@ -51,6 +51,14 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Address is required"],
     },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+    },
+    postal_code: {
+      type: Number,
+      required: [true, "Postal code is required"],
+    },
     temp_code: {
       type: String,
     },

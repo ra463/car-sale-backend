@@ -22,12 +22,9 @@ exports.uploadCarDetails = async (req, res) => {
       drive_type,
       num_of_cylinders,
       description,
-      sellerStreet,
-      sellerCity,
-      sellerLandmark,
-      carLocationStreet,
-      carLocationCity,
-      carLocationLandmark,
+      car_address,
+      car_city,
+      car_postal_code,
       is_registered,
     } = req.body;
 
@@ -66,19 +63,14 @@ exports.uploadCarDetails = async (req, res) => {
       odometer_reading,
       drive_type,
       num_of_cylinders,
-      sellerStreet,
-      sellerCity,
-      sellerLandmark,
-      carLocationStreet,
-      carLocationCity,
-      carLocationLandmark,
+      car_address,
+      car_city,
+      car_postal_code,
       seller: user._id,
       description,
       images: all_images,
       is_registered,
     });
-
-    await user.save();
 
     res.status(201).json({
       success: true,
@@ -104,7 +96,6 @@ exports.addKeyFeatures = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Key features added successfully",
-      car,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -167,6 +158,15 @@ exports.deleteCar = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
+
+    if (car.seller.toString() !== user._id.toString())
+      return res.status(400).json({ message: "You are not the seller" });
+
+    if (car.isAuction_created === true)
+      return res.status(400).json({
+        message:
+          "You cannot delete this car as auction is already created for this car",
+      });
 
     // delete all images
     for (let i = 0; i < car.images.length; i++) {
@@ -246,13 +246,13 @@ exports.editCarDetails = async (req, res) => {
       fuel_type,
       transmission_type,
       engine_capacity,
-      economy,
       odometer_reading,
       drive_type,
       num_of_cylinders,
       description,
-      seller_address,
-      car_location,
+      car_address,
+      car_city,
+      car_postal_code,
       is_registered,
     } = req.body;
 
@@ -273,12 +273,12 @@ exports.editCarDetails = async (req, res) => {
     if (fuel_type) car.fuel_type = fuel_type;
     if (transmission_type) car.transmission_type = transmission_type;
     if (engine_capacity) car.engine_capacity = engine_capacity;
-    if (economy) car.economy = economy;
     if (odometer_reading) car.odometer_reading = odometer_reading;
     if (drive_type) car.drive_type = drive_type;
     if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
-    if (seller_address) car.seller_address = seller_address;
-    if (car_location) car.car_location = car_location;
+    if (car_address) car.car_address = car_address;
+    if (car_city) car.car_city = car_city;
+    if (car_postal_code) car.car_postal_code = car_postal_code;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;
 

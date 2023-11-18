@@ -182,12 +182,9 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     drive_type,
     num_of_cylinders,
     description,
-    sellerStreet,
-    sellerCity,
-    sellerLandmark,
-    carLocationStreet,
-    carLocationCity,
-    carLocationLandmark,
+    car_address,
+    car_city,
+    car_postal_code,
     is_registered,
   } = req.body;
 
@@ -226,12 +223,9 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (drive_type) car.drive_type = drive_type;
   if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
   if (description) car.description = description;
-  if (sellerStreet) car.sellerStreet = sellerStreet;
-  if (sellerCity) car.sellerCity = sellerCity;
-  if (sellerLandmark) car.sellerLandmark = sellerLandmark;
-  if (carLocationStreet) car.carLocationStreet = carLocationStreet;
-  if (carLocationCity) car.carLocationCity = carLocationCity;
-  if (carLocationLandmark) car.carLocationLandmark = carLocationLandmark;
+  if (car_address) car.car_address = car_address;
+  if (car_city) car.car_city = car_city;
+  if (car_postal_code) car.car_postal_code = car_postal_code;
   if (is_registered) car.is_registered = is_registered;
 
   await car.save();
@@ -280,10 +274,7 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
 exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
   const auctionCount = await Auction.countDocuments();
   const apiFeatures = new APIFeatures(
-    Auction.find()
-      .populate("seller", "name")
-      .populate("highest_bid")
-      .sort({ createdAt: -1 }),
+    Auction.find().populate("seller", "name").sort({ createdAt: -1 }),
     req.query
   ).search("status");
 
@@ -323,6 +314,11 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
 exports.deleteAuction = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.id);
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
+
+  if (auction.status === "active")
+    return res
+      .status(400)
+      .json({ message: "Auction is active. You cannot delete this Auction" });
 
   // also delete all the bids of this auction
   const bids = await Bid.find({ auction: auction._id });
@@ -378,27 +374,23 @@ exports.deleteBid = catchAsyncError(async (req, res, next) => {
   const bid = await Bid.findById(req.params.id);
   if (!bid) return next(new ErrorHandler("Bid not found!", 404));
 
-  const auction = await Auction.findById(bid.auction).populate(
-    "bids highest_bid"
-  );
+  const auction = await Auction.findById(bid.auction);
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
 
-  if (auction.bids.length === 1) {
+  if (auction.highest_bid === bid.bid_amount) {
     await bid.deleteOne();
-    auction.bids = [];
-    auction.highest_bid = null;
-    await auction.save();
-  }
-
-  if (auction.bids.length > 1) {
-    const index = auction.bids.findIndex((bid) => bid === req.params.id);
-    auction.bids.splice(index, 1);
-
-    if (auction.highest_bid._id.toString() === req.params.id) {
-      auction.highest_bid = auction.bids[0]._id;
+    const bids = await Bid.find({ auction: auction._id }).sort({
+      createdAt: -1,
+    });
+    if (bids.length === 0) {
+      auction.highest_bid = 0;
+      await auction.save();
+    } else {
+      auction.highest_bid = bids[0].bid_amount;
+      await auction.save();
     }
+  } else {
     await bid.deleteOne();
-    await auction.save();
   }
 
   res.status(200).json({

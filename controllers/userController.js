@@ -19,9 +19,27 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, age, phoneNumber, address } = req.body;
+    const {
+      name,
+      email,
+      password,
+      age,
+      phoneNumber,
+      address,
+      city,
+      postal_code,
+    } = req.body;
 
-    if (!name || !email || !password || !age || !phoneNumber || !address) {
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !age ||
+      !phoneNumber ||
+      !address ||
+      !city ||
+      !postal_code
+    ) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
@@ -60,6 +78,8 @@ exports.registerUser = async (req, res) => {
       age,
       phoneNumber,
       address,
+      city,
+      postal_code,
     });
 
     user.password = undefined;
@@ -107,7 +127,8 @@ exports.myProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, age, phoneNumber, address } = req.body;
+    const { name, email, age, phoneNumber, address, city, postal_code } =
+      req.body;
 
     let user = await User.findOne({ phoneNumber });
     if (user && user._id.toString() !== req.userId.toString()) {
@@ -129,6 +150,8 @@ exports.updateProfile = async (req, res) => {
       age,
       phoneNumber,
       address,
+      city,
+      postal_code,
     };
 
     await User.findByIdAndUpdate(req.userId, newUserData, {
@@ -248,14 +271,15 @@ exports.getAllUserBids = async (req, res) => {
             select:
               "model manufacture_company color fuel_type transmission_type images unique_identification_number",
           },
-          {
-            path: "highest_bid",
-            model: "Bid",
-            select: "bid_amount",
-          },
+          // {
+          //   path: "highest_bid",
+          //   model: "Bid",
+          //   select: "bid_amount",
+          // },
         ],
       })
       .sort({ createdAt: -1 });
+
     if (!bids) return res.status(404).json({ message: "Bids not found" });
 
     for (const bid of bids) {
@@ -279,12 +303,10 @@ exports.getAllUserBids = async (req, res) => {
 
 exports.getAllUserAuctions = async (req, res) => {
   try {
-    const auctions = await Auction.find({ seller: req.userId })
-      .populate(
-        "car",
-        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
-      )
-      .populate("highest_bid", "bid_amount");
+    const auctions = await Auction.find({ seller: req.userId }).populate(
+      "car",
+      "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
+    );
 
     if (!auctions)
       return res.status(404).json({ message: "Auctions not found" });

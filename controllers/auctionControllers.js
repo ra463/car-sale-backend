@@ -57,7 +57,6 @@ exports.createAuction = async (req, res) => {
         .status(400)
         .json({ message: "Auction start date cannot be in the past" });
 
-
     if (new Date(auction_end) < new Date(auction_start)) {
       return res.status(400).json({
         message: "Auction end date cannot be before auction start date",
@@ -130,8 +129,7 @@ exports.getAllAuctions = async (req, res) => {
       .populate(
         "car",
         "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
-      )
-      .populate("highest_bid", "bid_amount bidder");
+      );
 
     if (Object.keys(req.query).length > 0) {
       const aggregation = Auction.aggregate();
@@ -177,7 +175,7 @@ exports.getAllAuctions = async (req, res) => {
       }
 
       // console.log("Debug: matchFilter", JSON.stringify(matchFilter, null, 2));
-      aggregation.append(matchFilter);
+      // aggregation.append(matchFilter);
 
       const result = await aggregation.exec();
       const auctionIds = result.map((results) => results._id);
@@ -214,28 +212,26 @@ exports.getAllAuctions = async (req, res) => {
 
 exports.getAuctionDetails = async (req, res) => {
   try {
-    const auction = await Auction.findById(req.params.auctionId)
-      .populate("bids", "bid_amount")
-      .populate("car", "-seller")
-      .populate("highest_bid", "bid_amount bidder");
-
+    const auction = await Auction.findById(req.params.auctionId).populate(
+      "car",
+      "-seller -car_address -car_city -car_postal_code"
+    );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    const bids = await Bid.find({ auction: req.params.auctionId })
+      .sort({
+        createdAt: -1,
+      })
+      .select("bid_amount bidder");
+
     if (
       auction.is_Seller_paid10_percent === true &&
       auction.is_Winner_paid10_percent === true
     ) {
-      await auction.populate({
-        path: "highest_bid",
-        select: "bid_amount bidder",
-        populate: {
-          path: "bidder",
-          model: "User",
-          select: "name email phoneNumber",
-        },
-      });
+      await bids[0].populate("bidder", "name email phoneNumber");
     }
 
-    res.status(200).json({ success: true, auction });
+    res.status(200).json({ success: true, auction, bids });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -245,10 +241,8 @@ exports.confirmBid = async (req, res) => {
   try {
     const { bidId } = req.body;
     if (!bidId) return res.status(400).json({ message: "Bid Id is required" });
-    const auction = await Auction.findById(req.params.auctionId).populate(
-      "highest_bid",
-      "bid_amount"
-    );
+
+    const auction = await Auction.findById(req.params.auctionId);
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
     if (auction.seller.toString() !== req.userId.toString())
@@ -259,7 +253,7 @@ exports.confirmBid = async (req, res) => {
     const bid = await Bid.findById(bidId);
     if (!bid) return res.status(404).json({ message: "Bid not found" });
 
-    if (bid.bid_amount === auction.highest_bid.bid_amount) {
+    if (bid.bid_amount === auction.highest_bid) {
       auction.auction_confirmed = true;
       bid.is_confirmed_bid = true;
       await bid.save();

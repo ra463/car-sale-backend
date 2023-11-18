@@ -24,8 +24,8 @@ const schema = new mongoose.Schema(
       trim: true,
     },
     highest_bid: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Bid",
+      type: Number,
+      default: 0,
     },
     status: {
       type: String,
@@ -51,12 +51,6 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    bids: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Bid",
-      },
-    ],
     auction_confirmed: {
       type: Boolean,
       default: false,
