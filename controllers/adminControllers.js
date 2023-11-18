@@ -39,7 +39,7 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   const apiFeature = new APIFeatures(
     User.find().sort({ createdAt: -1 }),
     req.query
-  ).search("name");
+  ).search("_id");
 
   let users = await apiFeature.query;
 

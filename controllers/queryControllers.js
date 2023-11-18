@@ -32,7 +32,7 @@ exports.getAllQueries = async (req, res) => {
     const apiFeatures = new APIFeatures(
       Query.find().sort({ createdAt: -1 }),
       req.query
-    ).search("name email phone message");
+    ).search("name");
 
     let queries = await apiFeatures.query;
 
