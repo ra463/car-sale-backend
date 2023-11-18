@@ -70,13 +70,16 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) return next(new ErrorHandler("User not found!", 404));
 
-  const { name, email, role, age, phoneNumber, address } = req.body;
+  const { name, email, role, age, phoneNumber, address, city, postal_code } =
+    req.body;
   if (name) user.name = name;
   if (email) user.email = email;
   if (role) user.role = role;
   if (age) user.age = age;
   if (phoneNumber) user.phoneNumber = phoneNumber;
   if (address) user.address = address;
+  if (city) user.city = city;
+  if (postal_code) user.postal_code = postal_code;
 
   await user.save();
 
