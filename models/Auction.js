@@ -18,7 +18,7 @@ const schema = new mongoose.Schema(
       type: Date,
       required: [true, "Auction end date is required"],
     },
-    current_price: {
+    asking_price: {
       type: Number,
       required: [true, "Asking Price is required"],
       trim: true,

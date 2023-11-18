@@ -13,14 +13,14 @@ exports.createAuction = async (req, res) => {
       auction_end_time,
       seller_type,
       company_name,
-      current_price,
+      asking_price,
       abn,
     } = req.body;
 
     if (
       !auction_start_date ||
       !auction_end_date ||
-      !current_price ||
+      !asking_price ||
       !seller_type ||
       !auction_start_time ||
       !auction_end_time
@@ -103,7 +103,7 @@ exports.createAuction = async (req, res) => {
       auction_end: new Date(utcFormat_end),
       seller_type,
       company_name,
-      current_price,
+      asking_price,
       abn,
     });
 
