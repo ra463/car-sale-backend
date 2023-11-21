@@ -161,12 +161,12 @@ exports.getAllAuctions = async (req, res) => {
           "carsInf.fuel_type": {
             $regex: new RegExp(req.query.fuel_type, "i"),
           },
-          "carsInf.drive_type": {
-            $regex: new RegExp(req.query.drive_type, "i"),
-          },
-          "carsInf.transmission_type": {
-            $regex: new RegExp(req.query.transmission_type, "i"),
-          },
+          // "carsInf.drive_type": {
+          //   $regex: new RegExp(req.query.drive_type, "i"),
+          // },
+          // "carsInf.transmission_type": {
+          //   $regex: new RegExp(req.query.transmission_type, "i"),
+          // },
         },
       };
 
@@ -178,7 +178,7 @@ exports.getAllAuctions = async (req, res) => {
       }
 
       // console.log("Debug: matchFilter", JSON.stringify(matchFilter, null, 2));
-      // aggregation.append(matchFilter);
+      aggregation.append(matchFilter);
 
       const result = await aggregation.exec();
       const auctionIds = result.map((results) => results._id);
