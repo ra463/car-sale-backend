@@ -31,6 +31,10 @@ const schema = new mongoose.Schema(
       unique: [true, "Username already exists"],
       trim: true,
     },
+    clientId: {
+      type: String,
+      unique: [true, "Client Id already exists"],
+    },
     profilePicUrl: {
       type: String,
       default:

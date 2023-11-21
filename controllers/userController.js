@@ -3,6 +3,7 @@ const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
+const { generateClientId } = require("../utils/generateClientId");
 const generateCode = require("../utils/generateCode");
 const { generateUsername } = require("../utils/generateUsername");
 const resetPasswordCode = require("../utils/sendMail");
@@ -69,12 +70,14 @@ exports.registerUser = async (req, res) => {
 
     const split = name.split(" ")[0];
     let username = await generateUsername(split);
+    let client = await generateClientId();
 
     user = await User.create({
       name,
       email,
       password,
       username: username,
+      clientId: client,
       age,
       phoneNumber,
       address,
@@ -378,6 +381,11 @@ exports.getUserTransactions = async (req, res) => {
           model: "Auction",
           select:
             "car auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent",
+          populate: {
+            path: "car",
+            model: "Car",
+            select: "model unique_identification_number",
+          },
         },
       });
 
