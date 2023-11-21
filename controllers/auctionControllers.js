@@ -217,7 +217,7 @@ exports.getAuctionDetails = async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.auctionId).populate(
       "car",
-      "-seller -car_address -car_city -car_postal_code"
+      "-seller"
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
