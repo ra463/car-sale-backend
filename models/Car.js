@@ -6,17 +6,17 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Make is required"],
     },
-    registration_date: {
-      type: String,
-      required: [true, "Registration date is required"],
-    },
+    // registration_date: {
+    //   type: String,
+    //   required: [true, "Registration date is required"],
+    // },
     is_registered: {
       type: Boolean,
       default: true,
     },
-    registration_no: {
-      type: String,
-    },
+    // registration_no: {
+    //   type: String,
+    // },
     model: {
       type: String,
       required: [true, "Model is required"],

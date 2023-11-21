@@ -182,10 +182,10 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
 
   const {
     manufacture_company,
-    registration_date,
+    // registration_date,
     model,
     manufacture_year,
-    registration_no,
+    // registration_no,
     unique_identification_number,
     color,
     fuel_type,
@@ -223,10 +223,10 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   // }
 
   if (manufacture_company) car.manufacture_company = manufacture_company;
-  if (registration_date) car.registration_date = registration_date;
+  // if (registration_date) car.registration_date = registration_date;
   if (model) car.model = model;
   if (manufacture_year) car.manufacture_year = manufacture_year;
-  if (registration_no) car.registration_no = registration_no;
+  // if (registration_no) car.registration_no = registration_no;
   if (unique_identification_number)
     car.unique_identification_number = unique_identification_number;
   if (color) car.color = color;
