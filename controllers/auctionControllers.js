@@ -128,7 +128,7 @@ exports.getAllAuctions = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate(
         "car",
-        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type car_state"
+        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type car_state car_city car_postal_code"
       );
 
     if (Object.keys(req.query).length > 0) {
