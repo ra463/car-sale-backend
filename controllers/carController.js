@@ -24,6 +24,7 @@ exports.uploadCarDetails = async (req, res) => {
       description,
       car_address,
       car_city,
+      car_state,
       car_postal_code,
       is_registered,
     } = req.body;
@@ -65,6 +66,7 @@ exports.uploadCarDetails = async (req, res) => {
       num_of_cylinders,
       car_address,
       car_city,
+      car_state,
       car_postal_code,
       seller: user._id,
       description,
@@ -206,10 +208,13 @@ exports.getAllUniqueCarNames = async (req, res) => {
     ];
 
     const uniqueFuelTypes = [...new Set(cars.map((car) => car.fuel_type))];
+    const uniqueModelTypes = [...new Set(cars.map((car) => car.model))];
+
     res.status(200).json({
       success: true,
       uniqueNames,
       uniqueFuelTypes,
+      uniqueModelTypes,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -252,6 +257,7 @@ exports.editCarDetails = async (req, res) => {
       description,
       car_address,
       car_city,
+      car_state,
       car_postal_code,
       is_registered,
     } = req.body;
@@ -278,6 +284,7 @@ exports.editCarDetails = async (req, res) => {
     if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
     if (car_address) car.car_address = car_address;
     if (car_city) car.car_city = car_city;
+    if (car_state) car.car_state = car_state;
     if (car_postal_code) car.car_postal_code = car_postal_code;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;

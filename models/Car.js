@@ -74,6 +74,9 @@ const schema = new mongoose.Schema(
     car_city: {
       type: String,
     },
+    car_state: {
+      type: String,
+    },
     car_postal_code: {
       type: String,
     },

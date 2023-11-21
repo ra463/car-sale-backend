@@ -187,6 +187,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     description,
     car_address,
     car_city,
+    car_state,
     car_postal_code,
     is_registered,
   } = req.body;
@@ -228,6 +229,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
   if (description) car.description = description;
   if (car_address) car.car_address = car_address;
   if (car_city) car.car_city = car_city;
+  if (car_state) car.car_state = car_state;
   if (car_postal_code) car.car_postal_code = car_postal_code;
   if (is_registered) car.is_registered = is_registered;
 

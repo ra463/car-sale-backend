@@ -128,7 +128,7 @@ exports.getAllAuctions = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate(
         "car",
-        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type"
+        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type car_state"
       );
 
     if (Object.keys(req.query).length > 0) {
@@ -151,6 +151,9 @@ exports.getAllAuctions = async (req, res) => {
           // },
           "carsInf.model": {
             $regex: new RegExp(req.query.model, "i"),
+          },
+          "carsInf.car_state": {
+            $regex: new RegExp(req.query.car_state, "i"),
           },
           "carsInf.manufacture_company": {
             $regex: new RegExp(req.query.manufacture_company, "i"),
