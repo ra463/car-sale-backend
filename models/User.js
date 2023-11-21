@@ -59,6 +59,10 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "City is required"],
     },
+    state:{
+      type: String,
+      required: [true, "State is required"],
+    },
     postal_code: {
       type: Number,
       required: [true, "Postal code is required"],

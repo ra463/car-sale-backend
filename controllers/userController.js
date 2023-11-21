@@ -28,6 +28,7 @@ exports.registerUser = async (req, res) => {
       phoneNumber,
       address,
       city,
+      state,
       postal_code,
     } = req.body;
 
@@ -39,6 +40,7 @@ exports.registerUser = async (req, res) => {
       !phoneNumber ||
       !address ||
       !city ||
+      !state ||
       !postal_code
     ) {
       return res.status(400).json({ message: "Please fill in all fields" });
@@ -82,6 +84,7 @@ exports.registerUser = async (req, res) => {
       phoneNumber,
       address,
       city,
+      state,
       postal_code,
     });
 
@@ -130,7 +133,7 @@ exports.myProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, age, phoneNumber, address, city, postal_code } =
+    const { name, email, age, phoneNumber, address, city, state, postal_code } =
       req.body;
 
     let user = await User.findOne({ phoneNumber });
@@ -154,6 +157,7 @@ exports.updateProfile = async (req, res) => {
       phoneNumber,
       address,
       city,
+      state,
       postal_code,
     };
 
