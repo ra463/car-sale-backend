@@ -54,7 +54,7 @@ exports.captureAuctionOrder = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Auction id is required" });
     const auction = await Auction.findById(auctionId);
-    const price = auction.current_price * 0.1;
+    const price = auction.highest_bid * 0.1;
 
     const accessToken = await generateAccessToken();
     const url = `${base}/v2/checkout/orders/${req.params.orderId}/capture`;
