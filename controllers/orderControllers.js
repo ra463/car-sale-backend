@@ -3,6 +3,7 @@ const Order = require("../models/Order");
 const Auction = require("../models/Auction");
 const Transaction = require("../models/Transaction");
 const generateAccessToken = require("../utils/paypal");
+const Bid = require("../models/Bid");
 
 const base = "https://api-m.sandbox.paypal.com";
 
@@ -16,7 +17,7 @@ exports.createAuctionOrder = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Auction id is required" });
     const auction = await Auction.findById(auctionId);
-    const price = auction.current_price * 0.1;
+    const price = auction.highest_bid * 0.1;
     const accessToken = await generateAccessToken();
 
     const { data } = await axios.post(
