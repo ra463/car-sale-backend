@@ -3,7 +3,6 @@ const Order = require("../models/Order");
 const Auction = require("../models/Auction");
 const Transaction = require("../models/Transaction");
 const generateAccessToken = require("../utils/paypal");
-const Bid = require("../models/Bid");
 
 const base = "https://api-m.sandbox.paypal.com";
 

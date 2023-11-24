@@ -55,6 +55,9 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    refund_time: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

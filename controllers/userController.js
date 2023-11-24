@@ -49,7 +49,7 @@ exports.registerUser = async (req, res) => {
     if (password.length < 8)
       return res
         .status(400)
-        .json({ message: "Password must be at least 6 characters" });
+        .json({ message: "Password must be at least 8 characters" });
     if (phoneNumber.length < 9)
       return res
         .status(400)
@@ -58,6 +58,12 @@ exports.registerUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Phone number must be at most 12 digit long" });
+
+    if (age < 18) {
+      return res
+        .status(400)
+        .json({ message: "You must be 18 or above to register" });
+    }
 
     let user = await User.findOne({ email });
     let user2 = await User.findOne({ phoneNumber });
@@ -120,7 +126,7 @@ exports.loginUser = async (req, res) => {
 exports.myProfile = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found:k" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({
       success: true,
@@ -140,7 +146,7 @@ exports.updateProfile = async (req, res) => {
     if (user && user._id.toString() !== req.userId.toString()) {
       return res
         .status(400)
-        .json({ message: "User  this phone number already exists" });
+        .json({ message: "User with this phone number already exists" });
     }
     let user1 = await User.findOne({ email });
     if (user1 && user1._id.toString() !== req.userId.toString()) {
