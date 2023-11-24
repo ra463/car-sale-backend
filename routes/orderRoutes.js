@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.post("/create-auction-order", auth, createAuctionOrder);
 router.post("/capture-payment/:orderId", auth, captureAuctionOrder);
-router.post("/webhook", createAuctionWebhook);
+router.post("/auction-webhook", createAuctionWebhook);
 
 module.exports = router;
