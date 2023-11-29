@@ -33,22 +33,6 @@ exports.createAuction = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
-    // if (car.isAuction_created === true) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Auction already created for this car" });
-    // }
-
-    // const auction_start_time_12hrs = format(
-    //   parse(auction_start_time, "HH:mm", new Date()),
-    //   "h:mm a"
-    // );
-
-    // const auction_end_time_12hrs = format(
-    //   parse(auction_end_time, "HH:mm", new Date()),
-    //   "h:mm a"
-    // );
-
     const convertTo24hrs = (time) => {
       let hours = parseInt(time.split(":")[0]);
       let minutes = parseInt(time.split(":")[1].split(" ")[0]);
@@ -69,21 +53,20 @@ exports.createAuction = async (req, res) => {
 
     console.log("Debug: auction_start_time_24hrs", auction_start_time_24hrs);
 
-    let auction_start = new Date(
+    let auction_start_full = new Date(
       `${auction_start_date} ${auction_start_time_24hrs}`
     );
-    let auction_end = new Date(`${auction_end_date} ${auction_end_time_24hrs}`);
+    let auction_end_full = new Date(
+      `${auction_end_date} ${auction_end_time_24hrs}`
+    );
 
-    console.log("Debug: auction_start", auction_start);
-    console.log("Debug: auction_end", auction_end);
-
-    if (auction_start < new Date()) {
+    if (auction_start_full < new Date()) {
       return res
         .status(400)
         .json({ message: "Auction start date cannot be in the past" });
     }
 
-    if (auction_end < auction_start) {
+    if (auction_end_full < auction_start_full) {
       return res.status(400).json({
         message: "Auction end date cannot be before auction start date",
       });
@@ -97,11 +80,14 @@ exports.createAuction = async (req, res) => {
       }
     }
 
+    console.log("Debug: auction_start", auction_start_full);
+    console.log("Debug: auction_end", auction_end_full);
+
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
-      auction_start: auction_start,
-      auction_end: auction_end,
+      auction_start: auction_start_full.toUTCString(), //new Date(auction_start),
+      auction_end: auction_end_full.toUTCString(), //new Date(auction_end)
       seller_type,
       company_name,
       asking_price,
