@@ -57,17 +57,17 @@ exports.createAuction = async (req, res) => {
       `${auction_end_date} ${auction_end_time_24hrs}`
     );
 
-    if (auction_start < new Date()) {
-      return res
-        .status(400)
-        .json({ message: "Auction start date cannot be in the past" });
-    }
+    // if (auction_start < new Date()) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Auction start date cannot be in the past" });
+    // }
 
-    if (auction_end < auction_start) {
-      return res.status(400).json({
-        message: "Auction end date cannot be before auction start date",
-      });
-    }
+    // if (auction_end < auction_start) {
+    //   return res.status(400).json({
+    //     message: "Auction end date cannot be before auction start date",
+    //   });
+    // }
 
     if (seller_type === "company") {
       if (!company_name || !abn) {
