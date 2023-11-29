@@ -131,6 +131,14 @@ exports.createAuctionWebhook = async (req, res) => {
       auction.is_Winner_paid10_percent = true;
       await auction.save();
     }
+
+    if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      auction.status = "sold";
+      await auction.save();
+    }
   }
 
   res.status(200).json({ success: true, message: "Webhook closes working" });

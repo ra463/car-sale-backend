@@ -29,7 +29,7 @@ const schema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "inactive", "closed"],
+      enum: ["active", "inactive", "closed", "refunded", "sold"],
       default: "inactive",
     },
     seller_type: {
@@ -54,9 +54,6 @@ const schema = new mongoose.Schema(
     auction_confirmed: {
       type: Boolean,
       default: false,
-    },
-    refund_time: {
-      type: Date,
     },
   },
   { timestamps: true }

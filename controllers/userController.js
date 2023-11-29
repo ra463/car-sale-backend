@@ -3,10 +3,10 @@ const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
+const { newUser, resetPasswordCode } = require("../utils/sendMail");
 const { generateClientId } = require("../utils/generateClientId");
 const generateCode = require("../utils/generateCode");
 const { generateUsername } = require("../utils/generateUsername");
-const resetPasswordCode = require("../utils/sendMail");
 
 const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
@@ -54,11 +54,10 @@ exports.registerUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Phone number must be at least 9 digit long" });
-    if (phoneNumber.length > 12)
+    if (phoneNumber.length > 11)
       return res
         .status(400)
-        .json({ message: "Phone number must be at most 12 digit long" });
-
+        .json({ message: "Phone number must be at most 11 digit long" });
     if (age < 18) {
       return res
         .status(400)
@@ -95,6 +94,7 @@ exports.registerUser = async (req, res) => {
     });
 
     user.password = undefined;
+    await newUser(email, name);
     sendData(user, 201, res, `${user.name} registered successfully`);
   } catch (error) {
     res.status(400).json({ message: error.message });

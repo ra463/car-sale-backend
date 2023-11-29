@@ -5,6 +5,7 @@ connectDB();
 
 // schedule auction status update every minute
 require("./utils/scheduleAuction");
+// require("./utils/scheduleRefund");
 
 const port = process.env.PORT || 4000;
 
