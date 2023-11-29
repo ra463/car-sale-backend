@@ -4,10 +4,18 @@ const APIFeatures = require("../utils/apiFeatures");
 exports.submitQuery = async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
-    if (!name || !email || !phone || !message)
-      return res
-        .status(400)
-        .json({ success: false, message: "Please fill all the fields" });
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    if (!phone) {
+      return res.status(400).json({ message: "Phone is required" });
+    }
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
 
     await Query.create({
       name,
@@ -16,7 +24,7 @@ exports.submitQuery = async (req, res) => {
       message,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Query submitted successfully",
     });
@@ -56,7 +64,7 @@ exports.getAllQueries = async (req, res) => {
 exports.getSingleQuery = async (req, res) => {
   try {
     const query = await Query.findById(req.params.id);
-    if(!query) return res.status(404).json({ message: "Query not found" });
+    if (!query) return res.status(404).json({ message: "Query not found" });
 
     res.status(200).json({
       success: true,

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const errorMiddleware = require("./middlewares/error");
+const bodyParser = require('body-parser');
 const app = express();
 
 dotenv.config({
@@ -10,6 +11,7 @@ dotenv.config({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(
   cors({
     origin: "*",
