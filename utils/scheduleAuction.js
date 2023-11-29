@@ -5,7 +5,12 @@ const cron = require("node-cron");
 // function to update status of auction to active
 const updateStatus = async (req, res) => {
   try {
-    const currentTime = new Date();
+    let currentTime = new Date();
+
+    // add +5:30 to currentTime and then compare
+    currentTime.setHours(currentTime.getHours() + 5);
+    currentTime.setMinutes(currentTime.getMinutes() + 30);
+    
     const auctions = await Auction.find({
       status: "inactive",
       auction_start: { $lte: currentTime },
