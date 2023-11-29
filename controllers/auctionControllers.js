@@ -3,7 +3,7 @@ const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const { parse, format } = require("date-fns");
-const { utcToZonedTime } = require("date-fns-tz");
+const { utcToZonedTime, zonedTimeToUtc } = require("date-fns-tz");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -34,11 +34,11 @@ exports.createAuction = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
-    if (car.isAuction_created === true) {
-      return res
-        .status(400)
-        .json({ message: "Auction already created for this car" });
-    }
+    // if (car.isAuction_created === true) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Auction already created for this car" });
+    // }
 
     const auction_start_time_12hrs = format(
       parse(auction_start_time, "HH:mm", new Date()),
@@ -96,6 +96,10 @@ exports.createAuction = async (req, res) => {
           .json({ message: "Company name and ABN is required" });
       }
     }
+
+    // convert zoned time to utc
+    istFormat_start = zonedTimeToUtc(istFormat_start, "Asia/Kolkata");
+    istFormat_end = zonedTimeToUtc(istFormat_end, "Asia/Kolkata");
 
     const auction = await Auction.create({
       car: car._id,
