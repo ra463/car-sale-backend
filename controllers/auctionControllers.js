@@ -2,7 +2,7 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
-const { parse, format } = require("date-fns");
+// const { parse, format } = require("date-fns");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -39,29 +39,51 @@ exports.createAuction = async (req, res) => {
     //     .json({ message: "Auction already created for this car" });
     // }
 
-    const auction_start_time_12hrs = format(
-      parse(auction_start_time, "HH:mm", new Date()),
-      "h:mm a"
+    // const auction_start_time_12hrs = format(
+    //   parse(auction_start_time, "HH:mm", new Date()),
+    //   "h:mm a"
+    // );
+
+    // const auction_end_time_12hrs = format(
+    //   parse(auction_end_time, "HH:mm", new Date()),
+    //   "h:mm a"
+    // );
+
+    const convertTo24hrs = (time) => {
+      let hours = parseInt(time.split(":")[0]);
+      let minutes = parseInt(time.split(":")[1].split(" ")[0]);
+      let ampm = time.split(":")[1].split(" ")[1];
+
+      if (ampm === "PM" && hours < 12) hours = hours + 12;
+      if (ampm === "AM" && hours === 12) hours = hours - 12;
+
+      hours = hours.toString().length === 1 ? "0" + hours : hours;
+      minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
+
+      return `${hours}:${minutes}`;
+    };
+
+    // convert time to 24hrs format
+    const auction_start_time_24hrs = await convertTo24hrs(auction_start_time);
+    const auction_end_time_24hrs = await convertTo24hrs(auction_end_time);
+
+    console.log("Debug: auction_start_time_24hrs", auction_start_time_24hrs);
+
+    let auction_start = new Date(
+      `${auction_start_date} ${auction_start_time_24hrs}`
     );
+    let auction_end = new Date(`${auction_end_date} ${auction_end_time_24hrs}`);
 
-    const auction_end_time_12hrs = format(
-      parse(auction_end_time, "HH:mm", new Date()),
-      "h:mm a"
-    );
+    console.log("Debug: auction_start", auction_start);
+    console.log("Debug: auction_end", auction_end);
 
-    let auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
-    let auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
-
-    // console.log("auction_start", new Date(auction_start));
-    // console.log(new Date().toISOString());
-
-    if (new Date(auction_start) < new Date()) {
+    if (auction_start < new Date()) {
       return res
         .status(400)
         .json({ message: "Auction start date cannot be in the past" });
     }
 
-    if (new Date(auction_end) < new Date(auction_start)) {
+    if (auction_end < auction_start) {
       return res.status(400).json({
         message: "Auction end date cannot be before auction start date",
       });
@@ -75,14 +97,11 @@ exports.createAuction = async (req, res) => {
       }
     }
 
-    new Date(auction_start).toUTCString();
-    new Date(auction_end).toUTCString();
-
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
-      auction_start: new Date(auction_start).toUTCString(),
-      auction_end: new Date(auction_end).toUTCString(),
+      auction_start: auction_start,
+      auction_end: auction_end,
       seller_type,
       company_name,
       asking_price,
