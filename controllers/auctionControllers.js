@@ -49,8 +49,8 @@ exports.createAuction = async (req, res) => {
       "h:mm a"
     );
 
-    const auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
-    const auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
+    let auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
+    let auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
 
     // console.log("auction_start", new Date(auction_start));
     // console.log(new Date().toISOString());
@@ -77,7 +77,6 @@ exports.createAuction = async (req, res) => {
 
     auction_start = await new Date(auction_start).toUTCString();
     auction_end = await new Date(auction_end).toUTCString();
-
 
     const auction = await Auction.create({
       car: car._id,
