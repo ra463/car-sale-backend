@@ -17,6 +17,15 @@ exports.submitQuery = async (req, res) => {
       return res.status(400).json({ message: "Message is required" });
     }
 
+    if (phone.length < 9)
+      return res
+        .status(400)
+        .json({ message: "Phone number must be at least 9 digit long" });
+    if (phone.length > 11)
+      return res
+        .status(400)
+        .json({ message: "Phone number must be at most 11 digit long" });
+
     await Query.create({
       name,
       email,
