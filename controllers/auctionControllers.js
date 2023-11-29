@@ -75,14 +75,14 @@ exports.createAuction = async (req, res) => {
       }
     }
 
-    auction_start = await new Date(auction_start).toUTCString();
-    auction_end = await new Date(auction_end).toUTCString();
+    new Date(auction_start).toUTCString();
+    new Date(auction_end).toUTCString();
 
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
-      auction_start: new Date(),
-      auction_end: new Date(),
+      auction_start: new Date(auction_start).toUTCString(),
+      auction_end: new Date(auction_end).toUTCString(),
       seller_type,
       company_name,
       asking_price,
