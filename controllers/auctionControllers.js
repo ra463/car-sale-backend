@@ -2,8 +2,7 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
-const { parse } = require("date-fns");
-const { format, utcToZonedTime, zonedTimeToUtc } = require("date-fns-tz");
+const { parse, format } = require("date-fns");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -53,43 +52,15 @@ exports.createAuction = async (req, res) => {
     const auction_start = `${auction_start_date} ${auction_start_time_12hrs}`;
     const auction_end = `${auction_end_date} ${auction_end_time_12hrs}`;
 
-    const parsedDateTime_start = parse(
-      auction_start,
-      "MM/dd/yyyy h:mm a",
-      new Date()
-    );
-    const parsedDateTime_end = parse(
-      auction_end,
-      "MM/dd/yyyy h:mm a",
-      new Date()
-    );
+    // console.log("auction_start", new Date(auction_start));
+    // console.log(new Date().toISOString());
 
-    let istFormat_start = format(
-      utcToZonedTime(parsedDateTime_start, "Asia/Kolkata"),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-    );
-    let istFormat_end = format(
-      utcToZonedTime(parsedDateTime_end, "Asia/Kolkata"),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-    );
-
-    // covert istFormat_start and istFormat_end to utc format
-    istFormat_start = zonedTimeToUtc(istFormat_start, "Asia/Kolkata");
-    istFormat_end = zonedTimeToUtc(istFormat_end, "Asia/Kolkata");
-
-    console.log("Debug: istFormat_start", istFormat_start);
-    console.log("Debug: istFormat_end", istFormat_end);
-
-    const currentTime = new Date();
-
-    console.log("Debug: currentTime", currentTime);
-
-    if (istFormat_start < currentTime) {
+    if (new Date(auction_start) < new Date())
       return res
         .status(400)
         .json({ message: "Auction start date cannot be in the past" });
-    }
-    if (istFormat_end < istFormat_start) {
+
+    if (new Date(auction_end) < new Date(auction_start)) {
       return res.status(400).json({
         message: "Auction end date cannot be before auction start date",
       });
@@ -106,8 +77,8 @@ exports.createAuction = async (req, res) => {
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
-      auction_start: new Date(istFormat_start).toISOString(),
-      auction_end: new Date(istFormat_end).toISOString(),
+      auction_start: new Date(auction_start),
+      auction_end: new Date(auction_end),
       seller_type,
       company_name,
       asking_price,
