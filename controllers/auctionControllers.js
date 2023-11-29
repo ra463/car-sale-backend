@@ -2,8 +2,8 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
-const { parse, format } = require("date-fns");
-const { utcToZonedTime, zonedTimeToUtc } = require("date-fns-tz");
+const { parse } = require("date-fns");
+const { format, utcToZonedTime, zonedTimeToUtc } = require("date-fns-tz");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -73,10 +73,16 @@ exports.createAuction = async (req, res) => {
       "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
     );
 
-    const currentTime = format(
-      utcToZonedTime(new Date(), "Asia/Kolkata"),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-    );
+    // covert istFormat_start and istFormat_end to utc format
+    istFormat_start = zonedTimeToUtc(istFormat_start, "Asia/Kolkata");
+    istFormat_end = zonedTimeToUtc(istFormat_end, "Asia/Kolkata");
+
+    console.log("Debug: istFormat_start", istFormat_start);
+    console.log("Debug: istFormat_end", istFormat_end);
+
+    const currentTime = new Date();
+
+    console.log("Debug: currentTime", currentTime);
 
     if (istFormat_start < currentTime) {
       return res
@@ -96,10 +102,6 @@ exports.createAuction = async (req, res) => {
           .json({ message: "Company name and ABN is required" });
       }
     }
-
-    // convert zoned time to utc
-    istFormat_start = zonedTimeToUtc(istFormat_start, "Asia/Kolkata");
-    istFormat_end = zonedTimeToUtc(istFormat_end, "Asia/Kolkata");
 
     const auction = await Auction.create({
       car: car._id,
