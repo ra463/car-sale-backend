@@ -55,10 +55,11 @@ exports.createAuction = async (req, res) => {
     // console.log("auction_start", new Date(auction_start));
     // console.log(new Date().toISOString());
 
-    if (new Date(auction_start) < new Date())
+    if (new Date(auction_start) < new Date()) {
       return res
         .status(400)
         .json({ message: "Auction start date cannot be in the past" });
+    }
 
     if (new Date(auction_end) < new Date(auction_start)) {
       return res.status(400).json({
