@@ -6,6 +6,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const Bid = require("../models/Bid");
 const Transaction = require("../models/Transaction");
+const Query = require("../models/Query");
 
 const sendData = (user, statusCode, res) => {
   const token = user.getJWTToken();
@@ -461,6 +462,15 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       },
     ]);
 
+    const queries = await Query.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
     const transactions = await Transaction.aggregate([
       {
         $group: {
@@ -489,6 +499,7 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       cars: cars,
       auctions: auctions,
       bids: bids,
+      queries: queries,
       transactions: transactions,
       amount: amount,
     });
@@ -571,6 +582,25 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       },
     ]);
 
+    const queries = await Query.aggregate([
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              "$createdAt",
+              { $dateSubtract: { startDate: date, unit: "day", amount: 1 } },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
     const transactions = await Transaction.aggregate([
       {
         $match: {
@@ -614,6 +644,7 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       cars: cars,
       auctions: auctions,
       bids: bids,
+      queries: queries,
       transactions: transactions,
       amount: amount,
     });
@@ -703,6 +734,27 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       },
     ]);
 
+    const queries = await Query.aggregate([
+      {
+        $project: {
+          week: { $week: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          week: week,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
     const transactions = await Transaction.aggregate([
       {
         $project: {
@@ -750,6 +802,7 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       cars: cars,
       auctions: auctions,
       bids: bids,
+      queries: queries,
       transactions: transactions,
       amount: amount,
     });
@@ -840,6 +893,27 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       },
     ]);
 
+    const queries = await Query.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: year,
+          month: month,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
     const transactions = await Transaction.aggregate([
       {
         $project: {
@@ -887,6 +961,7 @@ exports.getStatistics = catchAsyncError(async (req, res, next) => {
       cars: cars,
       auctions: auctions,
       bids: bids,
+      queries: queries,
       transactions: transactions,
       amount: amount,
     });
