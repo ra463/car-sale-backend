@@ -104,8 +104,8 @@ exports.createAuction = async (req, res) => {
     const auction = await Auction.create({
       car: car._id,
       seller: req.userId,
-      auction_start: istFormat_start,
-      auction_end: istFormat_end,
+      auction_start: new Date(istFormat_start),
+      auction_end: new Date(istFormat_end),
       seller_type,
       company_name,
       asking_price,
