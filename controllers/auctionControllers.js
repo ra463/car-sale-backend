@@ -370,3 +370,16 @@ exports.confirmBid = async (req, res) => {
 //     res.status(500).json({ message: error.message });
 //   }
 // };
+
+exports.testingDateTime = async (req, res) => {
+  let currentTime = new Date();
+  const start = currentTime;
+
+  // add +5:30 to currentTime and then compare
+  currentTime.setHours(currentTime.getHours() - 7);
+  currentTime.setMinutes(currentTime.getMinutes() - 30);
+
+  console.log(currentTime);
+
+  res.status(200).json({ success: true, start, currentTime });
+};
