@@ -2,6 +2,7 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
+const moment = require("moment-timezone");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -47,15 +48,13 @@ exports.createAuction = async (req, res) => {
     };
 
     // convert time to 24hrs format
-    const auction_start_time_24hrs = await convertTo24hrs(auction_start_time);
-    const auction_end_time_24hrs = await convertTo24hrs(auction_end_time);
+    let auction_start_time_24hrs = await convertTo24hrs(auction_start_time);
+    let auction_end_time_24hrs = await convertTo24hrs(auction_end_time);
 
     let auction_start = new Date(
       `${auction_start_date} ${auction_start_time_24hrs}`
     );
-    let auction_end = new Date(
-      `${auction_end_date} ${auction_end_time_24hrs}`
-    );
+    let auction_end = new Date(`${auction_end_date} ${auction_end_time_24hrs}`);
 
     // if (auction_start < new Date()) {
     //   return res
@@ -69,6 +68,12 @@ exports.createAuction = async (req, res) => {
     //   });
     // }
 
+    // save time in UTC format
+    let start_time = moment(auction_start);
+    const start_time1 = start_time.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+    let end_time = moment(auction_end);
+    const end_time1 = end_time.utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+
     if (seller_type === "company") {
       if (!company_name || !abn) {
         return res
@@ -77,24 +82,32 @@ exports.createAuction = async (req, res) => {
       }
     }
 
-    const auction = await Auction.create({
-      car: car._id,
-      seller: req.userId,
-      auction_start: auction_start, //new Date(auction_start),
-      auction_end: auction_end, //new Date(auction_end)
-      seller_type,
-      company_name,
-      asking_price,
-      abn,
-    });
+    // const auction = await Auction.create({
+    //   car: car._id,
+    //   seller: req.userId,
+    //   auction_start: auction_start, //new Date(auction_start),
+    //   auction_end: auction_end, //new Date(auction_end)
+    //   seller_type,
+    //   company_name,
+    //   asking_price,
+    //   abn,
+    // });
 
-    car.isAuction_created = true;
-    await car.save();
+    // car.isAuction_created = true;
+    // await car.save();
 
     res.status(201).json({
       success: true,
       message: "Auction created successfully",
-      auction,
+      // auction,
+      auction_start_time_24hrs,
+      auction_end_time_24hrs,
+      auction_end,
+      auction_start,
+      start_time,
+      end_time,
+      start_time1,
+      end_time1,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
