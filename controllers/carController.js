@@ -362,6 +362,7 @@ exports.editCarDetails = async (req, res) => {
       if (description) car.description = description;
       if (is_registered) car.is_registered = is_registered;
       if (is_registered === "true") car.expiry_date = expiry_date;
+      if (is_registered === "false") car.expiry_date = null;
       if (body_type) car.body_type = body_type;
       if (owner) car.owner = owner;
       if (autorized_person) car.autorized_person = autorized_person;
@@ -387,6 +388,7 @@ exports.editCarDetails = async (req, res) => {
       if (description) car.description = description;
       if (is_registered) car.is_registered = is_registered;
       if (is_registered === "true") car.expiry_date = expiry_date;
+      if (is_registered === "false") car.expiry_date = null;
       if (body_type) car.body_type = body_type;
       if (owner) car.owner = owner;
       if (autorized_person) car.autorized_person = autorized_person;

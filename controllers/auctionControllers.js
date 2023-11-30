@@ -394,10 +394,10 @@ exports.testingDateTime = async (req, res) => {
 
   // res.status(200).json({ success: true, start: new Date(), currentTime });
 
-  const auctions = await Auction.find();
+  const auctions = await Car.find();
   auctions.forEach(async (auction) => {
     // randomly push true or fasle in show_hide_price
-    auction.show_hide_price = Math.random() < 0.5;
+    auction.vehicle_type = "Car"
     await auction.save();
   });
   res.status(200).json({ success: true });
