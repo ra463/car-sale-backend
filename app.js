@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const errorMiddleware = require("./middlewares/error");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const app = express();
 
 dotenv.config({
@@ -16,7 +16,6 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
   })
 );
 

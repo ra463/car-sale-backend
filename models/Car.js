@@ -2,21 +2,32 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
+    vehicle_type: {
+      type: String,
+      enum: ["Car", "Truck"],
+      default: "Car",
+    },
     manufacture_company: {
       type: String,
       required: [true, "Make is required"],
     },
-    // registration_date: {
-    //   type: String,
-    //   required: [true, "Registration date is required"],
-    // },
     is_registered: {
       type: Boolean,
       default: true,
+      required: true,
     },
-    // registration_no: {
-    //   type: String,
-    // },
+    expiry_date: {
+      type: String,
+    },
+    owner: {
+      type: Boolean,
+    },
+    autorized_person: {
+      type: Boolean,
+    },
+    body_type: {
+      type: String,
+    },
     model: {
       type: String,
       required: [true, "Model is required"],
@@ -33,9 +44,14 @@ const schema = new mongoose.Schema(
       trim: true,
       unique: [true, "VIN already exists"],
     },
+    axle_configuration: {
+      type: String,
+    },
+    gvm: {
+      type: Number, // in kg
+    },
     color: {
       type: String,
-      required: [true, "Color is required"],
     },
     fuel_type: {
       type: String,
@@ -48,6 +64,9 @@ const schema = new mongoose.Schema(
     engine_capacity: {
       type: Number, // in cc
     },
+    engine_power: {
+      type: Number, // in HP
+    },
     description: {
       type: String,
       required: [true, "Description is required"],
@@ -58,12 +77,9 @@ const schema = new mongoose.Schema(
     },
     drive_type: {
       type: String,
-      // enum: ["AWD", "FWD", "RWD", "4WD"],
-      required: [true, "Drive type is required"],
     },
     num_of_cylinders: {
       type: Number,
-      required: [true, "Number of cylinders is required"],
     },
     key_highlights: {
       type: Array,

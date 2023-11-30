@@ -12,6 +12,7 @@ exports.createAuction = async (req, res) => {
       auction_end_time,
       seller_type,
       company_name,
+      show_hide_price,
       asking_price,
       abn,
     } = req.body;
@@ -81,6 +82,7 @@ exports.createAuction = async (req, res) => {
       seller_type,
       company_name,
       asking_price,
+      show_hide_price,
       abn,
     });
 
@@ -178,6 +180,14 @@ exports.getAllAuctions = async (req, res) => {
     const auctions = await query.exec();
     const filteredAuctionsCount = auctions.length;
 
+    auctions.forEach(async (auction) => {
+      if (auction.show_hide_price === false) {
+        auction.asking_price = null;
+      } else {
+        auction.asking_price = auction.asking_price;
+      }
+    });
+
     res.status(200).json({
       success: true,
       auctions,
@@ -197,6 +207,10 @@ exports.getAuctionDetails = async (req, res) => {
       "-seller"
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    if (auction.show_hide_price === false) {
+      auction.asking_price = null;
+    }
 
     const bids = await Bid.find({ auction: req.params.auctionId })
       .sort({
@@ -372,14 +386,19 @@ exports.confirmBid = async (req, res) => {
 // };
 
 exports.testingDateTime = async (req, res) => {
-  let currentTime = new Date();
-  const start = currentTime;
+  // let currentTime = new Date();
 
-  // add +5:30 to currentTime and then compare
-  currentTime.setHours(currentTime.getHours() - 7);
-  currentTime.setMinutes(currentTime.getMinutes() - 30);
+  // // add +5:30 to currentTime and then compare
+  // currentTime.setHours(currentTime.getHours() - 7);
+  // currentTime.setMinutes(currentTime.getMinutes() - 30);
 
-  console.log(currentTime);
+  // res.status(200).json({ success: true, start: new Date(), currentTime });
 
-  res.status(200).json({ success: true, start, currentTime });
+  const auctions = await Auction.find();
+  auctions.forEach(async (auction) => {
+    // randomly push true or fasle in show_hide_price
+    auction.show_hide_price = Math.random() < 0.5;
+    await auction.save();
+  });
+  res.status(200).json({ success: true });
 };

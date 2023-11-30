@@ -31,6 +31,12 @@ exports.createBidding = async (req, res) => {
         message: "Bid cannot be Placed. Auction is Inactive/Closed",
       });
 
+    // check if bid amount is 90% of asking price or not
+    if (bid_amount >= auction.asking_price * 0.9)
+      return res.status(400).json({
+        message: "Bid Amount should be atleast 90% of asking price",
+      });
+
     if (bids.length === 0) {
       if (bid_amount) {
         await Bid.create({
@@ -40,6 +46,12 @@ exports.createBidding = async (req, res) => {
         });
 
         auction.highest_bid = bid_amount;
+        if (bid_amount >= auction.asking_price * 0.9) {
+          auction.reserve_flag = "Reserve Met 90% of the Asking Price";
+        }
+        if (bid_amount >= auction.asking_price) {
+          auction.reserve_flag = "Reserve Met";
+        }
         await auction.save();
 
         res.status(201).json({
@@ -64,6 +76,12 @@ exports.createBidding = async (req, res) => {
         });
 
         auction.highest_bid = bid_amount;
+        if (bid_amount >= auction.asking_price * 0.9) {
+          auction.reserve_flag = "Reserve Met 90% of the Asking Price";
+        }
+        if (bid_amount >= auction.asking_price) {
+          auction.reserve_flag = "Reserve Met";
+        }
         await auction.save();
 
         bidPlaced = true;

@@ -183,12 +183,17 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
 
   const {
     manufacture_company,
-    // registration_date,
     model,
     manufacture_year,
-    // registration_no,
+    expiry_date,
     unique_identification_number,
     color,
+    owner,
+    autorized_person,
+    body_type,
+    axle_configuration,
+    gvm,
+    engine_power,
     fuel_type,
     transmission_type,
     engine_capacity,
@@ -203,63 +208,94 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     is_registered,
   } = req.body;
 
-  if (unique_identification_number.length !== 17)
+  if (
+    unique_identification_number &&
+    unique_identification_number.length !== 17
+  )
     return res.status(400).json({ message: "VIN must be of 17 characters" });
 
-  const car2 = await Car.findOne({
-    unique_identification_number: unique_identification_number,
-  });
+  if (unique_identification_number) {
+    const carExists = await Car.findOne({
+      unique_identification_number: unique_identification_number,
+    });
 
-  if (car2 && car2._id.toString() !== car._id.toString()) {
-    return res.status(400).json({ message: "VIN already exists" });
+    if (carExists._id.toString() !== car._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Vehicle already exists with this Vin" });
+    }
   }
 
-  // const files = req.files;
+  if (car.vehicle_type === "Car") {
+    if (manufacture_company) car.manufacture_company = manufacture_company;
+    if (model) car.model = model;
+    if (manufacture_year) car.manufacture_year = manufacture_year;
+    if (unique_identification_number)
+      car.unique_identification_number = unique_identification_number;
+    if (color) car.color = color;
+    if (fuel_type) car.fuel_type = fuel_type;
+    if (transmission_type) car.transmission_type = transmission_type;
+    if (engine_capacity) car.engine_capacity = engine_capacity;
+    if (odometer_reading) car.odometer_reading = odometer_reading;
+    if (drive_type) car.drive_type = drive_type;
+    if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+    if (car_address) car.car_address = car_address;
+    if (car_city) car.car_city = car_city;
+    if (car_state) car.car_state = car_state;
+    if (car_postal_code) car.car_postal_code = car_postal_code;
+    if (description) car.description = description;
+    if (is_registered) car.is_registered = is_registered;
+    if (is_registered === "true") car.expiry_date = expiry_date;
+    if (body_type) car.body_type = body_type;
+    if (owner) car.owner = owner;
+    if (autorized_person) car.autorized_person = autorized_person;
+    await car.save();
+  }
 
-  // let all_images = [];
-  // if (files) {
-  //   const result = await s3UploadMulti(files, car.seller._id);
-  //   const location = result.map((item) => item.Location);
-  //   all_images.push(...location);
-  // }
-
-  if (manufacture_company) car.manufacture_company = manufacture_company;
-  // if (registration_date) car.registration_date = registration_date;
-  if (model) car.model = model;
-  if (manufacture_year) car.manufacture_year = manufacture_year;
-  // if (registration_no) car.registration_no = registration_no;
-  if (unique_identification_number)
-    car.unique_identification_number = unique_identification_number;
-  if (color) car.color = color;
-  if (fuel_type) car.fuel_type = fuel_type;
-  if (transmission_type) car.transmission_type = transmission_type;
-  if (engine_capacity) car.engine_capacity = engine_capacity;
-  if (odometer_reading) car.odometer_reading = odometer_reading;
-  if (drive_type) car.drive_type = drive_type;
-  if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
-  if (description) car.description = description;
-  if (car_address) car.car_address = car_address;
-  if (car_city) car.car_city = car_city;
-  if (car_state) car.car_state = car_state;
-  if (car_postal_code) car.car_postal_code = car_postal_code;
-  if (is_registered) car.is_registered = is_registered;
-
-  await car.save();
+  if (car.vehicle_type === "Truck") {
+    if (manufacture_company) car.manufacture_company = manufacture_company;
+    if (model) car.model = model;
+    if (manufacture_year) car.manufacture_year = manufacture_year;
+    if (unique_identification_number)
+      car.unique_identification_number = unique_identification_number;
+    if (color) car.color = color;
+    if (fuel_type) car.fuel_type = fuel_type;
+    if (transmission_type) car.transmission_type = transmission_type;
+    if (odometer_reading) car.odometer_reading = odometer_reading;
+    if (drive_type) car.drive_type = drive_type;
+    if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+    if (car_address) car.car_address = car_address;
+    if (car_city) car.car_city = car_city;
+    if (car_state) car.car_state = car_state;
+    if (car_postal_code) car.car_postal_code = car_postal_code;
+    if (description) car.description = description;
+    if (is_registered) car.is_registered = is_registered;
+    if (is_registered === "true") car.expiry_date = expiry_date;
+    if (body_type) car.body_type = body_type;
+    if (owner) car.owner = owner;
+    if (autorized_person) car.autorized_person = autorized_person;
+    if (axle_configuration) car.axle_configuration = axle_configuration;
+    if (gvm) car.gvm = gvm;
+    if (engine_power) car.engine_power = engine_power;
+    await car.save();
+  }
 
   res.status(201).json({
     success: true,
-    message: "Car updated successfully",
+    message: "Vehicle updated successfully",
   });
 });
 
 exports.deleteCar = catchAsyncError(async (req, res, next) => {
   const car = await Car.findById(req.params.id);
-  if (!car) return next(new ErrorHandler("Car not found!", 404));
+  if (!car) return next(new ErrorHandler("Vehicle not found!", 404));
 
   if (car.isAuction_created === true) {
     return res
       .status(400)
-      .json({ message: "Car is in auction. You cannot delete this Car" });
+      .json({
+        message: "Vehicle is in auction. You cannot delete this Vehicle",
+      });
   }
 
   car.images.forEach(async (image) => {
@@ -283,7 +319,7 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Car deleted successfully!",
+    message: "Vehicle deleted successfully!",
   });
 });
 

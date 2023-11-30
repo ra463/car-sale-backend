@@ -9,12 +9,18 @@ exports.uploadCarDetails = async (req, res) => {
 
     const {
       manufacture_company,
-      // registration_date,
+      vehicle_type,
       model,
       manufacture_year,
-      // registration_no,
+      expiry_date,
       unique_identification_number,
       color,
+      owner,
+      autorized_person,
+      body_type,
+      axle_configuration,
+      gvm,
+      engine_power,
       fuel_type,
       transmission_type,
       engine_capacity,
@@ -29,6 +35,15 @@ exports.uploadCarDetails = async (req, res) => {
       is_registered,
     } = req.body;
 
+    if (!vehicle_type)
+      return res.status(400).json({ message: "Vehicle type is required" });
+
+    if (vehicle_type !== "Car" && vehicle_type !== "Truck") {
+      return res
+        .status(400)
+        .json({ message: "Vehicle type must be Car or Truck" });
+    }
+
     if (unique_identification_number.length !== 17)
       return res.status(400).json({ message: "VIN must be of 17 characters" });
 
@@ -39,7 +54,7 @@ exports.uploadCarDetails = async (req, res) => {
     if (carExists)
       return res
         .status(400)
-        .json({ message: "Car already exists with this Vin" });
+        .json({ message: "Vehicle already exists with this Vin" });
 
     const files = req.files;
 
@@ -50,34 +65,76 @@ exports.uploadCarDetails = async (req, res) => {
       all_images.push(...location);
     }
 
-    const car = await Car.create({
-      manufacture_company,
-      // registration_date,
-      model,
-      manufacture_year,
-      // registration_no,
-      unique_identification_number,
-      color,
-      fuel_type,
-      transmission_type,
-      engine_capacity,
-      odometer_reading,
-      drive_type,
-      num_of_cylinders,
-      car_address,
-      car_city,
-      car_state,
-      car_postal_code,
-      seller: user._id,
-      description,
-      images: all_images,
-      is_registered,
-    });
+    if (vehicle_type === "Car") {
+      await Car.create({
+        manufacture_company,
+        vehicle_type,
+        model,
+        manufacture_year,
+        unique_identification_number,
+        color,
+        fuel_type,
+        transmission_type,
+        engine_capacity,
+        odometer_reading,
+        drive_type,
+        num_of_cylinders,
+        car_address,
+        car_city,
+        car_state,
+        car_postal_code,
+        seller: user._id,
+        description,
+        images: all_images,
+        is_registered,
+        expiry_date: is_registered === "true" ? expiry_date : null,
+        body_type,
+        owner,
+        autorized_person,
+      });
+    }
+
+    if (vehicle_type === "Truck") {
+      if (!gvm) return res.status(400).json({ message: "GVM is required" });
+      if (!engine_power)
+        return res.status(400).json({ message: "Engine power is required" });
+      if (!axle_configuration)
+        return res
+          .status(400)
+          .json({ message: "Axle configuration is required" });
+      await Car.create({
+        vehicle_type,
+        manufacture_company,
+        model,
+        manufacture_year,
+        unique_identification_number,
+        color,
+        fuel_type,
+        transmission_type,
+        odometer_reading,
+        drive_type,
+        num_of_cylinders,
+        car_address,
+        car_city,
+        car_state,
+        car_postal_code,
+        seller: user._id,
+        description,
+        images: all_images,
+        is_registered,
+        expiry_date: is_registered === "true" ? expiry_date : null,
+        body_type,
+        axle_configuration,
+        gvm,
+        engine_power,
+        owner,
+        autorized_person,
+      });
+    }
 
     res.status(201).json({
       success: true,
-      message: "Car uploaded successfully",
-      car,
+      message: "Vehicle uploaded successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -91,7 +148,7 @@ exports.addKeyFeatures = async (req, res) => {
       return res.status(400).json({ message: "Please fill in all fields" });
     const car = await Car.findById(req.params.carId);
 
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
     car.key_highlights.push(keyFeatures);
 
     await car.save();
@@ -113,7 +170,7 @@ exports.uploadMoreCarImages = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     const result = await s3UploadMulti(files, user._id);
     const location = result.map((item) => item.Location);
@@ -123,7 +180,7 @@ exports.uploadMoreCarImages = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Car images uploaded successfully",
+      message: "Vehicle images uploaded successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -135,7 +192,7 @@ exports.deleteCarImage = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     const index = car.images.findIndex((image) => image === req.body.image);
     if (index === -1)
@@ -147,7 +204,7 @@ exports.deleteCarImage = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Car image deleted successfully",
+      message: "Vehicle image deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -159,7 +216,7 @@ exports.deleteCar = async (req, res) => {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     if (car.seller.toString() !== user._id.toString())
       return res.status(400).json({ message: "You are not the seller" });
@@ -167,7 +224,7 @@ exports.deleteCar = async (req, res) => {
     if (car.isAuction_created === true)
       return res.status(400).json({
         message:
-          "You cannot delete this car as auction is already created for this car",
+          "You cannot delete this car as auction is already created for this Vehicle",
       });
 
     // delete all images
@@ -179,7 +236,7 @@ exports.deleteCar = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Car deleted successfully",
+      message: "Vehicle deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -189,7 +246,7 @@ exports.deleteCar = async (req, res) => {
 exports.getCarDetails = async (req, res) => {
   try {
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     res.status(200).json({
       success: true,
@@ -224,7 +281,7 @@ exports.getAllUniqueCarNames = async (req, res) => {
 exports.getCarImages = async (req, res) => {
   try {
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     res.status(200).json({
       success: true,
@@ -238,16 +295,21 @@ exports.getCarImages = async (req, res) => {
 exports.editCarDetails = async (req, res) => {
   try {
     const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     const {
       manufacture_company,
-      // registration_date,
       model,
       manufacture_year,
-      // registration_no,
+      expiry_date,
       unique_identification_number,
       color,
+      owner,
+      autorized_person,
+      body_type,
+      axle_configuration,
+      gvm,
+      engine_power,
       fuel_type,
       transmission_type,
       engine_capacity,
@@ -268,28 +330,72 @@ exports.editCarDetails = async (req, res) => {
     )
       return res.status(400).json({ message: "VIN must be of 17 characters" });
 
-    if (manufacture_company) car.manufacture_company = manufacture_company;
-    // if (registration_date) car.registration_date = registration_date;
-    // if (registration_no) car.registration_no = registration_no;
-    if (model) car.model = model;
-    if (manufacture_year) car.manufacture_year = manufacture_year;
-    if (unique_identification_number)
-      car.unique_identification_number = unique_identification_number;
-    if (color) car.color = color;
-    if (fuel_type) car.fuel_type = fuel_type;
-    if (transmission_type) car.transmission_type = transmission_type;
-    if (engine_capacity) car.engine_capacity = engine_capacity;
-    if (odometer_reading) car.odometer_reading = odometer_reading;
-    if (drive_type) car.drive_type = drive_type;
-    if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
-    if (car_address) car.car_address = car_address;
-    if (car_city) car.car_city = car_city;
-    if (car_state) car.car_state = car_state;
-    if (car_postal_code) car.car_postal_code = car_postal_code;
-    if (description) car.description = description;
-    if (is_registered) car.is_registered = is_registered;
+    if (unique_identification_number) {
+      const carExists = await Car.findOne({
+        unique_identification_number: unique_identification_number,
+      });
 
-    await car.save();
+      if (carExists._id.toString() !== car._id.toString()) {
+        return res
+          .status(400)
+          .json({ message: "Vehicle already exists with this Vin" });
+      }
+    }
+
+    if (car.vehicle_type === "Car") {
+      if (manufacture_company) car.manufacture_company = manufacture_company;
+      if (model) car.model = model;
+      if (manufacture_year) car.manufacture_year = manufacture_year;
+      if (unique_identification_number)
+        car.unique_identification_number = unique_identification_number;
+      if (color) car.color = color;
+      if (fuel_type) car.fuel_type = fuel_type;
+      if (transmission_type) car.transmission_type = transmission_type;
+      if (engine_capacity) car.engine_capacity = engine_capacity;
+      if (odometer_reading) car.odometer_reading = odometer_reading;
+      if (drive_type) car.drive_type = drive_type;
+      if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+      if (car_address) car.car_address = car_address;
+      if (car_city) car.car_city = car_city;
+      if (car_state) car.car_state = car_state;
+      if (car_postal_code) car.car_postal_code = car_postal_code;
+      if (description) car.description = description;
+      if (is_registered) car.is_registered = is_registered;
+      if (is_registered === "true") car.expiry_date = expiry_date;
+      if (body_type) car.body_type = body_type;
+      if (owner) car.owner = owner;
+      if (autorized_person) car.autorized_person = autorized_person;
+      await car.save();
+    }
+
+    if (car.vehicle_type === "Truck") {
+      if (manufacture_company) car.manufacture_company = manufacture_company;
+      if (model) car.model = model;
+      if (manufacture_year) car.manufacture_year = manufacture_year;
+      if (unique_identification_number)
+        car.unique_identification_number = unique_identification_number;
+      if (color) car.color = color;
+      if (fuel_type) car.fuel_type = fuel_type;
+      if (transmission_type) car.transmission_type = transmission_type;
+      if (odometer_reading) car.odometer_reading = odometer_reading;
+      if (drive_type) car.drive_type = drive_type;
+      if (num_of_cylinders) car.num_of_cylinders = num_of_cylinders;
+      if (car_address) car.car_address = car_address;
+      if (car_city) car.car_city = car_city;
+      if (car_state) car.car_state = car_state;
+      if (car_postal_code) car.car_postal_code = car_postal_code;
+      if (description) car.description = description;
+      if (is_registered) car.is_registered = is_registered;
+      if (is_registered === "true") car.expiry_date = expiry_date;
+      if (body_type) car.body_type = body_type;
+      if (owner) car.owner = owner;
+      if (autorized_person) car.autorized_person = autorized_person;
+      if (axle_configuration) car.axle_configuration = axle_configuration;
+      if (gvm) car.gvm = gvm;
+      if (engine_power) car.engine_power = engine_power;
+      await car.save();
+    }
+
     res.status(200).json({
       success: true,
       message: "Details updated successfully",

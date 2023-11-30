@@ -23,6 +23,14 @@ const schema = new mongoose.Schema(
       required: [true, "Asking Price is required"],
       trim: true,
     },
+    show_hide_price: {
+      type: Boolean,
+      default: false,
+    },
+    reserve_flag: {
+      type: String,
+      default: "Reserve Not Met",
+    },
     highest_bid: {
       type: Number,
       default: 0,
