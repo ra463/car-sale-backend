@@ -107,7 +107,7 @@ exports.getAllAuctions = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate(
         "car",
-        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type car_state car_city car_postal_code"
+        "model manufacture_year manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images color transmission_type car_state car_city car_postal_code vehicle_type"
       );
 
     if (Object.keys(req.query).length > 0) {
@@ -140,9 +140,9 @@ exports.getAllAuctions = async (req, res) => {
           "carsInf.fuel_type": {
             $regex: new RegExp(req.query.fuel_type, "i"),
           },
-          // "carsInf.drive_type": {
-          //   $regex: new RegExp(req.query.drive_type, "i"),
-          // },
+          "carsInf.vehicle_type": {
+            $regex: new RegExp(req.query.vehicle_type, "i"),
+          },
           // "carsInf.transmission_type": {
           //   $regex: new RegExp(req.query.transmission_type, "i"),
           // },
@@ -397,7 +397,7 @@ exports.testingDateTime = async (req, res) => {
   const auctions = await Car.find();
   auctions.forEach(async (auction) => {
     // randomly push true or fasle in show_hide_price
-    auction.vehicle_type = "Car"
+    auction.vehicle_type = "Car";
     await auction.save();
   });
   res.status(200).json({ success: true });
