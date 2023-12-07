@@ -318,7 +318,7 @@ exports.getAllUserAuctions = async (req, res) => {
   try {
     const auctions = await Auction.find({ seller: req.userId }).populate(
       "car",
-      "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images"
+      "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images vehicle_type"
     );
 
     if (!auctions)
