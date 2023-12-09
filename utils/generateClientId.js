@@ -8,3 +8,14 @@ exports.generateClientId = () => {
 
   return clientId;
 };
+
+exports.generateAuctionId = () => {
+  let auctionId = "";
+  const possible = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  for (let i = 0; i < 8; i++) {
+    auctionId += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+
+  return auctionId;
+};

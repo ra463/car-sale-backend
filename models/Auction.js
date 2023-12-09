@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
+    auction_id: {
+      type: String,
+      required: [true, "Auction ID is required"],
+      trim: true,
+    },
     car: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Car",

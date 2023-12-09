@@ -2,6 +2,7 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
+const { generateAuctionId } = require("../utils/generateClientId");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -74,7 +75,10 @@ exports.createAuction = async (req, res) => {
       }
     }
 
+    let auctionId = await generateAuctionId();
+
     const auction = await Auction.create({
+      auction_id: auctionId,
       car: car._id,
       seller: req.userId,
       auction_start: new Date(auction_start),
@@ -394,10 +398,10 @@ exports.testingDateTime = async (req, res) => {
 
   // res.status(200).json({ success: true, start: new Date(), currentTime });
 
-  const auctions = await Car.find();
+  const auctions = await Auction.find();
   auctions.forEach(async (auction) => {
-    // randomly push true or fasle in show_hide_price
-    auction.vehicle_type = "Car";
+    let id = await generateAuctionId();
+    auction.auction_id = id;
     await auction.save();
   });
   res.status(200).json({ success: true });

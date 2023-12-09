@@ -44,6 +44,35 @@ exports.uploadCarDetails = async (req, res) => {
         .json({ message: "Vehicle type must be Car or Truck" });
     }
 
+    if (manufacture_year && isNaN(manufacture_year))
+      return res
+        .status(400)
+        .json({ message: "Manufacturing year must be a number" });
+
+    if (engine_capacity && isNaN(engine_capacity))
+      return res
+        .status(400)
+        .json({ message: "Engine capacity must be a number" });
+
+    if (odometer_reading && isNaN(odometer_reading))
+      return res
+        .status(400)
+        .json({ message: "Odometer reading must be a number" });
+
+    if (num_of_cylinders && isNaN(num_of_cylinders))
+      return res
+        .status(400)
+        .json({ message: "Number of cylinders must be a number" });
+
+    if (gvm && isNaN(gvm))
+      return res.status(400).json({ message: "GVM must be a number" });
+
+    if (engine_power && isNaN(engine_power))
+      return res.status(400).json({ message: "Engine power must be a number" });
+
+    if(car_postal_code && isNaN(car_postal_code))
+      return res.status(400).json({ message: "Postal code must be a number" });
+
     if (unique_identification_number.length !== 17)
       return res.status(400).json({ message: "VIN must be of 17 characters" });
 
