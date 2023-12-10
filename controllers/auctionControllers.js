@@ -67,28 +67,40 @@ exports.createAuction = async (req, res) => {
       });
     }
 
+    let auctionId = await generateAuctionId();
+
+    if (seller_type === "private") {
+      await Auction.create({
+        auction_id: auctionId,
+        car: car._id,
+        seller: req.userId,
+        auction_start: new Date(auction_start),
+        auction_end: new Date(auction_end),
+        seller_type,
+        asking_price,
+        show_hide_price,
+      });
+    }
+
     if (seller_type === "company") {
       if (!company_name || !abn) {
         return res
           .status(400)
           .json({ message: "Company name and ABN is required" });
       }
+      await Auction.create({
+        auction_id: auctionId,
+        car: car._id,
+        seller: req.userId,
+        auction_start: new Date(auction_start),
+        auction_end: new Date(auction_end),
+        seller_type,
+        company_name,
+        asking_price,
+        show_hide_price,
+        abn,
+      });
     }
-
-    let auctionId = await generateAuctionId();
-
-    const auction = await Auction.create({
-      auction_id: auctionId,
-      car: car._id,
-      seller: req.userId,
-      auction_start: new Date(auction_start),
-      auction_end: new Date(auction_end),
-      seller_type,
-      company_name,
-      asking_price,
-      show_hide_price,
-      abn,
-    });
 
     car.isAuction_created = true;
     await car.save();
@@ -96,7 +108,6 @@ exports.createAuction = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Auction created successfully",
-      auction,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -147,9 +158,6 @@ exports.getAllAuctions = async (req, res) => {
           "carsInf.vehicle_type": {
             $regex: new RegExp(req.query.vehicle_type, "i"),
           },
-          // "carsInf.transmission_type": {
-          //   $regex: new RegExp(req.query.transmission_type, "i"),
-          // },
         },
       };
 
