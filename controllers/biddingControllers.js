@@ -12,6 +12,11 @@ exports.createBidding = async (req, res) => {
 
     const bids = await Bid.find({ auction: auction._id });
 
+    if (auction.status === "inactive" || auction.status === "closed")
+      return res.status(400).json({
+        message: "Bid cannot be Placed. Auction is Inactive/Closed",
+      });
+
     if (auction.auction_confirmed === true)
       return res.status(400).json({
         message: "Auction is already confirmed. You can't Place Bid Anymore",
@@ -23,6 +28,11 @@ exports.createBidding = async (req, res) => {
       });
 
     const { bid_amount } = req.body;
+    if (bid_amount === 0)
+    return res
+      .status(400)
+      .json({ message: "Bidding Amount should be greater than 0" });
+      
     if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
 
@@ -36,15 +46,6 @@ exports.createBidding = async (req, res) => {
         .status(400)
         .json({ message: "Bidding Amount cannot be negative" });
     }
-    if (bid_amount === 0)
-      return res
-        .status(400)
-        .json({ message: "Bidding Amount should be greater than 0" });
-
-    if (auction.status === "inactive" || auction.status === "closed")
-      return res.status(400).json({
-        message: "Bid cannot be Placed. Auction is Inactive/Closed",
-      });
 
     // // check if bid amount is 90% of asking price or not
     // if (bid_amount >= auction.asking_price * 0.9)
