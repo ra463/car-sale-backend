@@ -23,8 +23,23 @@ exports.createBidding = async (req, res) => {
       });
 
     const { bid_amount } = req.body;
-    if (!bid_amount || bid_amount === 0)
+    if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
+
+    if (isNaN(bid_amount))
+      return res
+        .status(400)
+        .json({ message: "Bidding Amount should be a number" });
+
+    if (bid_amount < 0) {
+      return res
+        .status(400)
+        .json({ message: "Bidding Amount cannot be negative" });
+    }
+    if (bid_amount === 0)
+      return res
+        .status(400)
+        .json({ message: "Bidding Amount should be greater than 0" });
 
     if (auction.status === "inactive" || auction.status === "closed")
       return res.status(400).json({
