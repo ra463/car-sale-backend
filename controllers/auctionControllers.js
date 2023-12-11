@@ -139,10 +139,9 @@ exports.getAllAuctions = async (req, res) => {
 
       const matchFilter = {
         $match: {
-          // "carsInf.manufacture_year": {
-          //   $type: "number",
-          //   $eq: parseInt(req.query.manufacture_year),
-          // },
+          "carsInf.vehicle_type": {
+            $regex: new RegExp(req.query.vehicle_type, "i"),
+          },
           "carsInf.model": {
             $regex: new RegExp(req.query.model, "i"),
           },
@@ -152,12 +151,12 @@ exports.getAllAuctions = async (req, res) => {
           "carsInf.manufacture_company": {
             $regex: new RegExp(req.query.manufacture_company, "i"),
           },
-          "carsInf.fuel_type": {
-            $regex: new RegExp(req.query.fuel_type, "i"),
-          },
-          "carsInf.vehicle_type": {
-            $regex: new RegExp(req.query.vehicle_type, "i"),
-          },
+          // "carsInf.fuel_type": {
+          //   $regex: new RegExp(req.query.fuel_type, "i"),
+          // },
+          // "carsInf.vehicle_type": {
+          //   $regex: new RegExp(req.query.vehicle_type, "i"),
+          // },
         },
       };
 
@@ -406,11 +405,14 @@ exports.testingDateTime = async (req, res) => {
 
   // res.status(200).json({ success: true, start: new Date(), currentTime });
 
-  const auctions = await Auction.find();
-  auctions.forEach(async (auction) => {
-    let id = await generateAuctionId();
-    auction.auction_id = id;
-    await auction.save();
-  });
-  res.status(200).json({ success: true });
+  const auctions = await Auction.find().populate("car", "vehicle_type");
+  // let cars = [];
+  // auctions.forEach(async (auction) => {
+  //   const car = await Car.findById(auction.car);
+  //   console.log("Debug: car", car);
+  //   // car which are not found by id just push null
+  //   if (!car) cars.push(null);
+  //   else cars.push(car);
+  // });
+  res.status(200).json({ success: true, auctions });
 };
