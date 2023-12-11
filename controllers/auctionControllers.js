@@ -3,6 +3,7 @@ const Bid = require("../models/Bid");
 const Car = require("../models/Car");
 const User = require("../models/User");
 const { generateAuctionId } = require("../utils/generateClientId");
+const { bidConfirmedEmail } = require("../utils/sendMail");
 
 exports.createAuction = async (req, res) => {
   try {
@@ -260,11 +261,11 @@ exports.confirmBid = async (req, res) => {
 
     if (bid.bid_amount === auction.highest_bid) {
       auction.auction_confirmed = true;
-      bid.is_confirmed_bid = true;
-      auction.refund_time = new Date(
-        new Date().getTime() + 2 * 24 * 60 * 60 * 1000
+      await bidConfirmedEmail(
+        bid.bidder.email,
+        bid.bidder.name,
+        auction.auction_id
       );
-      await bid.save();
       await auction.save();
     } else {
       return res

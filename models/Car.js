@@ -5,7 +5,7 @@ const schema = new mongoose.Schema(
     vehicle_type: {
       type: String,
       enum: ["Car", "Truck"],
-      default: "Car",
+      required: [true, "Vehicle type is required"],
     },
     manufacture_company: {
       type: String,

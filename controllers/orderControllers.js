@@ -3,6 +3,7 @@ const Order = require("../models/Order");
 const Auction = require("../models/Auction");
 const Transaction = require("../models/Transaction");
 const generateAccessToken = require("../utils/paypal");
+const { paymentDone, confirmationPaymentEmail } = require("../utils/sendMail");
 
 const base = "https://api-m.sandbox.paypal.com";
 
@@ -75,7 +76,7 @@ exports.captureAuctionOrder = async (req, res) => {
       amount: price,
       paypalOrderId: data.id,
       status: data.purchase_units[0].payments.captures[0].status,
-    });
+    }).populate("user", "name email");
 
     const newOrder = await order.save();
 
@@ -88,6 +89,13 @@ exports.captureAuctionOrder = async (req, res) => {
     });
 
     await transaction.save();
+
+    await confirmationPaymentEmail(
+      order.user.email,
+      order.user.name,
+      auction._id,
+      price
+    );
 
     res.status(200).json({
       success: true,
@@ -103,7 +111,10 @@ exports.createAuctionWebhook = async (req, res) => {
     // console.log("webhook payload:", req.body);
     const orderId = req.body.resource.supplementary_data.related_ids.order_id;
     // console.log("webhook working...", orderId);
-    const order = await Order.findOne({ paypalOrderId: orderId });
+    const order = await Order.findOne({ paypalOrderId: orderId }).populate(
+      "user",
+      "name email"
+    );
     if (!order) {
       return res
         .status(404)
@@ -131,6 +142,14 @@ exports.createAuctionWebhook = async (req, res) => {
       auction.is_Winner_paid10_percent = true;
       await auction.save();
     }
+
+    await paymentDone(
+      order.user.email,
+      order.user.name,
+      auction._id,
+      transaction.transactionId,
+      transaction.amount
+    );
 
     if (
       auction.is_Seller_paid10_percent === true &&
