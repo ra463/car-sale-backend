@@ -30,6 +30,7 @@ exports.registerUser = async (req, res) => {
       city,
       state,
       postal_code,
+      shuburb,
     } = req.body;
 
     if (
@@ -91,6 +92,7 @@ exports.registerUser = async (req, res) => {
       city,
       state,
       postal_code,
+      shuburb,
     });
 
     user.password = undefined;
@@ -139,8 +141,17 @@ exports.myProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, age, phoneNumber, address, city, state, postal_code } =
-      req.body;
+    const {
+      name,
+      email,
+      age,
+      phoneNumber,
+      address,
+      city,
+      state,
+      postal_code,
+      shuburb,
+    } = req.body;
 
     let user = await User.findOne({ phoneNumber });
     if (user && user._id.toString() !== req.userId.toString()) {
@@ -165,6 +176,7 @@ exports.updateProfile = async (req, res) => {
       city,
       state,
       postal_code,
+      shuburb,
     };
 
     await User.findByIdAndUpdate(req.userId, newUserData, {

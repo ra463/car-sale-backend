@@ -59,9 +59,13 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "City is required"],
     },
-    state:{
+    state: {
       type: String,
       required: [true, "State is required"],
+    },
+    shuburb: {
+      type: String,
+      default: "Malvern East",
     },
     postal_code: {
       type: Number,

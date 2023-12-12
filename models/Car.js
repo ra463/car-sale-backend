@@ -95,6 +95,10 @@ const schema = new mongoose.Schema(
     car_state: {
       type: String,
     },
+    car_shuburb: {
+      type: String,
+      default:"Malvern East"
+    },
     car_postal_code: {
       type: String,
     },

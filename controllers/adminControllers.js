@@ -81,6 +81,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
     city,
     state,
     postal_code,
+    shuburb,
   } = req.body;
   if (name) user.name = name;
   if (email) user.email = email;
@@ -91,6 +92,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
   if (city) user.city = city;
   if (state) user.state = state;
   if (postal_code) user.postal_code = postal_code;
+  if (shuburb) user.shuburb = shuburb;
 
   await user.save();
 
@@ -206,6 +208,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     car_state,
     car_postal_code,
     is_registered,
+    car_shuburb,
   } = req.body;
 
   if (
@@ -243,6 +246,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     if (car_city) car.car_city = car_city;
     if (car_state) car.car_state = car_state;
     if (car_postal_code) car.car_postal_code = car_postal_code;
+    if (car_shuburb) car.car_shuburb = car_shuburb;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;
     if (is_registered === "true") car.expiry_date = expiry_date;
@@ -269,6 +273,7 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     if (car_city) car.car_city = car_city;
     if (car_state) car.car_state = car_state;
     if (car_postal_code) car.car_postal_code = car_postal_code;
+    if (car_shuburb) car.car_shuburb = car_shuburb;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;
     if (is_registered === "true") car.expiry_date = expiry_date;
