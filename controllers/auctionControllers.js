@@ -36,6 +36,12 @@ exports.createAuction = async (req, res) => {
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Car not found" });
 
+    if (user._id.toString() !== car.seller.toString()) {
+      return res
+        .status(400)
+        .json({ message: "You are not the owner of this car" });
+    }
+
     if (car.isAuction_created === true) {
       return res
         .status(400)
