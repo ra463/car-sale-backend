@@ -17,6 +17,7 @@ exports.createAuction = async (req, res) => {
       show_hide_price,
       asking_price,
       abn,
+      timezoneOffset,
     } = req.body;
 
     if (
@@ -67,6 +68,30 @@ exports.createAuction = async (req, res) => {
         message: "Auction end date cannot be before auction start date",
       });
     }
+
+    // converting it into 24hrs format
+    let timezoneOffsetInHours = Math.abs(timezoneOffset / 60);
+    let timezoneOffsetInMinutes = Math.abs(timezoneOffset % 60);
+
+    timezoneOffsetInHours =
+      timezoneOffsetInHours.toString().length === 1
+        ? "0" + timezoneOffsetInHours
+        : timezoneOffsetInHours;
+    timezoneOffsetInHours = Math.floor(timezoneOffsetInHours);
+
+    timezoneOffsetInMinutes =
+      timezoneOffsetInMinutes.toString().length === 1
+        ? "0" + timezoneOffsetInMinutes
+        : timezoneOffsetInMinutes;
+
+    let start = new Date(auction_start);
+    let end = new Date(auction_end);
+
+    start.setHours(start.getHours() + timezoneOffsetInHours);
+    start.setMinutes(start.getMinutes() + timezoneOffsetInMinutes);
+
+    end.setHours(end.getHours() + timezoneOffsetInHours);
+    end.setMinutes(end.getMinutes() + timezoneOffsetInMinutes);
 
     let auctionId = await generateAuctionId();
 
