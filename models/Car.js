@@ -21,9 +21,11 @@ const schema = new mongoose.Schema(
     },
     owner: {
       type: Boolean,
+      default: false,
     },
     autorized_person: {
       type: Boolean,
+      default: false,
     },
     body_type: {
       type: String,
