@@ -93,11 +93,11 @@ exports.createAuction = async (req, res) => {
     let start = new Date(auction_start);
     let end = new Date(auction_end);
 
-    start.setHours(start.getHours() + timezoneOffsetInHours);
-    start.setMinutes(start.getMinutes() + timezoneOffsetInMinutes);
+    start.setHours(start.getHours() - timezoneOffsetInHours);
+    start.setMinutes(start.getMinutes() - timezoneOffsetInMinutes);
 
-    end.setHours(end.getHours() + timezoneOffsetInHours);
-    end.setMinutes(end.getMinutes() + timezoneOffsetInMinutes);
+    end.setHours(end.getHours() - timezoneOffsetInHours);
+    end.setMinutes(end.getMinutes() - timezoneOffsetInMinutes);
 
     let auctionId = await generateAuctionId();
 
