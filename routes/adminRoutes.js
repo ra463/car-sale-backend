@@ -60,8 +60,8 @@ router.route("/get-all-queries").get(auth, isAdmin, getAllQueries);
 router.route("/get-single-query/:id").get(auth, isAdmin, getSingleQuery);
 router.route("/delete-query/:id").delete(auth, isAdmin, deleteQuery);
 
-router.post("/refund-payment", isAdmin, auth, createRefund);
-router.post("/unlock-user/:userId", isAdmin, auth, unlockUser);
+router.route("/refund-payment").post(auth, isAdmin, createRefund);
+router.route("/unlock-user/:userId").post(auth, isAdmin, unlockUser);
 
 router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 

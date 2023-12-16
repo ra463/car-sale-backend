@@ -169,15 +169,26 @@ exports.createAuctionWebhook = async (req, res) => {
 };
 
 exports.createRefund = async (req, res) => {
+  console.log("entered")
   try {
+    console.log("entering")
     const { auctionId } = req.body;
+    console.log(auctionId)
     if (!auctionId)
       return res
         .status(400)
         .json({ success: false, message: "Auction id is required" });
     const auction = await Auction.findById(auctionId);
     const order = await Order.findOne({ auction: auction._id });
+    if (!order)
+      return res
+        .status(400)
+        .json({ success: false, message: "Order not found" });
     const transaction = await Transaction.findOne({ order: order._id });
+    if (!transaction)
+      return res
+        .status(400)
+        .json({ success: false, message: "Transaction not found" });
 
     if (
       auction.is_Seller_paid10_percent === true &&
@@ -246,7 +257,7 @@ exports.createRefund = async (req, res) => {
         );
       }
     }
-    res.status(200).json({ success: true, message: "Refund successfull" });
+    res.status(200).json({ success: true, message: "Refund Successfull" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
