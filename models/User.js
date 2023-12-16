@@ -26,11 +26,6 @@ const schema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    username: {
-      type: String,
-      unique: [true, "Username already exists"],
-      trim: true,
-    },
     clientId: {
       type: String,
       unique: [true, "Client Id already exists"],
@@ -70,6 +65,10 @@ const schema = new mongoose.Schema(
     postal_code: {
       type: Number,
       required: [true, "Postal code is required"],
+    },
+    is_locked: {
+      type: Boolean,
+      default: false,
     },
     temp_code: {
       type: String,

@@ -83,6 +83,26 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
     postal_code,
     shuburb,
   } = req.body;
+
+  if (phoneNumber.length < 9)
+    return res
+      .status(400)
+      .json({ message: "Phone number should be at least 9 digit long" });
+  if (phoneNumber.length > 11)
+    return res
+      .status(400)
+      .json({ message: "Phone number should be at most 11 digit long" });
+  if (age < 18) {
+    return res.status(400).json({ message: "Your age must be 18 or above 18" });
+  }
+
+  const user2 = await User.findOne({ phoneNumber: phoneNumber });
+  if (user2 && user2._id.toString() !== user._id.toString()) {
+    return res
+      .status(400)
+      .json({ message: "User already exists with this phone number" });
+  }
+
   if (name) user.name = name;
   if (email) user.email = email;
   if (role) user.role = role;
@@ -297,11 +317,9 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
   if (!car) return next(new ErrorHandler("Vehicle not found!", 404));
 
   if (car.isAuction_created === true) {
-    return res
-      .status(400)
-      .json({
-        message: "Vehicle is in auction. You cannot delete this Vehicle",
-      });
+    return res.status(400).json({
+      message: "Vehicle is in auction. You cannot delete this Vehicle",
+    });
   }
 
   car.images.forEach(async (image) => {
@@ -398,7 +416,10 @@ exports.deleteAuction = catchAsyncError(async (req, res, next) => {
 exports.getAllBids = catchAsyncError(async (req, res, next) => {
   const bidCount = await Bid.countDocuments();
   const apiFeatures = new APIFeatures(
-    Bid.find().populate("auction","auction_id").populate("bidder").sort({ createdAt: -1 }),
+    Bid.find()
+      .populate("auction", "auction_id")
+      .populate("bidder")
+      .sort({ createdAt: -1 }),
     req.query
   ).search("bid_amount");
 
@@ -454,6 +475,19 @@ exports.deleteBid = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Bid deleted successfully!",
+  });
+});
+
+exports.unlockUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorHandler("User not found!", 404));
+
+  user.is_locked = false;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User unlocked successfully!",
   });
 });
 

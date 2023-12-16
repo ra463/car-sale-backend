@@ -36,18 +36,18 @@ exports.getSingleTransaction = async (req, res) => {
       .populate("order")
       .populate({
         path: "order",
-        select: "auction paypalOrderId createdAt updatedAt", 
+        select: "auction paypalOrderId createdAt updatedAt",
         populate: {
           path: "auction",
           model: "Auction",
           select:
-            "car seller is_Seller_paid10_percent is_Winner_paid10_percent",
+            "car auction_id seller is_Seller_paid10_percent is_Winner_paid10_percent",
           populate: [
             {
               path: "car",
               model: "Car",
               select:
-                "manufacture_company model manufacture_year unique_identification_number transmission_type fuel_type",
+                "manufacture_company model manufacture_year unique_identification_number car_address car_city car_state car_shuburb car_postal_code",
             },
             {
               path: "seller",
@@ -67,25 +67,6 @@ exports.getSingleTransaction = async (req, res) => {
     res.status(200).json({
       status: "success",
       transaction,
-    });
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-};
-
-exports.deleteTransaction = async (req, res) => {
-  try {
-    const transaction = await Transaction.findByIdAndDelete(req.params.id);
-
-    if (!transaction) {
-      return res.status(404).json({
-        message: "Transaction not found",
-      });
-    }
-
-    res.status(200).json({
-      status: "success",
-      message: "Transaction deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ error });

@@ -4,27 +4,6 @@ class APIFeatures {
     this.queryStr = queryStr;
   }
 
-  // auctionSearch() {
-  //   if (this.queryStr.keyword) {
-  //     this.query = this.query.aggregate([
-  //       {
-  //         $lookup: {
-  //           from: "Car",
-  //           localField: "car",
-  //           foreignField: "_id",
-  //           as: "newField",
-  //         },
-  //       },
-  //       {
-  //         $match: {
-  //           "newField.model": this.queryStr.keyword,
-  //         },
-  //       },
-  //     ]);
-  //   }
-  //   return this;
-  // }
-
   search(key) {
     const keyword = this.queryStr.keyword
       ? {
@@ -43,16 +22,7 @@ class APIFeatures {
   filter() {
     const queryCopy = { ...this.queryStr };
 
-    // Removing field for category
-    const removeFields = [
-      "keyword",
-      "currentPage",
-      "resultPerPage",
-      // "manufacture_company",
-      // "color",
-      // "transmission_type",
-      // "drive_type",
-    ];
+    const removeFields = ["keyword", "currentPage", "resultPerPage"];
     removeFields.forEach((key) => delete queryCopy[key]);
 
     // filter for price
@@ -63,55 +33,6 @@ class APIFeatures {
 
     return this;
   }
-
-  // filterByMake() {
-  //   if (this.queryStr.manufacture_company) {
-  //     this.query = this.query.aggregate([
-  //       {
-  //         $lookup: {
-  //           from: "Car",
-  //           localField: "car",
-  //           foreignField: "_id",
-  //           as: "cars",
-  //         },
-  //       },
-  //       {
-  //         $match: {
-  //           "cars.manufacture_company": this.queryStr.manufacture_company,
-  //         },
-  //       },
-  //     ]);
-  //   }
-  //   return this;
-  // }
-
-  // filterByColor() {
-  //   if (this.queryStr.color) {
-  //     this.query = this.query.find({
-  //       color: {
-  //         $regex: this.queryStr.color,
-  //         $options: "i",
-  //       },
-  //     });
-  //   }
-  //   return this;
-  // }
-
-  // filterByTransmissionType() {
-  //   if (this.queryStr.transmission_type) {
-  //     this.query = this.query.find({
-  //       transmission_type: this.queryStr.transmission_type,
-  //     });
-  //   }
-  //   return this;
-  // }
-
-  // filterByDriveType() {
-  //   if (this.queryStr.drive_type) {
-  //     this.query = this.query.find({ drive_type: this.queryStr.drive_type });
-  //   }
-  //   return this;
-  // }
 
   pagination() {
     const currentPage = Number(this.queryStr.currentPage);

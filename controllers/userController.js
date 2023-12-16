@@ -6,7 +6,6 @@ const User = require("../models/User");
 const { newUser, resetPasswordCode } = require("../utils/sendMail");
 const { generateClientId } = require("../utils/generateClientId");
 const generateCode = require("../utils/generateCode");
-const { generateUsername } = require("../utils/generateUsername");
 
 const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
@@ -76,15 +75,12 @@ exports.registerUser = async (req, res) => {
         .status(400)
         .json({ message: "User with this number already exists" });
 
-    const split = name.split(" ")[0];
-    let username = await generateUsername(split);
     let client = await generateClientId();
 
     user = await User.create({
       name,
       email,
       password,
-      username: username,
       clientId: client,
       age,
       phoneNumber,
@@ -106,13 +102,15 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password)
       return res.status(400).json({ message: "Please fill in all fields" });
 
     const user = await User.findOne({ email }).select("+password");
-
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (user.is_locked === true)
+      return res
+        .status(400)
+        .json({ message: "Your account is locked. Please contact admin" });
 
     const isPasswordMatched = await user.matchPassword(password);
     if (!isPasswordMatched)
@@ -152,6 +150,18 @@ exports.updateProfile = async (req, res) => {
       postal_code,
       shuburb,
     } = req.body;
+
+    if (phoneNumber.length < 9)
+      return res
+        .status(400)
+        .json({ message: "Phone number should be at least 9 digit long" });
+    if (phoneNumber.length > 11)
+      return res
+        .status(400)
+        .json({ message: "Phone number should be at most 11 digit long" });
+    if (age < 18) {
+      return res.status(400).json({ message: "Your age must be above 18" });
+    }
 
     let user = await User.findOne({ phoneNumber });
     if (user && user._id.toString() !== req.userId.toString()) {
@@ -209,6 +219,11 @@ exports.updatePassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "New password cannot be the same as old password" });
+
+    if (newPassword.length < 8)
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters" });
     user.password = newPassword;
     await user.save();
 
@@ -266,6 +281,10 @@ exports.resetPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
+    if (newPassword.length < 8)
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters" });
     if (!newPassword || !confirmPassword)
       return res.status(400).json({ message: "Please fill in all fields" });
     if (newPassword !== confirmPassword)

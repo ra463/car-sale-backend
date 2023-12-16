@@ -16,6 +16,7 @@ const {
   getBidById,
   deleteBid,
   getStatistics,
+  unlockUser,
 } = require("../controllers/adminControllers");
 const { isAdmin, auth } = require("../middlewares/auth");
 const {
@@ -29,6 +30,7 @@ const {
   getSingleQuery,
   deleteQuery,
 } = require("../controllers/queryControllers");
+const { createRefund } = require("../controllers/orderControllers");
 
 const router = express.Router();
 
@@ -53,11 +55,13 @@ router.route("/deletebid/:id").delete(auth, isAdmin, deleteBid);
 
 router.get("/get-all-transaction", auth, isAdmin, getAllTransactions);
 router.get("/get-transaction/:id", auth, isAdmin, getSingleTransaction);
-router.delete("/delete-transaction/:id", auth, isAdmin, deleteTransaction);
 
 router.route("/get-all-queries").get(auth, isAdmin, getAllQueries);
 router.route("/get-single-query/:id").get(auth, isAdmin, getSingleQuery);
 router.route("/delete-query/:id").delete(auth, isAdmin, deleteQuery);
+
+router.post("/refund-payment", isAdmin, auth, createRefund);
+router.post("/unlock-user/:userId", isAdmin, auth, unlockUser);
 
 router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 

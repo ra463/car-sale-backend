@@ -146,79 +146,6 @@ const resetPasswordCode = async (email, name, code) => {
   }
 };
 
-const sendWinnerEmail = async (email, name, auction) => {
-  try {
-    const smtpTransport = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
-    const options = {
-      from: process.env.EMAIL,
-      to: email,
-      subject: "Congratulations! You have won the auction.",
-      html: `<div
-        class="container"
-        style="font-family: 'Roboto', sans-serif; margin: 0 auto"
-      >
-        <div class="head" style="display: flex; justify-content: center">
-          <h2 style="margin: 0px 10px;padding: 10px;padding-top: 5px">
-            Seller has accepted/Confirmed your Bid
-          </h2>
-        </div>
-        <div
-          class="row"
-          style="
-                padding: 1rem 0;
-                border-top: 1px solid #e5e5e5;
-                border-bottom: 1px solid #e5e5e5;
-                padding-top: 0;
-              "
-        >
-          <div class="col-12" style="text-align: center">
-            <img
-              src="https://media.istockphoto.com/id/1338629648/vector/mail-approved-vector-flat-conceptual-icon-style-illustration-eps-10-file.jpg?s=612x612&w=0&k=20&c=o6AcZk3hB6ShxOzmssuOcsfh0QYEQVJ0nCuEZZj1_nQ="
-              alt="img"
-              style="width: 200px;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;margin: 5px"
-            />
-            <p style="font-weight: bold; padding: 0; margin: 0">
-              Hey ${name}, Congratulations! You won the Auction.
-            </p>
-            <p style="padding: 0; margin: 0">
-              Please visit your account and pay 10% of your Bidding.
-            </p>
-            <p style="padding: 5px; margin: 0">
-              If you have any query, then please contact us on our helpline number <span style="font-weight: bold">+91-1234567890</span>.
-
-            </p>
-            <p
-              style="
-                    padding:5px;
-                    padding-bottom: 0;
-                    margin: 0;
-                    color: #949090;
-                    font-size: 0.8rem;
-                  "
-            >
-              Regards, Team <span style="color: #35B0FC">Car Auction</span>
-            </p>
-          </div>
-        </div>
-      </div>`,
-    };
-
-    smtpTransport.sendMail(options, (err, res) => {
-      if (err) return err;
-      return res;
-    });
-  } catch (error) {
-    console.log("err ", err);
-  }
-};
-
 const bidConfirmedEmail = async (email, name, auction) => {
   try {
     const smtpTransport = nodemailer.createTransport({
@@ -436,6 +363,149 @@ const paymentDone = async (email, name, auctionId, transactionId, amount) => {
   }
 };
 
+const sendWinnerEmail = async (email, name, auction) => {
+  try {
+    const smtpTransport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const options = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Congratulations! You have won the auction.",
+      html: `<div
+        class="container"
+        style="font-family: 'Roboto', sans-serif; margin: 0 auto"
+      >
+        <div class="head" style="display: flex; justify-content: center">
+          <h2 style="margin: 0px 10px;padding: 10px;padding-top: 5px">
+            Seller has accepted/Confirmed your Bid
+          </h2>
+        </div>
+        <div
+          class="row"
+          style="
+                padding: 1rem 0;
+                border-top: 1px solid #e5e5e5;
+                border-bottom: 1px solid #e5e5e5;
+                padding-top: 0;
+              "
+        >
+          <div class="col-12" style="text-align: center">
+            <img
+              src="https://media.istockphoto.com/id/1338629648/vector/mail-approved-vector-flat-conceptual-icon-style-illustration-eps-10-file.jpg?s=612x612&w=0&k=20&c=o6AcZk3hB6ShxOzmssuOcsfh0QYEQVJ0nCuEZZj1_nQ="
+              alt="img"
+              style="width: 200px;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;margin: 5px"
+            />
+            <p style="font-weight: bold; padding: 0; margin: 0">
+              Hey ${name}, Congratulations! You have won the auctionId: <b>#${auction}</b>.
+              <br></br>
+              You can visit to your account to see the further details of the auctioneer and the car.
+            </p>
+            <p style="padding: 5px; margin: 0">
+              If you have any query, then please contact us on our helpline number <span style="font-weight: bold">+91-1234567890</span>.
+            </p>
+            <p
+              style="
+                    padding:5px;
+                    padding-bottom: 0;
+                    margin: 0;
+                    color: #949090;
+                    font-size: 0.8rem;
+                  "
+            >
+              Regards, Team <span style="color: #35B0FC">Car Auction</span>
+            </p>
+          </div>
+        </div>
+      </div>`,
+    };
+
+    smtpTransport.sendMail(options, (err, res) => {
+      if (err) return err;
+      return res;
+    });
+  } catch (error) {
+    console.log("err ", err);
+  }
+};
+
+const refundEmail = async (email, name, auctionId, amount) => {
+  try {
+    const smtpTransport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const options = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Refund of your payment",
+      html: `<div
+        class="container"
+        style="font-family: 'Roboto', sans-serif; margin: 0 auto"
+      >
+        <div class="head" style="display: flex; justify-content: center">
+          <h2 style="margin: 0px 10px;padding: 10px;padding-top: 5px">
+            Your Payment has been refunded
+          </h2>
+        </div>
+        <div
+          class="row"
+          style="
+                padding: 1rem 0;
+                border-top: 1px solid #e5e5e5;
+                border-bottom: 1px solid #e5e5e5;
+                padding-top: 0;
+              "
+        >
+          <div class="col-12" style="text-align: center">
+            <img
+              src="https://media.istockphoto.com/id/1338629648/vector/mail-approved-vector-flat-conceptual-icon-style-illustration-eps-10-file.jpg?s=612x612&w=0&k=20&c=o6AcZk3hB6ShxOzmssuOcsfh0QYEQVJ0nCuEZZj1_nQ="
+              alt="img"
+              style="width: 200px;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;margin: 5px"
+            />
+            <p style="font-weight: bold; padding: 0; margin: 0">
+              Hey ${name}, Your payment of <b>${amount} AUD</b> has been refunded for the auctionId: <b>#${auctionId}</b>.
+              <br></br>
+              Your amount will be refunded in your account within 2-3 business days.
+            </p>
+            <p style="padding: 5px; margin: 0">
+              If you have any query, then please contact us on our helpline number <span style="font-weight: bold">+91-1234567890</span>.
+            </p>
+            <p
+              style="
+                    padding:5px;
+                    padding-bottom: 0;
+                    margin: 0;
+                    color: #949090;
+                    font-size: 0.8rem;
+                  "
+            >
+              
+                Regards, Team <span style="color: #35B0FC">Car Auction</span>
+            </p>
+          </div>
+        </div>
+      </div>`,
+    };
+
+    smtpTransport.sendMail(options, (err, res) => {
+      if (err) return err;
+      return res;
+    });
+  } catch (error) {
+    console.log("err ", err);
+  }
+};
+
 module.exports = {
   newUser,
   resetPasswordCode,
@@ -443,4 +513,5 @@ module.exports = {
   bidConfirmedEmail,
   confirmationPaymentEmail,
   paymentDone,
+  refundEmail,
 };
