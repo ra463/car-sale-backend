@@ -117,17 +117,16 @@ exports.createAuctionWebhook = async (req, res) => {
     // console.log("webhook payload:", req.body);
     const orderId = req.body.resource.supplementary_data.related_ids.order_id;
     // console.log("webhook working...", orderId);
-    const order = await Order.findOne({ paypalOrderId: orderId }).populate(
-      "user",
-      "name email"
-    );
+    const order = await Order.findOne({ paypalOrderId: orderId });
     if (!order) {
       return res
         .status(404)
         .json({ success: false, message: "Order not found" });
     }
 
-    const transaction = await Transaction.findOne({ order: order._id });
+    const transaction = await Transaction.findOne({
+      order: order._id,
+    }).populate("user", "name email");
     if (!transaction) {
       return res
         .status(404)
@@ -150,8 +149,8 @@ exports.createAuctionWebhook = async (req, res) => {
     }
 
     await paymentDone(
-      order.user.email,
-      order.user.name,
+      transaction.user.email,
+      transaction.user.name,
       auction._id,
       transaction.transactionId,
       transaction.amount
