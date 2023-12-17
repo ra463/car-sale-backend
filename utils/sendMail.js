@@ -232,14 +232,14 @@ const confirmationPaymentEmail = async (email, name, auctionId, amount) => {
     const options = {
       from: process.env.EMAIL,
       to: email,
-      subject: "You Recently Paid for the Auction",
+      subject: "Payment Done Recently",
       html: `<div
         class="container"
         style="font-family: 'Roboto', sans-serif; margin: 0 auto"
       >
         <div class="head" style="display: flex; justify-content: center">
           <h2 style="margin: 0px 10px;padding: 10px;padding-top: 5px">
-            You Recently Paid for the AuctionId #${auctionId}
+            You Recently Paid for an Auction
           </h2>
         </div>
         <div
@@ -258,7 +258,7 @@ const confirmationPaymentEmail = async (email, name, auctionId, amount) => {
               style="width: 200px;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;margin: 5px"
             />
             <p style="font-weight: bold; padding: 0; margin: 0">
-              Hey ${name}, We have recently received your payment of <b>${amount} AUD</b> for the auctionId: <b>#${auctionId}</b>.
+              Hey ${name}, We have recently received your payment of <b>${amount} AUD</b> for the auctionId: <b style="color: #FF4500">#${auctionId}</b>.
               <br></br>
               Hang on, we are processing your payment. We will notify you once your payment is completed successfully. <b>Please wait for the confirmation email.</b> It may take some time to process your payment like 1-2 hours.
             </p>
@@ -330,9 +330,9 @@ const paymentDone = async (email, name, auctionId, transactionId, amount) => {
               style="width: 200px;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;margin: 5px"
             />
             <p style="font-weight: bold; padding: 0; margin: 0">
-              Hey ${name}, You have Successfully paid the amount of <b>${amount} AUD</b> for the auctionId: <b>#${auctionId}</b>.
+              Hey ${name}, You have Successfully paid the amount of <b>${amount} AUD</b> for the auctionId: <b style="color: #FF4500">#${auctionId}</b>.
               <br></br>
-              Your Transaction Id is: <b>#${transactionId}</b>.
+              Your Transaction Id is: <b style="color: #FF4500">#${transactionId}</b>.
             </p>
             <p style="padding: 5px; margin: 0">
               If you have any query, then please contact us on our helpline number <span style="font-weight: bold">+91-1234567890</span>.
