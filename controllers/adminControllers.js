@@ -391,10 +391,12 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
       createdAt: -1,
     });
 
-  const winner = await bids[0].populate(
-    "bidder",
-    "name email phoneNumber age address city state postal_code shuburb clientId"
-  );
+  if (bids.length > 0) {
+    const winner = await bids[0].populate(
+      "bidder",
+      "name email phoneNumber age address city state postal_code shuburb clientId"
+    );
+  }
 
   res.status(200).json({
     success: true,
