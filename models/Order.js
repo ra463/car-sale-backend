@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    user:{
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "CANCELLED"],
+      enum: ["PENDING", "COMPLETED", "CANCELLED", "REFUNDED"],
       default: "PENDING",
     },
     paypalOrderId: {

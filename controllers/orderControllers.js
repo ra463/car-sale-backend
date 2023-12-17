@@ -112,78 +112,26 @@ exports.captureAuctionOrder = async (req, res) => {
   }
 };
 
-exports.createAuctionWebhook = async (req, res) => {
-  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-    // console.log("webhook payload:", req.body);
-    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
-    // console.log("webhook working...", orderId);
-    const order = await Order.findOne({ paypalOrderId: orderId });
-    if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
-    }
-
-    const transaction = await Transaction.findOne({
-      order: order._id,
-    }).populate("user", "name email");
-    if (!transaction) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Transaction not found" });
-    }
-    // console.log("order status:", req.body.resource.status);
-    order.status = req.body.resource.status;
-    await order.save();
-
-    transaction.status = req.body.resource.status;
-    await transaction.save();
-
-    const auction = await Auction.findById(order.auction);
-    if (auction.seller.toString() === order.user.toString()) {
-      auction.is_Seller_paid10_percent = true;
-      await auction.save();
-    } else {
-      auction.is_Winner_paid10_percent = true;
-      await auction.save();
-    }
-
-    await paymentDone(
-      transaction.user.email,
-      transaction.user.name,
-      auction._id,
-      transaction.transactionId,
-      transaction.amount
-    );
-
-    if (
-      auction.is_Seller_paid10_percent === true &&
-      auction.is_Winner_paid10_percent === true
-    ) {
-      auction.status = "sold";
-      await auction.save();
-    }
-  }
-
-  res.status(200).json({ success: true, message: "Webhook closes working" });
-};
-
 exports.createRefund = async (req, res) => {
-  console.log("entered")
   try {
-    console.log("entering")
     const { auctionId } = req.body;
-    console.log(auctionId)
     if (!auctionId)
       return res
         .status(400)
         .json({ success: false, message: "Auction id is required" });
+
     const auction = await Auction.findById(auctionId);
+    if (!auction)
+      return res
+        .status(400)
+        .json({ success: false, message: "Auction not found" });
+
     const order = await Order.findOne({ auction: auction._id });
     if (!order)
       return res
         .status(400)
         .json({ success: false, message: "Order not found" });
+
     const transaction = await Transaction.findOne({ order: order._id });
     if (!transaction)
       return res
@@ -198,6 +146,17 @@ exports.createRefund = async (req, res) => {
         success: false,
         message:
           "You cannot perform Refund Action in this auction as both the user's have paid the 10% amount",
+      });
+    }
+
+    if (
+      auction.is_Seller_paid10_percent === false &&
+      auction.is_Winner_paid10_percent === false
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "You cannot perform Refund Action in this auction as both the user's have not paid the 10% amount",
       });
     }
 
@@ -218,47 +177,155 @@ exports.createRefund = async (req, res) => {
         },
       }
     );
-    if (data.status === "COMPLETED") {
-      auction.status = "refunded";
 
-      if (
-        auction.is_Seller_paid10_percent === false &&
-        auction.is_Winner_paid10_percent === true
-      ) {
-        const user = await User.findById(auction.seller);
-        user.is_locked = true;
-        auction.is_Winner_paid10_percent = false;
-        await user.save();
-        await auction.save();
-        await refundEmail(
-          user.email,
-          user.name,
-          auction._id,
-          transaction.amount
-        );
-      } else if (
-        auction.is_Seller_paid10_percent === true &&
-        auction.is_Winner_paid10_percent === false
-      ) {
-        const bids = await Bid.find({ auction: auction._id }).sort({
-          createdAt: -1,
-        });
-        const bid = bids[0];
-        const user = await User.findById(bid.bidder);
-        user.is_locked = true;
-        auction.is_Seller_paid10_percent = false;
-        await user.save();
-        await auction.save();
-        await refundEmail(
-          user.email,
-          user.name,
-          auction._id,
-          transaction.amount
-        );
-      }
-    }
-    res.status(200).json({ success: true, message: "Refund Successfull" });
+    res.status(200).json({
+      success: true,
+      data: data,
+      message: "Refund Initiated Successfully",
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+};
+
+exports.createAuctionWebhook = async (req, res) => {
+  // Capturing Payment Webhook
+  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
+
+    const order = await Order.findOne({ paypalOrderId: orderId });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    const transaction = await Transaction.findOne({
+      order: order._id,
+    }).populate("user", "name email");
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+
+    order.status = req.body.resource.status;
+    await order.save();
+
+    transaction.status = req.body.resource.status;
+    await transaction.save();
+
+    const auction = await Auction.findById(order.auction);
+    if (auction.seller.toString() === order.user.toString()) {
+      auction.is_Seller_paid10_percent = true;
+      await auction.save();
+    } else {
+      auction.is_Winner_paid10_percent = true;
+      await auction.save();
+    }
+
+    if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      auction.status = "sold";
+      await auction.save();
+    }
+
+    await paymentDone(
+      transaction.user.email,
+      transaction.user.name,
+      auction._id,
+      transaction.transactionId,
+      transaction.amount
+    );
+  } else if (req.body.event_type === "PAYMENT.CAPTURE.REFUNDED") {
+    // Refunding webhook
+    let transactionId = null;
+    req.body.resource.links.forEach((link) => {
+      if (link.rel === "up") {
+        transactionId = link.href.split("/")[6];
+      }
+    });
+
+    const transaction = await Transaction.findOne({
+      transactionId: transactionId,
+    }).populate("order", "paypalOrderId");
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+
+    const order = await Order.findOne({
+      paypalOrderId: transaction.order.paypalOrderId,
+    });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    const auction = await Auction.findById(order.auction);
+    if (!auction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Auction not found" });
+    }
+
+    if (
+      auction.is_Seller_paid10_percent === false &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      // console.log("entered-1");
+      const bids = await Bid.find({ auction: auction._id }).sort({
+        createdAt: -1,
+      });
+      const bid = bids[0];
+      const winner = await User.findById(bid.bidder);
+      const seller = await User.findById(auction.seller);
+      seller.is_locked = true;
+      auction.is_Winner_paid10_percent = false;
+      auction.status = "refunded";
+      await seller.save();
+      await auction.save();
+      // console.log(user.email, user.name, auction._id, transaction.amount);
+      await refundEmail(
+        winner.email,
+        winner.name,
+        auction._id,
+        transaction.amount
+      );
+    } else if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === false
+    ) {
+      // console.log("entered-2");
+      const bids = await Bid.find({ auction: auction._id }).sort({
+        createdAt: -1,
+      });
+      const bid = bids[0];
+      const winner = await User.findById(bid.bidder);
+      const seller = await User.findById(auction.seller);
+      winner.is_locked = true;
+      auction.is_Seller_paid10_percent = false;
+      auction.status = "refunded";
+      await winner.save();
+      await auction.save();
+      // console.log(user.email, user.name, auction._id, transaction.amount);
+      await refundEmail(
+        seller.email,
+        seller.name,
+        auction._id,
+        transaction.amount
+      );
+    }
+
+    transaction.status = "REFUNDED";
+    order.status = "REFUNDED";
+    await transaction.save();
+    await order.save();
+  }
+
+  res.status(200).json({ success: true, message: "Webhook closes working" });
 };

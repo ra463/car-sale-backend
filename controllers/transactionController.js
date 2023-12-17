@@ -3,10 +3,12 @@ const APIFeatures = require("../utils/apiFeatures");
 
 exports.getAllTransactions = async (req, res) => {
   try {
+    let query = {};
+    if (req.query.status !== "all") query.status = req.query.status;
     const transactionCount = await Transaction.countDocuments();
 
     const apiFeatures = new APIFeatures(
-      Transaction.find().populate("user", "name").sort({ createdAt: -1 }),
+      Transaction.find(query).populate("user", "name").sort({ createdAt: -1 }),
       req.query
     ).search("transactionId");
 
