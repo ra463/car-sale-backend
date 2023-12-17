@@ -55,11 +55,6 @@ exports.uploadCarDetails = async (req, res) => {
         .status(400)
         .json({ message: "Odometer reading must be a number" });
 
-    if (num_of_cylinders && isNaN(num_of_cylinders))
-      return res
-        .status(400)
-        .json({ message: "Number of cylinders must be a number" });
-
     if (car_postal_code && isNaN(car_postal_code))
       return res.status(400).json({ message: "Postal code must be a number" });
 
