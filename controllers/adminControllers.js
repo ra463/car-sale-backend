@@ -7,6 +7,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const Bid = require("../models/Bid");
 const Transaction = require("../models/Transaction");
 const Query = require("../models/Query");
+const { s3delete } = require("../utils/s3");
 
 const sendData = (user, statusCode, res) => {
   const token = user.getJWTToken();
