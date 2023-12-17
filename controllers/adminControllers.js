@@ -403,7 +403,7 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
     success: true,
     auction,
     bids,
-    winner: winner.bidder,
+    winner: winner === null ? null : winner.bidder,
   });
 });
 
