@@ -17,6 +17,7 @@ const {
   deleteBid,
   getStatistics,
   unlockUser,
+  getUniqueCarState,
 } = require("../controllers/adminControllers");
 const { isAdmin, auth } = require("../middlewares/auth");
 const {
@@ -62,6 +63,7 @@ router.route("/delete-query/:id").delete(auth, isAdmin, deleteQuery);
 
 router.route("/refund-payment").post(auth, isAdmin, createRefund);
 router.route("/unlock-user/:userId").put(auth, isAdmin, unlockUser);
+router.route("/get-states").get(auth, isAdmin, getUniqueCarState);
 
 router.route("/get-admin-stats/:time").get(auth, isAdmin, getStatistics);
 

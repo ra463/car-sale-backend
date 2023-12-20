@@ -358,25 +358,37 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
 exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
   let query = {};
   if (req.query.status !== "all") query.status = req.query.status;
+
   const auctionCount = await Auction.countDocuments();
   const apiFeatures = new APIFeatures(
-    Auction.find(query).populate("seller", "name").sort({ createdAt: -1 }),
+    Auction.find(query)
+      .populate("seller", "name")
+      .populate("car", "car_state")
+      .sort({ createdAt: -1 }),
     req.query
   ).search("auction_id");
 
   let auctions = await apiFeatures.query;
+  if (req.query.car_state !== "all") {
+    auctions = await auctions.filter(
+      (auction) => auction.car && auction.car.car_state == req.query.car_state
+    );
+  }
 
   const filteredAuctionCount = auctions.length;
   if (req.query.resultPerPage && req.query.currentPage) {
-    apiFeatures.pagination();
-    auctions = await apiFeatures.query.clone();
+    let resultPerPage = Number(req.query.resultPerPage);
+    let currentPage = Number(req.query.currentPage);
+
+    let skip = resultPerPage * (currentPage - 1);
+    auctions = await auctions.slice(skip, skip + resultPerPage);
   }
 
   res.status(200).json({
     success: true,
-    auctions,
     auctionCount,
     filteredAuctionCount,
+    auctions,
   });
 });
 
@@ -515,7 +527,17 @@ exports.unlockUser = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "User unlocked successfully!",
+    message: "User Unlocked Successfully",
+  });
+});
+
+exports.getUniqueCarState = catchAsyncError(async (req, res, next) => {
+  const cars = await Car.find();
+  const carStates = [...new Set(cars.map((car) => car.car_state))];
+
+  res.status(200).json({
+    success: true,
+    carStates,
   });
 });
 
