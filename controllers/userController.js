@@ -63,6 +63,9 @@ exports.registerUser = async (req, res) => {
         .status(400)
         .json({ message: "You must be 18 or above to register" });
     }
+    if (postal_code && isNaN(postal_code)) {
+      return res.status(400).json({ message: "Postal code must be a number" });
+    }
 
     let user = await User.findOne({ email });
     let user2 = await User.findOne({ phoneNumber });
@@ -162,6 +165,9 @@ exports.updateProfile = async (req, res) => {
     if (age < 18) {
       return res.status(400).json({ message: "Your age must be above 18" });
     }
+    if (postal_code && isNaN(postal_code)) {
+      return res.status(400).json({ message: "Postal code must be a number" });
+    }
 
     let user = await User.findOne({ phoneNumber });
     if (user && user._id.toString() !== req.userId.toString()) {
@@ -212,7 +218,7 @@ exports.updatePassword = async (req, res) => {
     const user = await User.findById(req.userId).select("+password");
     const isMatched = await user.matchPassword(oldPassword);
     if (!isMatched)
-      return res.status(400).json({ message: "Invalid OldPassword password" });
+      return res.status(400).json({ message: "Invalid Old Password" });
 
     const isPasswordMatched = await user.matchPassword(newPassword);
     if (isPasswordMatched)
@@ -229,7 +235,7 @@ exports.updatePassword = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: "Password Changed successfully" });
+      .json({ success: true, message: "Password Changed Successfully" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -347,10 +353,12 @@ exports.getAllUserBids = async (req, res) => {
 
 exports.getAllUserAuctions = async (req, res) => {
   try {
-    const auctions = await Auction.find({ seller: req.userId }).populate(
-      "car",
-      "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images vehicle_type"
-    );
+    const auctions = await Auction.find({ seller: req.userId })
+      .populate(
+        "car",
+        "model manufacture_company unique_identification_number fuel_type description odometer_reading drive_type images vehicle_type"
+      )
+      .sort({ createdAt: -1 });
 
     if (!auctions)
       return res.status(404).json({ message: "Auctions not found" });
@@ -400,7 +408,7 @@ exports.deleteUserAuction = async (req, res) => {
 
 exports.getAllUserCars = async (req, res) => {
   try {
-    const cars = await Car.find({ seller: req.userId });
+    const cars = await Car.find({ seller: req.userId }).sort({ createdAt: -1 });
     if (!cars) return res.status(404).json({ message: "Cars not found" });
 
     res.status(200).json({ success: true, cars });

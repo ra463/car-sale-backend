@@ -85,6 +85,12 @@ exports.uploadCarDetails = async (req, res) => {
           .status(400)
           .json({ message: "Engine capacity must be a number" });
 
+      if (num_of_cylinders && isNaN(num_of_cylinders)) {
+        return res
+          .status(400)
+          .json({ message: "Number of cylinders must be a number" });
+      }
+
       await Car.create({
         manufacture_company,
         vehicle_type,
@@ -130,6 +136,12 @@ exports.uploadCarDetails = async (req, res) => {
         return res
           .status(400)
           .json({ message: "Engine power must be a number" });
+
+      if (num_of_cylinders && isNaN(num_of_cylinders)) {
+        return res
+          .status(400)
+          .json({ message: "Number of cylinders must be a number" });
+      }
 
       await Car.create({
         vehicle_type,
