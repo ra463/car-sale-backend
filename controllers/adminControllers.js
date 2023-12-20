@@ -195,7 +195,10 @@ exports.getAllCars = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getCarById = catchAsyncError(async (req, res, next) => {
-  const car = await Car.findById(req.params.id);
+  const car = await Car.findById(req.params.id).populate(
+    "seller",
+    "name email phoneNumber age address city state postal_code shuburb clientId"
+  );
   if (!car) return next(new ErrorHandler("Car not found!", 404));
 
   res.status(200).json({

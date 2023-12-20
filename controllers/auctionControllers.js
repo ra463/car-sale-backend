@@ -292,12 +292,14 @@ exports.confirmBid = async (req, res) => {
 
     if (bid.bid_amount === auction.highest_bid) {
       auction.auction_confirmed = true;
+      bid.is_confirmed_bid = true;
       await bidConfirmedEmail(
         bid.bidder.email,
         bid.bidder.name,
         auction.auction_id
       );
       await auction.save();
+      await bid.save();
     } else {
       return res
         .status(400)
