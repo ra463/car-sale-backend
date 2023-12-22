@@ -3,6 +3,8 @@ const SDK = require("aws-sdk");
 require("aws-sdk/lib/maintenance_mode_message").suppress = true;
 const multer = require("multer");
 const dotenv = require("dotenv");
+const convert = require("heic-convert");
+
 dotenv.config();
 
 exports.s3Uploadv2 = async (file, id) => {
@@ -86,7 +88,26 @@ exports.s3UploadMulti = async (files, id) => {
     region: process.env.AWS_BUCKET_REGION,
   });
 
-  const params = files.map((file) => {
+  // check if the file type is heic then convert to jpg/png
+  let newFiles = [];
+  for (let i = 0; i < files.length; i++) {
+    if (files[i].mimetype === "image/heic") {
+      const buffer = await convert({
+        buffer: files[i].buffer,
+        format: "JPEG",
+        quality: 1,
+      });
+      const newFile = {
+        originalname: files[i].originalname.split(".")[0] + ".jpg",
+        buffer: buffer,
+      };
+      newFiles.push(newFile);
+    } else {
+      newFiles.push(files[i]);
+    }
+  }
+
+  const params = newFiles.map((file) => {
     return {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: `uploads/user-${id}/car/${Date.now().toString()}-${
@@ -101,8 +122,7 @@ exports.s3UploadMulti = async (files, id) => {
 
 const storage = multer.memoryStorage();
 
-// for image
-const fileFilter = (req, file, cb) => {
+const fileFilter = async (req, file, cb) => {
   if (file.mimetype.split("/")[0] === "image") {
     req.video_file = false;
     cb(null, true);
@@ -110,6 +130,12 @@ const fileFilter = (req, file, cb) => {
     cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE"), false);
   }
 };
+
+exports.upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 11006600, files: 5 },
+});
 
 // for video
 // const fileFilter2 = (req, file, cb) => {
@@ -120,12 +146,6 @@ const fileFilter = (req, file, cb) => {
 //     cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE"), false);
 //   }
 // };
-
-exports.upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 11006600, files: 5 },
-});
 
 // exports.upload2 = multer({
 //   storage,

@@ -230,10 +230,11 @@ exports.updatePassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Password must be at least 8 characters" });
+
     user.password = newPassword;
     await user.save();
 
-    res
+    return res
       .status(200)
       .json({ success: true, message: "Password Changed Successfully" });
   } catch (error) {
@@ -251,7 +252,7 @@ exports.sendForgotPasswordCode = async (req, res) => {
     const code = generateCode(6);
 
     await User.findOneAndUpdate({ email }, { temp_code: code });
-    resetPasswordCode(email, user.name, code);
+    await resetPasswordCode(email, user.name, code);
 
     res.status(200).json({ message: "Code sent to your email." });
   } catch (error) {
@@ -268,14 +269,15 @@ exports.validateCode = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.temp_code === code) {
-      user.temp_code = undefined;
-      await user.save({ validateBeforeSave: false });
+    if (user.temp_code !== code)
+      return res.status(400).json({ message: "Invalid/Expired Code" });
 
-      res.status(200).json({ message: "Code Validated Successfully." });
-    } else {
-      res.status(400).json({ message: "Invalid Code" });
-    }
+    user.temp_code = null;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Code validated successfully." });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -284,17 +286,18 @@ exports.validateCode = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { email, newPassword, confirmPassword } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
-    if (newPassword.length < 8)
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 8 characters" });
     if (!newPassword || !confirmPassword)
       return res.status(400).json({ message: "Please fill in all fields" });
     if (newPassword !== confirmPassword)
       return res.status(400).json({ message: "Passwords do not match" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (newPassword.length < 8)
+      return res
+        .status(400)
+        .json({ message: "Password must be atleast 8 characters" });
 
     user.password = newPassword;
     await user.save();
@@ -367,6 +370,39 @@ exports.getAllUserAuctions = async (req, res) => {
       success: true,
       auctions,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserAuctionDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    const auction = await Auction.findById(req.params.auctionId)
+      .populate("car")
+      .populate("seller", "name");
+
+    if (user._id.toString() !== auction.seller._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "You are not authorized to view this auction" });
+    }
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    const bids = await Bid.find({ auction: req.params.auctionId })
+      .sort({
+        createdAt: -1,
+      })
+      .select("bid_amount bidder");
+
+    if (
+      auction.is_Seller_paid10_percent === true &&
+      auction.is_Winner_paid10_percent === true
+    ) {
+      await bids[0].populate("bidder", "name email phoneNumber");
+    }
+
+    res.status(200).json({ success: true, auction, bids });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
