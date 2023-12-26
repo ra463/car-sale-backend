@@ -453,6 +453,28 @@ exports.getAllUserCars = async (req, res) => {
   }
 };
 
+exports.getUserWonAuction = async (req, res) => {
+  try {
+    const auctions = await Auction.find({ seller: req.userId }).sort({
+      createdAt: -1,
+    });
+    if (!auctions)
+      return res
+        .status(404)
+        .json({ message: "You haven't created any auction yet" });
+
+    const wonAuctions = auctions.filter((auction) => auction.status === "sold");
+    if (!wonAuctions.length)
+      return res
+        .status(404)
+        .json({ message: "You haven't won any auction yet" });
+
+    res.status(200).json({ success: true, wonAuctions });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getUserTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({ user: req.userId })
