@@ -23,7 +23,7 @@ router.route("/add-features/:carId").post(auth, addKeyFeatures);
 router
   .route("/add-more-car-images/:carId")
   .put(upload.array("image"), auth, uploadMoreCarImages);
-router.route("/get-car-details/:carId").get(getCarDetails);
+router.route("/get-car-details/:carId").get(auth, getCarDetails);
 router.route("/delete-car-image/:carId").delete(auth, deleteCarImage);
 router.route("/delete-car/:carId").delete(auth, deleteCar);
 router.route("/get-car-images/:carId").get(getCarImages);

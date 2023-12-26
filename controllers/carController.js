@@ -287,8 +287,14 @@ exports.deleteCar = async (req, res) => {
 
 exports.getCarDetails = async (req, res) => {
   try {
+    const user = await User.findById(req.UserId);
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Vehicle not found" });
+
+    if (user._id.toString() !== car.seller.toString())
+      return res
+        .status(400)
+        .json({ message: "You are not the seller of this Car" });
 
     res.status(200).json({
       success: true,
