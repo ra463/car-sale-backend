@@ -287,7 +287,7 @@ exports.deleteCar = async (req, res) => {
 
 exports.getCarDetails = async (req, res) => {
   try {
-    const user = await User.findById(req.UserId);
+    const user = await User.findById(req.userId);
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
