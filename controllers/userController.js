@@ -455,9 +455,11 @@ exports.getAllUserCars = async (req, res) => {
 
 exports.getUserWonAuction = async (req, res) => {
   try {
-    const auctions = await Auction.find({ seller: req.userId }).sort({
-      createdAt: -1,
-    });
+    const auctions = await Auction.find({ seller: req.userId })
+      .sort({
+        createdAt: -1,
+      })
+      .populate("car", "unique_identification_number");
     if (!auctions)
       return res
         .status(404)
