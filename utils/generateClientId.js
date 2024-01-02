@@ -1,8 +1,8 @@
 exports.generateClientId = () => {
   let clientId = "";
-  const possible = "0123456789";
+  const possible = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     clientId += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
