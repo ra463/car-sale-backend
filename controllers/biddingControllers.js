@@ -28,13 +28,14 @@ exports.createBidding = async (req, res) => {
       });
 
     const { bid_amount } = req.body;
+
+    if (!bid_amount)
+      return res.status(400).json({ message: "Bidding Amount is required" });
+
     if (bid_amount === 0)
       return res
         .status(400)
         .json({ message: "Bidding Amount should be greater than 0" });
-
-    if (!bid_amount)
-      return res.status(400).json({ message: "Bidding Amount is required" });
 
     if (isNaN(bid_amount))
       return res
@@ -77,6 +78,14 @@ exports.createBidding = async (req, res) => {
     }
 
     if (bids.length !== 0) {
+      if (bid_amount < auction.highest_bid) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Bidding Amount should be greater than the current highest bid",
+        });
+      }
+
       let bidPlaced = false;
       // check that bid amount should be always 50 dollar more than the current highest bid
       const high_bid = auction.highest_bid;
@@ -89,24 +98,21 @@ exports.createBidding = async (req, res) => {
         });
       }
 
-      if (bid_amount > auction.highest_bid) {
-        await Bid.create({
-          auction: auction._id,
-          bidder: user._id,
-          bid_amount: bid_amount,
-        });
+      await Bid.create({
+        auction: auction._id,
+        bidder: user._id,
+        bid_amount: bid_amount,
+      });
 
-        auction.highest_bid = bid_amount;
-        if (bid_amount >= auction.asking_price * 0.9) {
-          auction.reserve_flag = "Reserve Met 90% of the Asking Price";
-        }
-        if (bid_amount >= auction.asking_price) {
-          auction.reserve_flag = "Reserve Met";
-        }
-        await auction.save();
-
-        bidPlaced = true;
+      auction.highest_bid = bid_amount;
+      if (bid_amount >= auction.asking_price * 0.9) {
+        auction.reserve_flag = "Reserve Met 90% of the Asking Price";
       }
+      if (bid_amount >= auction.asking_price) {
+        auction.reserve_flag = "Reserve Met";
+      }
+      await auction.save();
+      bidPlaced = true;
 
       if (bidPlaced === true) {
         return res.status(201).json({
