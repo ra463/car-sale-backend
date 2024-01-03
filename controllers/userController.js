@@ -492,7 +492,7 @@ exports.getBuyerWonAuction = async (req, res) => {
       console.log(bids);
 
     if (!bids) {
-      return res.status(404).json({ message: "You haven't won any Auction" });
+      return res.status(404).json({ message: "You haven't Bidded Yet" });
     }
 
     const wonBuyerAuctions = bids.filter(
