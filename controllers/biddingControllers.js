@@ -29,9 +29,9 @@ exports.createBidding = async (req, res) => {
 
     const { bid_amount } = req.body;
     if (bid_amount === 0)
-    return res
-      .status(400)
-      .json({ message: "Bidding Amount should be greater than 0" });
+      return res
+        .status(400)
+        .json({ message: "Bidding Amount should be greater than 0" });
 
     if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
@@ -78,6 +78,17 @@ exports.createBidding = async (req, res) => {
 
     if (bids.length !== 0) {
       let bidPlaced = false;
+      // check that bid amount should be always 50 dollar more than the current highest bid
+      const high_bid = auction.highest_bid;
+      const diff = bid_amount - high_bid;
+      if (diff < 50) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Bid Amount should be atleast 50 dollar more than the current highest bid",
+        });
+      }
+
       if (bid_amount > auction.highest_bid) {
         await Bid.create({
           auction: auction._id,
