@@ -14,7 +14,8 @@ const {
   deleteUserAuction,
   getUserTransactions,
   getUserAuctionDetails,
-  getUserWonAuction,
+  getSellerWonAuction,
+  getBuyerWonAuction,
 } = require("../controllers/userController");
 const { auth } = require("../middlewares/auth");
 
@@ -33,7 +34,8 @@ router.route("/get-all-user-auctions").get(auth, getAllUserAuctions);
 router
   .route("/get-user-auction-details/:auctionId")
   .get(auth, getUserAuctionDetails);
-router.route("/get-user-won-auctions").get(auth, getUserWonAuction);
+router.route("/get-seller-won-auctions").get(auth, getSellerWonAuction);
+router.route("/get-buyer-won-auctions").get(auth, getBuyerWonAuction);
 router.route("/get-all-user-cars").get(auth, getAllUserCars);
 router.route("/delete-user-auction/:id").delete(auth, deleteUserAuction);
 router.route("/get-transactions").get(auth, getUserTransactions);

@@ -453,7 +453,7 @@ exports.getAllUserCars = async (req, res) => {
   }
 };
 
-exports.getUserWonAuction = async (req, res) => {
+exports.getSellerWonAuction = async (req, res) => {
   try {
     const auctions = await Auction.find({ seller: req.userId })
       .sort({
@@ -466,12 +466,39 @@ exports.getUserWonAuction = async (req, res) => {
         .json({ message: "You haven't created any auction yet" });
 
     const wonAuctions = auctions.filter((auction) => auction.status === "sold");
-    if (!wonAuctions.length)
-      return res
-        .status(404)
-        .json({ message: "You haven't won any auction yet" });
-
     res.status(200).json({ success: true, wonAuctions });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getBuyerWonAuction = async (req, res) => {
+  try {
+    const bids = await Bid.find({
+      bidder: req.userId,
+      is_confirmed_bid: true,
+    })
+      .populate("auction")
+      .populate({
+        path: "auction",
+        populate: {
+          path: "car",
+          model: "Car",
+          select: "unique_identification_number",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+      console.log(bids);
+
+    if (!bids) {
+      return res.status(404).json({ message: "You haven't won any Auction" });
+    }
+
+    const wonBuyerAuctions = bids.filter(
+      (bid) => bid.auction.status === "sold"
+    );
+    res.status(200).json({ success: true, wonBuyerAuctions });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
