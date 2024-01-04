@@ -481,15 +481,21 @@ exports.getBuyerWonAuction = async (req, res) => {
       .populate("auction")
       .populate({
         path: "auction",
-        populate: {
-          path: "car",
-          model: "Car",
-          select: "unique_identification_number",
-        },
+        populate: [
+          {
+            path: "car",
+            model: "Car",
+            select:
+              "unique_identification_number model car_address car_city car_state car_shuburb car_postal_code",
+          },
+          {
+            path: "seller",
+            model: "User",
+            select: "name email phoneNumber",
+          },
+        ],
       })
       .sort({ createdAt: -1 });
-
-      console.log(bids);
 
     if (!bids) {
       return res.status(404).json({ message: "You haven't Bidded Yet" });

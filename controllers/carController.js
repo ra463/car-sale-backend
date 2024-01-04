@@ -231,16 +231,17 @@ exports.uploadMoreCarImages = async (req, res) => {
 
 exports.deleteCarImage = async (req, res) => {
   try {
+    const { img } = req.body;
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
     const car = await Car.findById(req.params.carId);
     if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
-    const index = car.images.findIndex((image) => image === req.body.image);
+    const index = car.images.findIndex((image) => image === img);
     if (index === -1)
       return res.status(404).json({ message: "Image not found" });
 
-    await s3delete(req.body.image, user._id);
+    await s3delete(img, user._id);
     car.images.splice(index, 1);
     await car.save();
 
