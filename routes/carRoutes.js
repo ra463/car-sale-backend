@@ -4,27 +4,29 @@ const {
   uploadCarDetails,
   addKeyFeatures,
   getCarDetails,
-  uploadMoreCarImages,
+  uploadCarImages,
   deleteCarImage,
   deleteCar,
   getCarImages,
   editCarDetails,
   getAllCars,
   getAllUniqueCarNames,
+  pushCarImagesIntoArray,
+  removeUplodedCarImages,
 } = require("../controllers/carController");
 const { upload } = require("../utils/s3");
 
 const router = express.Router();
 
-router
-  .route("/upload-car-details")
-  .post(upload.array("image"), auth, uploadCarDetails);
+router.route("/upload-car-details").post(auth, uploadCarDetails);
 router.route("/add-features/:carId").post(auth, addKeyFeatures);
 router
-  .route("/add-more-car-images/:carId")
-  .put(upload.array("image"), auth, uploadMoreCarImages);
-router.route("/get-car-details/:carId").get(auth, getCarDetails);
+  .route("/add-car-images")
+  .post(upload.array("image"), auth, uploadCarImages);
+router.delete("/remove-car-image", auth, removeUplodedCarImages);
+router.route("/push-more-images/:carId").patch(auth, pushCarImagesIntoArray);
 router.route("/delete-car-image/:carId").delete(auth, deleteCarImage);
+router.route("/get-car-details/:carId").get(auth, getCarDetails);
 router.route("/delete-car/:carId").delete(auth, deleteCar);
 router.route("/get-car-images/:carId").get(getCarImages);
 router.route("/edit-car-details/:carId").put(auth, editCarDetails);

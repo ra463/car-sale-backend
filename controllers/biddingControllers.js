@@ -58,7 +58,7 @@ exports.createBidding = async (req, res) => {
 
         auction.highest_bid = bid_amount;
         if (bid_amount >= auction.asking_price * 0.9) {
-          auction.reserve_flag = "Reserve Met 90% of the Asking Price";
+          auction.reserve_flag = "90% Reserve Met";
         }
         if (bid_amount >= auction.asking_price) {
           auction.reserve_flag = "Reserve Met";
@@ -106,7 +106,7 @@ exports.createBidding = async (req, res) => {
 
       auction.highest_bid = bid_amount;
       if (bid_amount >= auction.asking_price * 0.9) {
-        auction.reserve_flag = "Reserve Met 90% of the Asking Price";
+        auction.reserve_flag = "90% Reserve Met";
       }
       if (bid_amount >= auction.asking_price) {
         auction.reserve_flag = "Reserve Met";

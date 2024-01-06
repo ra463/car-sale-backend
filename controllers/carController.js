@@ -34,6 +34,7 @@ exports.uploadCarDetails = async (req, res) => {
       car_postal_code,
       is_registered,
       car_shuburb,
+      images_url,
     } = req.body;
 
     if (!vehicle_type)
@@ -70,14 +71,14 @@ exports.uploadCarDetails = async (req, res) => {
         .status(400)
         .json({ message: "Vehicle already exists with this Vin" });
 
-    const files = req.files;
+    // const files = req.files;
 
-    let all_images = [];
-    if (files) {
-      const result = await s3UploadMulti(files, user._id);
-      const location = result.map((item) => item.Location);
-      all_images.push(...location);
-    }
+    // let all_images = [];
+    // if (files) {
+    //   const result = await s3UploadMulti(files, user._id);
+    //   const location = result.map((item) => item.Location);
+    //   all_images.push(...location);
+    // }
 
     if (vehicle_type === "Car") {
       if (engine_capacity && isNaN(engine_capacity))
@@ -111,7 +112,7 @@ exports.uploadCarDetails = async (req, res) => {
         car_shuburb,
         seller: user._id,
         description,
-        images: all_images,
+        images: images_url,
         is_registered,
         expiry_date: is_registered === "true" ? expiry_date : null,
         body_type,
@@ -162,7 +163,7 @@ exports.uploadCarDetails = async (req, res) => {
         car_shuburb,
         seller: user._id,
         description,
-        images: all_images,
+        images: images_url,
         is_registered,
         expiry_date: is_registered === "true" ? expiry_date : null,
         body_type,
@@ -203,7 +204,7 @@ exports.addKeyFeatures = async (req, res) => {
   }
 };
 
-exports.uploadMoreCarImages = async (req, res) => {
+exports.uploadCarImages = async (req, res) => {
   try {
     const files = req.files;
     if (!files)
@@ -211,18 +212,57 @@ exports.uploadMoreCarImages = async (req, res) => {
 
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
-    const car = await Car.findById(req.params.carId);
-    if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
     const result = await s3UploadMulti(files, user._id);
     const location = result.map((item) => item.Location);
-    car.images.push(...location);
+    // car.images.push(...location);
 
-    await car.save();
+    // await car.save();
 
     res.status(201).json({
       success: true,
-      message: "Vehicle images uploaded successfully",
+      message: "Vehicle images uploaded",
+      location,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.pushCarImagesIntoArray = async (req, res) => {
+  try {
+    const { images_url } = req.body;
+    if (!images_url) return res.status(404).json({ message: "Url not pushed" });
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const car = await Car.findById(req.params.carId);
+    if (!car) return res.status(404).json({ message: "Vehicle not found" });
+
+    car.images.push(...images_url);
+    car.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Images Uploded successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.removeUplodedCarImages = async (req, res) => {
+  try {
+    const { img } = req.body;
+    if (!img) return res.status(400).json({ message: "Please select image" });
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    await s3delete(img, user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Image deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -247,7 +287,7 @@ exports.deleteCarImage = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Vehicle image deleted successfully",
+      message: "Image deleted successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

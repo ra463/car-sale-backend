@@ -323,14 +323,14 @@ exports.testingDateTime = async (req, res) => {
 
   // res.status(200).json({ success: true, start: new Date(), currentTime });
 
-  const cars = await User.find();
+  const cars = await Auction.find({
+    reserve_flag: "Reserve Met 90% of the Asking Price",
+  });
   // find car which have car_state = "MP" and "Jabalpur"
 
   cars.forEach(async (car) => {
-    if (car.state === "MP" && car.state == null) {
-      car.state = "Western Australia";
-      await car.save();
-    }
+    car.reserve_flag = "90% Reserve Met";
+    await car.save();
   });
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, cars });
 };
