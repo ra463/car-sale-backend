@@ -32,7 +32,7 @@ exports.createBidding = async (req, res) => {
     if (!bid_amount)
       return res.status(400).json({ message: "Bidding Amount is required" });
 
-    if (bid_amount === 0)
+    if (bid_amount == 0)
       return res
         .status(400)
         .json({ message: "Bidding Amount should be greater than 0" });
@@ -68,11 +68,6 @@ exports.createBidding = async (req, res) => {
         res.status(201).json({
           success: true,
           message: `Bid Placed Successfully`,
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: `Bid Amount is required`,
         });
       }
     }
