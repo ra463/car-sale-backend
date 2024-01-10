@@ -497,14 +497,14 @@ exports.getBuyerWonAuction = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    if (!bids) {
-      return res.status(404).json({ message: "You haven't Bidded Yet" });
-    }
+    // if (!bids) {
+    //   return res.status(404).json({ message: "You haven't Bidded Yet" });
+    // }
 
-    const wonBuyerAuctions = bids.filter(
-      (bid) => bid.auction.status === "sold"
-    );
-    res.status(200).json({ success: true, wonBuyerAuctions });
+    // const wonBuyerAuctions = bids.filter(
+    //   (bid) => bid.auction.status === "sold"
+    // );
+    res.status(200).json({ success: true, wonBuyerAuctions: bids });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
