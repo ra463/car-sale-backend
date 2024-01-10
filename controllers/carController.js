@@ -37,6 +37,8 @@ exports.uploadCarDetails = async (req, res) => {
       images_url,
     } = req.body;
 
+    let image_url = images_url;
+
     if (!vehicle_type)
       return res.status(400).json({ message: "Vehicle type is required" });
 
@@ -112,7 +114,7 @@ exports.uploadCarDetails = async (req, res) => {
         car_shuburb,
         seller: user._id,
         description,
-        images: images_url,
+        images: image_url,
         is_registered,
         expiry_date: is_registered === "true" ? expiry_date : null,
         body_type,
@@ -163,7 +165,7 @@ exports.uploadCarDetails = async (req, res) => {
         car_shuburb,
         seller: user._id,
         description,
-        images: images_url,
+        images: image_url,
         is_registered,
         expiry_date: is_registered === "true" ? expiry_date : null,
         body_type,
