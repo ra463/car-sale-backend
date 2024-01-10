@@ -481,30 +481,34 @@ exports.getBuyerWonAuction = async (req, res) => {
       .populate("auction")
       .populate({
         path: "auction",
-        populate: [
-          {
-            path: "car",
-            model: "Car",
-            select:
-              "unique_identification_number model car_address car_city car_state car_shuburb car_postal_code",
-          },
-          {
-            path: "seller",
-            model: "User",
-            select: "name email phoneNumber",
-          },
-        ],
+        populate: {
+          path: "car",
+          model: "Car",
+          select:
+            "unique_identification_number model car_address car_city car_state car_shuburb car_postal_code is_Seller_paid10_percent is_Winner_paid10_percent",
+        },
       })
       .sort({ createdAt: -1 });
-
-    // if (!bids) {
-    //   return res.status(404).json({ message: "You haven't Bidded Yet" });
-    // }
 
     // const wonBuyerAuctions = bids.filter(
     //   (bid) => bid.auction.status === "sold"
     // );
-    res.status(200).json({ success: true, wonBuyerAuctions: bids });
+
+    // populate seller when is_Winner_paid10_percent is_seller_paid10_percent are true
+    const processedBids = await Promise.all(
+      bids.map(async (bid) => {
+        if (
+          bid.auction &&
+          bid.auction.is_Seller_paid10_percent === true &&
+          bid.auction.is_Winner_paid10_percent === true
+        ) {
+          await bid.populate("auction.seller", "name email phoneNumber");
+        }
+        return bid;
+      })
+    );
+
+    res.status(200).json({ success: true, wonBuyerAuctions: processedBids });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
