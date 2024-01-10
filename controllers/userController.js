@@ -459,7 +459,7 @@ exports.getSellerWonAuction = async (req, res) => {
       .sort({
         createdAt: -1,
       })
-      .populate("car", "unique_identification_number");
+      .populate("car", "unique_identification_number images");
     if (!auctions)
       return res
         .status(404)
