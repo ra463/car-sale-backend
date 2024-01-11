@@ -61,8 +61,8 @@ exports.uploadCarDetails = async (req, res) => {
     if (car_postal_code && isNaN(car_postal_code))
       return res.status(400).json({ message: "Postal code must be a number" });
 
-    if (unique_identification_number.length !== 17)
-      return res.status(400).json({ message: "VIN must be of 17 characters" });
+    // if (unique_identification_number.length !== 17)
+    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     const carExists = await Car.findOne({
       unique_identification_number: unique_identification_number,
@@ -416,11 +416,11 @@ exports.editCarDetails = async (req, res) => {
       car_shuburb,
     } = req.body;
 
-    if (
-      unique_identification_number &&
-      unique_identification_number.length !== 17
-    )
-      return res.status(400).json({ message: "VIN must be of 17 characters" });
+    // if (
+    //   unique_identification_number &&
+    //   unique_identification_number.length !== 17
+    // )
+    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
 
     if (unique_identification_number) {
       const carExists = await Car.findOne({
