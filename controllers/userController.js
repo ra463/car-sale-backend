@@ -84,7 +84,7 @@ exports.registerUser = async (req, res) => {
 
     user = await User.create({
       name,
-      email,
+      email: email.toLowercase(),
       password,
       clientId: client,
       age,
@@ -189,7 +189,7 @@ exports.updateProfile = async (req, res) => {
 
     const newUserData = {
       name,
-      email,
+      email: email.toLowercase(),
       age,
       phoneNumber,
       address,
