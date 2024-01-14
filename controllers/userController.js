@@ -67,7 +67,9 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "Postal code must be a number" });
     }
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({
+      email: { $regex: new RegExp(email, "i") },
+    });
     let user2 = await User.findOne({ phoneNumber });
     if (user)
       return res
@@ -108,7 +110,9 @@ exports.loginUser = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ message: "Please fill in all fields" });
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${email}$`, "i") },
+    }).select("+password");
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
     if (user.is_locked === true)
       return res

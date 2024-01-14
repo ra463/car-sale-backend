@@ -8,7 +8,7 @@ exports.auth = async (req, res, next) => {
     if (!req.headers.authorization)
       return res.status(401).send({
         error: {
-          message: "Unauthorized: No token provided",
+          message: "Unauthorized: Please login first",
         },
       });
 
