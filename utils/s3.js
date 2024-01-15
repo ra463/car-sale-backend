@@ -91,7 +91,19 @@ exports.s3UploadMulti = async (files, id) => {
   // check if the file type is heic then convert to jpg/png
   let newFiles = [];
   for (let i = 0; i < files.length; i++) {
-    if (files[i].mimetype === "image/heic" || "") {
+    // console.log(files[i]);
+    if (files[i].originalname.split(".")[1] === "heic") {
+      const buffer = await convert({
+        buffer: files[i].buffer,
+        format: "JPEG",
+        quality: 1,
+      });
+      const newFile = {
+        originalname: files[i].originalname.split(".")[0] + ".jpg",
+        buffer: buffer,
+      };
+      newFiles.push(newFile);
+    } else if (files[i].mimetype === "image/heic") {
       const buffer = await convert({
         buffer: files[i].buffer,
         format: "JPEG",
@@ -123,7 +135,7 @@ exports.s3UploadMulti = async (files, id) => {
 const storage = multer.memoryStorage();
 
 const fileFilter = async (req, file, cb) => {
-  if (file.mimetype === "") {
+  if (file.originalname.split(".")[1] === "heic") {
     req.video_file = false;
     cb(null, true);
   } else if (file.mimetype.split("/")[0] === "image") {
