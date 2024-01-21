@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "https://master.dj66u4td9cfto.amplifyapp.com",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
