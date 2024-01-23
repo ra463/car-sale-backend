@@ -100,7 +100,7 @@ exports.captureAuctionOrder = async (req, res) => {
       auction: auctionId,
       amount: price,
       paypalOrderId: data.id,
-      status: data.purchase_units[0].payments.captures[0].status,
+      status: "PENDING",
     });
     const newOrder = await order.save();
 
@@ -109,7 +109,7 @@ exports.captureAuctionOrder = async (req, res) => {
       user: req.userId,
       amount: price,
       transactionId: data.purchase_units[0].payments.captures[0].id,
-      status: data.purchase_units[0].payments.captures[0].status,
+      status: "PENDING",
     });
     await transaction.save();
 

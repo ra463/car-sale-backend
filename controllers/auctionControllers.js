@@ -315,22 +315,7 @@ exports.confirmBid = async (req, res) => {
 };
 
 exports.testingDateTime = async (req, res) => {
-  // let currentTime = new Date();
+  const auction = await Auction.find().populate("car");
 
-  // // add +5:30 to currentTime and then compare
-  // currentTime.setHours(currentTime.getHours() - 7);
-  // currentTime.setMinutes(currentTime.getMinutes() - 30);
-
-  // res.status(200).json({ success: true, start: new Date(), currentTime });
-
-  const cars = await Auction.find({
-    reserve_flag: "Reserve Met 90% of the Asking Price",
-  });
-  // find car which have car_state = "MP" and "Jabalpur"
-
-  cars.forEach(async (car) => {
-    car.reserve_flag = "90% Reserve Met";
-    await car.save();
-  });
-  res.status(200).json({ success: true, cars });
+  res.status(200).json({ success: true, auction });
 };
