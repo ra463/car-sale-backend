@@ -20,7 +20,7 @@ const generateDrivingToken = async () => {
         },
       }
     );
-    return data;
+    return data.token;
   } catch (error) {
     console.log(error);
   }

@@ -5,9 +5,31 @@ const validator = require("validator");
 
 const schema = new mongoose.Schema(
   {
-    name: {
+    firstname: {
       type: String,
-      required: [true, "Name is required"],
+      // required: [true, "Firstname is required"],
+    },
+    middlename: {
+      type: String,
+      default: "",
+    },
+    lastname: {
+      type: String,
+      // required: [true, "Name is required"],
+    },
+    dob: {
+      type: String,
+      // required: true,
+    },
+    licence_state: {
+      type: String,
+      enum: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
+    },
+    licencenumber: {
+      type: String,
+    },
+    cardnumberback: {
+      type: String,
     },
     email: {
       type: String,
@@ -18,6 +40,7 @@ const schema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
+      minLength: [8, "Password must be atleast 8 characters"],
       trim: true,
       select: false,
     },
@@ -38,13 +61,15 @@ const schema = new mongoose.Schema(
     age: {
       type: Number,
       required: [true, "Age is required"],
-      trim: true,
+      minLength: [18, "Age must be 18 or above"],
     },
     phoneNumber: {
       type: String,
       required: [true, "Phone number is required"],
-      trim: true,
       unique: [true, "Phone number already exists"],
+      maxLength: [11, "Phone number must be 9 to 11 digits long"],
+      minLength: [9, "Phone number must be 9 to 11 digits long"],
+      trim: true,
     },
     address: {
       type: String,

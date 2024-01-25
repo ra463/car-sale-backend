@@ -42,9 +42,7 @@ const schema = new mongoose.Schema(
     },
     unique_identification_number: {
       type: String,
-      required: [true, "Vehicle Identification Number is required"],
       trim: true,
-      unique: [true, "VIN already exists"],
     },
     axle_configuration: {
       type: String,
@@ -71,11 +69,9 @@ const schema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, "Description is required"],
     },
     odometer_reading: {
       type: Number,
-      required: [true, "Odometer reading is required"],
     },
     drive_type: {
       type: String,

@@ -6,10 +6,15 @@ const User = require("../models/User");
 const { newUser, resetPasswordCode } = require("../utils/sendMail");
 const { generateClientId } = require("../utils/generateClientId");
 const generateCode = require("../utils/generateCode");
+const generateDrivingToken = require("../utils/drivingLicense");
+const dotenv = require("dotenv");
+
+dotenv.config({
+  path: "../config/config.env",
+});
 
 const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
-
   res.status(statusCode).json({
     user,
     token,
@@ -20,7 +25,13 @@ const sendData = (user, statusCode, res, message) => {
 exports.registerUser = async (req, res) => {
   try {
     const {
-      name,
+      firstname,
+      middlename,
+      lastname,
+      dob,
+      licence_state,
+      licencenumber,
+      cardnumberback,
       email,
       password,
       age,
@@ -32,59 +43,39 @@ exports.registerUser = async (req, res) => {
       shuburb,
     } = req.body;
 
-    if (
-      !name ||
-      !email ||
-      !password ||
-      !age ||
-      !phoneNumber ||
-      !address ||
-      !city ||
-      !state ||
-      !postal_code
-    ) {
-      return res.status(400).json({ message: "Please fill in all fields" });
-    }
-
-    if (password.length < 8)
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 8 characters" });
-    if (phoneNumber.length < 9)
-      return res
-        .status(400)
-        .json({ message: "Phone number must be at least 9 digit long" });
-    if (phoneNumber.length > 11)
-      return res
-        .status(400)
-        .json({ message: "Phone number must be at most 11 digit long" });
-    if (age < 18) {
-      return res
-        .status(400)
-        .json({ message: "You must be 18 or above to register" });
-    }
-    if (postal_code && isNaN(postal_code)) {
-      return res.status(400).json({ message: "Postal code must be a number" });
-    }
-
     let user = await User.findOne({
       email: { $regex: new RegExp(email, "i") },
     });
     let user2 = await User.findOne({ phoneNumber });
-    if (user)
+
+    if (user || user2) {
       return res
         .status(400)
-        .json({ message: "User already exists with this email" });
-    if (user2)
-      return res
-        .status(400)
-        .json({ message: "User with this number already exists" });
+        .json({ message: `${user ? email : phoneNumber} already exists` });
+    }
+
+    const token = await generateDrivingToken();
+
+    const { data } = await axios.post(
+      "https://api.oneclickservices.com.au/api/v1/dvs",
+      {
+        document:""
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     let client = await generateClientId();
 
     user = await User.create({
-      name,
-      email: email.toLowercase(),
+      firstname,
+      email: email.toLowerCase(),
       password,
       clientId: client,
       age,
@@ -97,9 +88,14 @@ exports.registerUser = async (req, res) => {
     });
 
     user.password = undefined;
-    await newUser(email, name);
+    await newUser(email, firstname);
     sendData(user, 201, res, `${user.name} registered successfully`);
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const firstErrorField = Object.keys(error.errors)[0];
+      const errorMessage = error.errors[firstErrorField].message;
+      return res.status(400).json({ message: errorMessage });
+    }
     res.status(400).json({ message: error.message });
   }
 };

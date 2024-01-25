@@ -26,6 +26,7 @@ const schema = new mongoose.Schema(
     asking_price: {
       type: Number,
       required: [true, "Asking Price is required"],
+      maxLength: [7, "Asking price must be less than 7 digits"],
       trim: true,
     },
     show_hide_price: {
@@ -47,6 +48,7 @@ const schema = new mongoose.Schema(
     },
     seller_type: {
       type: String,
+      required: [true, "Seller type is required"],
       enum: ["private", "company"],
       default: "private",
     },

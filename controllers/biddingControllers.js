@@ -29,9 +29,6 @@ exports.createBidding = async (req, res) => {
 
     const { bid_amount } = req.body;
 
-    if (!bid_amount)
-      return res.status(400).json({ message: "Bidding Amount is required" });
-
     if (bid_amount == 0)
       return res
         .status(400)
@@ -122,6 +119,11 @@ exports.createBidding = async (req, res) => {
       }
     }
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const firstErrorField = Object.keys(error.errors)[0];
+      const errorMessage = error.errors[firstErrorField].message;
+      return res.status(400).json({ message: errorMessage });
+    }
     res.status(400).json({ message: error.message });
   }
 };

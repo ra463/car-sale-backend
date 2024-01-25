@@ -20,16 +20,6 @@ exports.createAuction = async (req, res) => {
       timezoneOffset,
     } = req.body;
 
-    if (
-      !auction_start_date ||
-      !auction_end_date ||
-      !asking_price ||
-      !seller_type ||
-      !auction_start_time ||
-      !auction_end_time
-    )
-      return res.status(400).json({ message: "Please fill in all fields" });
-
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -142,6 +132,11 @@ exports.createAuction = async (req, res) => {
       message: "Auction created successfully",
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const firstErrorField = Object.keys(error.errors)[0];
+      const errorMessage = error.errors[firstErrorField].message;
+      return res.status(400).json({ message: errorMessage });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -247,7 +242,7 @@ exports.getAuctionDetails = async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.auctionId).populate(
       "car",
-      "-seller"
+      "-seller -car_address -car_city"
     );
     if (!auction) return res.status(404).json({ message: "Auction not found" });
 
