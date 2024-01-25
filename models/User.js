@@ -21,15 +21,17 @@ const schema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    licence_state: {
-      type: String,
-      enum: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
-    },
-    licencenumber: {
-      type: String,
-    },
-    cardnumberback: {
-      type: String,
+    card_details: {
+      licence_state: {
+        type: String,
+        enum: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
+      },
+      licencenumber: {
+        type: String,
+      },
+      cardnumberback: {
+        type: String,
+      },
     },
     email: {
       type: String,
