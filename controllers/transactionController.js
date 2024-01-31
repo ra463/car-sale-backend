@@ -8,7 +8,9 @@ exports.getAllTransactions = async (req, res) => {
     const transactionCount = await Transaction.countDocuments();
 
     const apiFeatures = new APIFeatures(
-      Transaction.find(query).populate("user", "name").sort({ createdAt: -1 }),
+      Transaction.find(query)
+        .populate("user", "firstname middlename lastname")
+        .sort({ createdAt: -1 }),
       req.query
     ).search("transactionId");
 
@@ -21,7 +23,7 @@ exports.getAllTransactions = async (req, res) => {
     }
 
     res.status(200).json({
-      status: "success",
+      success: true,
       transactions,
       transactionCount,
       filteredTransactionsCount,
@@ -34,7 +36,7 @@ exports.getAllTransactions = async (req, res) => {
 exports.getSingleTransaction = async (req, res) => {
   try {
     const transaction = await Transaction.findById(req.params.id)
-      .populate("user", "name")
+      .populate("user", "firstname middlename lastname")
       .populate("order")
       .populate({
         path: "order",
@@ -54,7 +56,7 @@ exports.getSingleTransaction = async (req, res) => {
             {
               path: "seller",
               model: "User",
-              select: "name",
+              select: "firstname middlename lastname",
             },
           ],
         },
@@ -67,7 +69,7 @@ exports.getSingleTransaction = async (req, res) => {
     }
 
     res.status(200).json({
-      status: "success",
+      success: true,
       transaction,
     });
   } catch (error) {

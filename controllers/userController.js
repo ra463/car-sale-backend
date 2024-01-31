@@ -49,32 +49,53 @@ exports.registerUser = async (req, res) => {
     let user2 = await User.findOne({ phoneNumber });
 
     if (user || user2) {
-      return res
-        .status(400)
-        .json({ message: `${user ? email : phoneNumber} already exists` });
+      return res.status(400).json({
+        message: `${user ? "Email" : "Mobile number"} already exists`,
+      });
     }
 
-    const token = await generateDrivingToken();
-
+    const access_token = await generateDrivingToken();
     const { data } = await axios.post(
       "https://api.oneclickservices.com.au/api/v1/dvs",
       {
-        document:""
+        document: "driverslicence",
+        fields: {
+          firstname: firstname,
+          middlename: middlename,
+          lastname: lastname,
+          dob: dob,
+          state: licence_state,
+          licencenumber: licencenumber,
+          cardnumberback: cardnumberback,
+        },
       },
       {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${access_token}`,
         },
       }
     );
 
-    let client = await generateClientId();
+    if (data.status === "error") {
+      return res.status(400).json({
+        message: data.error,
+      });
+    }
 
+    let client = generateClientId();
     user = await User.create({
       firstname,
+      middlename,
+      lastname,
+      dob,
+      card_details: {
+        licence_state,
+        licencenumber,
+        cardnumberback,
+      },
       email: email.toLowerCase(),
       password,
       clientId: client,
@@ -89,7 +110,12 @@ exports.registerUser = async (req, res) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-    sendData(user, 201, res, `${user.name} registered successfully`);
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your License has been verified Successfully`
+    );
   } catch (error) {
     if (error.name === "ValidationError") {
       const firstErrorField = Object.keys(error.errors)[0];
@@ -120,7 +146,7 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     user.password = undefined;
-    sendData(user, 200, res, `${user.name} logged in successfully`);
+    sendData(user, 200, res, `${user.firstname} logged in successfully`);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -143,7 +169,10 @@ exports.myProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const {
-      name,
+      firstname,
+      middlename,
+      lastname,
+      dob,
       email,
       age,
       phoneNumber,
@@ -153,21 +182,6 @@ exports.updateProfile = async (req, res) => {
       postal_code,
       shuburb,
     } = req.body;
-
-    if (phoneNumber.length < 9)
-      return res
-        .status(400)
-        .json({ message: "Phone number should be at least 9 digit long" });
-    if (phoneNumber.length > 11)
-      return res
-        .status(400)
-        .json({ message: "Phone number should be at most 11 digit long" });
-    if (age < 18) {
-      return res.status(400).json({ message: "Your age must be above 18" });
-    }
-    if (postal_code && isNaN(postal_code)) {
-      return res.status(400).json({ message: "Postal code must be a number" });
-    }
 
     let user = await User.findOne({ phoneNumber });
     if (user && user._id.toString() !== req.userId.toString()) {
@@ -184,7 +198,10 @@ exports.updateProfile = async (req, res) => {
     }
 
     const newUserData = {
-      name,
+      firstname,
+      middlename,
+      lastname,
+      dob,
       email: email.toLowercase(),
       age,
       phoneNumber,
@@ -205,6 +222,11 @@ exports.updateProfile = async (req, res) => {
       message: "Profile updated successfully",
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const firstErrorField = Object.keys(error.errors)[0];
+      const errorMessage = error.errors[firstErrorField].message;
+      return res.status(400).json({ message: errorMessage });
+    }
     res.status(400).json({ message: error.message });
   }
 };
@@ -252,7 +274,7 @@ exports.sendForgotPasswordCode = async (req, res) => {
     const code = generateCode(6);
 
     await User.findOneAndUpdate({ email }, { temp_code: code });
-    await resetPasswordCode(email, user.name, code);
+    await resetPasswordCode(email, user.firstname, code);
 
     res.status(200).json({ message: "Code sent to your email." });
   } catch (error) {
@@ -341,7 +363,10 @@ exports.getAllUserBids = async (req, res) => {
         bid.auction.is_Seller_paid10_percent === true &&
         bid.auction.is_Winner_paid10_percent === true
       ) {
-        await bid.auction.populate("seller", "name email phoneNumber");
+        await bid.auction.populate(
+          "seller",
+          "firstname middlename lastname email phoneNumber"
+        );
       }
     }
 
@@ -380,7 +405,7 @@ exports.getUserAuctionDetails = async (req, res) => {
     const user = await User.findById(req.userId);
     const auction = await Auction.findById(req.params.auctionId)
       .populate("car")
-      .populate("seller", "name");
+      .populate("seller", "firstname middlename lastname");
 
     if (user._id.toString() !== auction.seller._id.toString()) {
       return res
@@ -399,7 +424,10 @@ exports.getUserAuctionDetails = async (req, res) => {
       auction.is_Seller_paid10_percent === true &&
       auction.is_Winner_paid10_percent === true
     ) {
-      await bids[0].populate("bidder", "name email phoneNumber");
+      await bids[0].populate(
+        "bidder",
+        "firstname middlename lastname email phoneNumber"
+      );
     }
 
     res.status(200).json({ success: true, auction, bids });
@@ -502,7 +530,10 @@ exports.getBuyerWonAuction = async (req, res) => {
           bid.auction.is_Seller_paid10_percent === true &&
           bid.auction.is_Winner_paid10_percent === true
         ) {
-          await bid.populate("auction.seller", "name email phoneNumber");
+          await bid.populate(
+            "auction.seller",
+            "firstname middlename lastname email phoneNumber"
+          );
         }
         return bid;
       })
@@ -517,7 +548,7 @@ exports.getBuyerWonAuction = async (req, res) => {
 exports.getUserTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({ user: req.userId })
-      .populate("user", "name email")
+      .populate("user", "firstname middlename lastname email")
       .populate("order")
       .populate({
         path: "order",

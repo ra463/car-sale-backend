@@ -4,27 +4,6 @@ const APIFeatures = require("../utils/apiFeatures");
 exports.submitQuery = async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
-    if (!phone) {
-      return res.status(400).json({ message: "Phone is required" });
-    }
-    if (!message) {
-      return res.status(400).json({ message: "Message is required" });
-    }
-
-    if (phone.length < 9)
-      return res
-        .status(400)
-        .json({ message: "Phone number must be at least 9 digit long" });
-    if (phone.length > 11)
-      return res
-        .status(400)
-        .json({ message: "Phone number must be at most 11 digit long" });
 
     await Query.create({
       name,
@@ -38,6 +17,11 @@ exports.submitQuery = async (req, res) => {
       message: "Query submitted successfully",
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const firstErrorField = Object.keys(error.errors)[0];
+      const errorMessage = error.errors[firstErrorField].message;
+      return res.status(400).json({ message: errorMessage });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

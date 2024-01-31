@@ -48,25 +48,7 @@ exports.uploadCarDetails = async (req, res) => {
         .json({ message: "Vehicle type must be Car or Truck" });
     }
 
-    if (manufacture_year && isNaN(manufacture_year))
-      return res
-        .status(400)
-        .json({ message: "Manufacturing year must be a number" });
-
-    if (odometer_reading && isNaN(odometer_reading))
-      return res
-        .status(400)
-        .json({ message: "Odometer reading must be a number" });
-
-    if (car_postal_code && isNaN(car_postal_code))
-      return res.status(400).json({ message: "Postal code must be a number" });
-
-    // if (unique_identification_number.length !== 17)
-    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
-
-    const carExists = await Car.findOne({
-      unique_identification_number: unique_identification_number,
-    });
+    const carExists = await Car.findOne({ unique_identification_number });
 
     if (carExists)
       return res
@@ -83,17 +65,6 @@ exports.uploadCarDetails = async (req, res) => {
     // }
 
     if (vehicle_type === "Car") {
-      if (engine_capacity && isNaN(engine_capacity))
-        return res
-          .status(400)
-          .json({ message: "Engine capacity must be a number" });
-
-      if (num_of_cylinders && isNaN(num_of_cylinders)) {
-        return res
-          .status(400)
-          .json({ message: "Number of cylinders must be a number" });
-      }
-
       await Car.create({
         manufacture_company,
         vehicle_type,
@@ -131,20 +102,6 @@ exports.uploadCarDetails = async (req, res) => {
         return res
           .status(400)
           .json({ message: "Axle configuration is required" });
-
-      if (gvm && isNaN(gvm))
-        return res.status(400).json({ message: "GVM must be a number" });
-
-      if (engine_power && isNaN(engine_power))
-        return res
-          .status(400)
-          .json({ message: "Engine power must be a number" });
-
-      if (num_of_cylinders && isNaN(num_of_cylinders)) {
-        return res
-          .status(400)
-          .json({ message: "Number of cylinders must be a number" });
-      }
 
       await Car.create({
         vehicle_type,
@@ -416,22 +373,12 @@ exports.editCarDetails = async (req, res) => {
       car_shuburb,
     } = req.body;
 
-    // if (
-    //   unique_identification_number &&
-    //   unique_identification_number.length !== 17
-    // )
-    //   return res.status(400).json({ message: "VIN must be of 17 characters" });
+    const carExists = await Car.findOne({ unique_identification_number });
 
-    if (unique_identification_number) {
-      const carExists = await Car.findOne({
-        unique_identification_number: unique_identification_number,
-      });
-
-      if (carExists._id.toString() !== car._id.toString()) {
-        return res
-          .status(400)
-          .json({ message: "Vehicle already exists with this Vin" });
-      }
+    if (carExists._id.toString() !== car._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Vehicle already exists with this Vin" });
     }
 
     if (car.vehicle_type === "Car") {

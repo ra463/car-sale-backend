@@ -149,7 +149,10 @@ exports.getAuctionBids = async (req, res) => {
       auction.is_Seller_paid10_percent === true &&
       auction.is_Winner_paid10_percent === true
     ) {
-      await bids[0].populate("bidder", "name email phoneNumber");
+      await bids[0].populate(
+        "bidder",
+        "firstname middlename lastname email phoneNumber"
+      );
     }
 
     res.status(200).json({

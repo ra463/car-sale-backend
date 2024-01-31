@@ -73,7 +73,10 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
   if (!user) return next(new ErrorHandler("User not found!", 404));
 
   const {
-    name,
+    firstname,
+    middlename,
+    lastname,
+    dob,
     email,
     role,
     age,
@@ -85,26 +88,17 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
     shuburb,
   } = req.body;
 
-  if (phoneNumber.length < 9)
-    return res
-      .status(400)
-      .json({ message: "Phone number should be at least 9 digit long" });
-  if (phoneNumber.length > 11)
-    return res
-      .status(400)
-      .json({ message: "Phone number should be at most 11 digit long" });
-  if (age < 18) {
-    return res.status(400).json({ message: "Your age must be 18 or above 18" });
-  }
-
-  const user2 = await User.findOne({ phoneNumber: phoneNumber });
+  const user2 = await User.findOne({ phoneNumber });
   if (user2 && user2._id.toString() !== user._id.toString()) {
     return res
       .status(400)
       .json({ message: "User already exists with this phone number" });
   }
 
-  if (name) user.name = name;
+  if (firstname) user.firstname = firstname;
+  if (middlename) user.middlename = middlename;
+  if (lastname) user.lastname = lastname;
+  if (dob) user.dob = dob;
   if (email) user.email = email;
   if (role) user.role = role;
   if (age) user.age = age;
@@ -197,7 +191,7 @@ exports.getAllCars = catchAsyncError(async (req, res, next) => {
 exports.getCarById = catchAsyncError(async (req, res, next) => {
   const car = await Car.findById(req.params.id).populate(
     "seller",
-    "name email phoneNumber age address city state postal_code shuburb clientId"
+    "firstname middlename lastname dob email phoneNumber age address city state postal_code shuburb clientId"
   );
   if (!car) return next(new ErrorHandler("Car not found!", 404));
 
@@ -239,22 +233,12 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     car_shuburb,
   } = req.body;
 
-  if (
-    unique_identification_number &&
-    unique_identification_number.length !== 17
-  )
-    return res.status(400).json({ message: "VIN must be of 17 characters" });
+  const carExists = await Car.findOne({ unique_identification_number });
 
-  if (unique_identification_number) {
-    const carExists = await Car.findOne({
-      unique_identification_number: unique_identification_number,
-    });
-
-    if (carExists._id.toString() !== car._id.toString()) {
-      return res
-        .status(400)
-        .json({ message: "Vehicle already exists with this Vin" });
-    }
+  if (carExists._id.toString() !== car._id.toString()) {
+    return res
+      .status(400)
+      .json({ message: "Vehicle already exists with this VIN" });
   }
 
   if (car.vehicle_type === "Car") {
@@ -331,7 +315,7 @@ exports.deleteCar = catchAsyncError(async (req, res, next) => {
   }
 
   car.images.forEach(async (image) => {
-    await s3delete(image, car.seller._id);
+    await s3delete(image, car.seller);
   });
 
   // delete all the auctions of this car
@@ -362,7 +346,7 @@ exports.getAllAdminsAuctions = catchAsyncError(async (req, res, next) => {
   const auctionCount = await Auction.countDocuments();
   const apiFeatures = new APIFeatures(
     Auction.find(query)
-      .populate("seller", "name")
+      .populate("seller", "firstname middlename lastname")
       .populate("car", "car_state")
       .sort({ createdAt: -1 }),
     req.query
@@ -396,13 +380,13 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.id)
     .populate(
       "seller",
-      "name email phoneNumber age address city state postal_code shuburb clientId"
+      "firstname middlename lastname dob email phoneNumber age address city state postal_code shuburb clientId"
     )
     .populate("car");
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
 
   const bids = await Bid.find({ auction: auction._id })
-    .populate("bidder", "name")
+    .populate("bidder", "firstname middlename lastname")
     .sort({
       createdAt: -1,
     });
@@ -411,7 +395,7 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   if (bids.length > 0) {
     winner = await bids[0].populate(
       "bidder",
-      "name email phoneNumber age address city state postal_code shuburb clientId"
+      "firstname middlename lastname email phoneNumber age address city state postal_code shuburb clientId"
     );
   }
 

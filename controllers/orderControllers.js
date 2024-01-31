@@ -33,7 +33,7 @@ exports.createAuctionOrder = async (req, res) => {
     if (auction.status === "sold" || auction.status === "refunded") {
       return res.status(400).json({
         success: false,
-        message: "Auction is already sold or refunded",
+        message: "Auction is already sold/refunded",
       });
     }
 
@@ -113,11 +113,11 @@ exports.captureAuctionOrder = async (req, res) => {
     });
     await transaction.save();
 
-    await transaction.populate("user", "name email");
+    await transaction.populate("user", "firstname email");
 
     await confirmationPaymentEmail(
       transaction.user.email,
-      transaction.user.name,
+      transaction.user.firstname,
       auction._id,
       price
     );
@@ -164,7 +164,7 @@ exports.createRefund = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "You cannot perform Refund Action in this auction as both the user's have paid the 10% amount",
+          "You cannot perform Refund Action in this auction as both the user's have paid the amount",
       });
     }
 
@@ -175,7 +175,7 @@ exports.createRefund = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "You cannot perform Refund Action in this auction as both the user's have not paid the 10% amount",
+          "You cannot perform Refund Action in this auction as both the user's hasn't paid the amount",
       });
     }
 
@@ -221,7 +221,7 @@ exports.createAuctionWebhook = async (req, res) => {
 
     const transaction = await Transaction.findOne({
       order: order._id,
-    }).populate("user", "name email");
+    }).populate("user", "firstname email");
     if (!transaction) {
       return res
         .status(404)
@@ -253,7 +253,7 @@ exports.createAuctionWebhook = async (req, res) => {
 
     await paymentDone(
       transaction.user.email,
-      transaction.user.name,
+      transaction.user.firstname,
       auction._id,
       transaction.transactionId,
       transaction.amount
@@ -311,7 +311,7 @@ exports.createAuctionWebhook = async (req, res) => {
       // console.log(user.email, user.name, auction._id, transaction.amount);
       await refundEmail(
         winner.email,
-        winner.name,
+        winner.firstname,
         auction._id,
         transaction.amount
       );
@@ -334,7 +334,7 @@ exports.createAuctionWebhook = async (req, res) => {
       // console.log(user.email, user.name, auction._id, transaction.amount);
       await refundEmail(
         seller.email,
-        seller.name,
+        seller.firstname,
         auction._id,
         transaction.amount
       );

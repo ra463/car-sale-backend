@@ -260,7 +260,10 @@ exports.getAuctionDetails = async (req, res) => {
       auction.is_Seller_paid10_percent === true &&
       auction.is_Winner_paid10_percent === true
     ) {
-      await bids[0].populate("bidder", "name email phoneNumber");
+      await bids[0].populate(
+        "bidder",
+        "firstname middlename lastname email phoneNumber"
+      );
     }
 
     res.status(200).json({ success: true, auction, bids });
@@ -282,24 +285,24 @@ exports.confirmBid = async (req, res) => {
         message: "You cannot confirm bids on this auction",
       });
 
-    const bid = await Bid.findById(bidId);
+    const bid = await Bid.findById(bidId).populate("bidder", "firstname email");
     if (!bid) return res.status(404).json({ message: "Bid not found" });
 
-    if (bid.bid_amount === auction.highest_bid) {
-      auction.auction_confirmed = true;
-      bid.is_confirmed_bid = true;
-      await bidConfirmedEmail(
-        bid.bidder.email,
-        bid.bidder.name,
-        auction.auction_id
-      );
-      await auction.save();
-      await bid.save();
-    } else {
+    if (bid.bid_amount !== auction.highest_bid) {
       return res
         .status(400)
         .json({ message: "Bid amount is not equal to the highest bid" });
     }
+
+    auction.auction_confirmed = true;
+    bid.is_confirmed_bid = true;
+    await bidConfirmedEmail(
+      bid.bidder.email,
+      bid.bidder.firstname,
+      auction.auction_id
+    );
+    await auction.save();
+    await bid.save();
 
     res
       .status(200)
