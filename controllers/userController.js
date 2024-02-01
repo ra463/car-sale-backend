@@ -25,20 +25,30 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generteToken = async (req, res) => {
   try {
+    console.log("hello");
+    const url = "https://api.oneclickservices.com.au/api/v1/token";
     const data = await axios.post(
-      "https://api.oneclickservices.com.au/api/v1/token",
+      url,
       {},
       {
         headers: {
-          Accept: "application/json",
+          "Accept": "application/json",
           "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+          "Authorization": `Bearer ${process.env.APP_DRIVING_KEY}`,
         },
       }
     );
-    return res.status(200).json({ data });
+
+    res.status(200).json({
+      data: data,
+      message: "success",
+      cred: process.env.APP_DRIVING_KEY,
+      cred1: process.env.CLIENT_DRIVING_SECRET,
+    });
   } catch (error) {
-    console.log(error);
+    res.status(400).json({
+      message: error,
+    });
   }
 };
 
