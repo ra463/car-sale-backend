@@ -80,7 +80,7 @@ exports.registerUser = async (req, res) => {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${access_token}`,
+          Authorization: `Bearer ${access_token.token}`,
         },
       }
     );
