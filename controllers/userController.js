@@ -23,6 +23,25 @@ const sendData = (user, statusCode, res, message) => {
   });
 };
 
+exports.generteToken = async (req, res) => {
+  try {
+    const data = await axios.post(
+      "https://api.oneclickservices.com.au/api/v1/token",
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
+          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+        },
+      }
+    );
+    return res.status(200).json({ data });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.registerUser = async (req, res) => {
   let msg = "entering";
   let msg1 = "registering";
