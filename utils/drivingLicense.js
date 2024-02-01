@@ -9,7 +9,7 @@ const { CLIENT_DRIVING_SECRET, APP_DRIVING_KEY } = process.env;
 
 const generateDrivingToken = async () => {
   try {
-    const { data } = await axios.post(
+    const data = await axios.post(
       "https://api.oneclickservices.com.au/api/v1/token",
       {},
       {
