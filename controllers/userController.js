@@ -24,6 +24,8 @@ const sendData = (user, statusCode, res, message) => {
 };
 
 exports.registerUser = async (req, res) => {
+  let msg = "entering";
+  let msg1 = "registering";
   try {
     const {
       firstname,
@@ -55,7 +57,10 @@ exports.registerUser = async (req, res) => {
       });
     }
 
+    msg = "verifying";
+
     const access_token = await generateDrivingToken();
+    msg1 = access_token;
     const { data } = await axios.post(
       "https://api.oneclickservices.com.au/api/v1/dvs",
       {
@@ -79,6 +84,7 @@ exports.registerUser = async (req, res) => {
         },
       }
     );
+    msg = data;
 
     if (data.status === "error") {
       return res.status(400).json({
@@ -123,7 +129,7 @@ exports.registerUser = async (req, res) => {
       const errorMessage = error.errors[firstErrorField].message;
       return res.status(400).json({ message: errorMessage });
     }
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error, msg, msg1 });
   }
 };
 
