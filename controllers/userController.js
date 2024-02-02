@@ -24,6 +24,8 @@ const sendData = (user, statusCode, res, message) => {
 };
 
 exports.generteToken = async (req, res) => {
+  const api_key = process.env.CLIENT_DRIVING_SECRET;
+  const api_key_1 = process.env.APP_DRIVING_KEY;
   try {
     console.log("hello");
     const url = "https://api.oneclickservices.com.au/api/v1/token";
@@ -32,9 +34,9 @@ exports.generteToken = async (req, res) => {
       {},
       {
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          "Authorization": `Bearer ${process.env.APP_DRIVING_KEY}`,
+          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
         },
       }
     );
@@ -48,6 +50,10 @@ exports.generteToken = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       message: error,
+      cred: process.env.APP_DRIVING_KEY,
+      cred1: process.env.CLIENT_DRIVING_SECRET,
+      api_key,
+      api_key_1,
     });
   }
 };
