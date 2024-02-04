@@ -244,7 +244,7 @@ exports.updateProfile = async (req, res) => {
       middlename,
       lastname,
       dob,
-      email: email.toLowercase(),
+      email: email.toLowerCase(),
       age,
       phoneNumber,
       address,
