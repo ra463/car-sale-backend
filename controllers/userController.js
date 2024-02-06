@@ -29,16 +29,13 @@ exports.generteToken = async (req, res) => {
   try {
     console.log("hello-1");
     const url = "https://api.oneclickservices.com.au/api/v1/token";
-    const data = await axios.post(
-      url,
-      {
-        headers: {
-          Accept: "application/json",
-          "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
-        },
-      }
-    );
+    const data = await axios.post(url, {
+      headers: {
+        Accept: "application/json",
+        "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
+        Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+      },
+    });
 
     res.status(200).json({
       data: data,
@@ -48,6 +45,7 @@ exports.generteToken = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      msg: "hello-1",
       message: error,
       cred: process.env.APP_DRIVING_KEY,
       cred1: process.env.CLIENT_DRIVING_SECRET,
