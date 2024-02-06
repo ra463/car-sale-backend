@@ -31,7 +31,6 @@ exports.generteToken = async (req, res) => {
     const url = "https://api.oneclickservices.com.au/api/v1/token";
     const data = await axios.post(
       url,
-      {},
       {
         headers: {
           Accept: "application/json",
