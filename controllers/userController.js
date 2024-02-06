@@ -34,8 +34,7 @@ exports.generteToken = async (req, res) => {
         headers: {
           Accept: "application/json",
           "Client-Secret": "dc86498e-d0ec-43b9-aaab-c6b5559fc242",
-          Authorization:
-            "Bearer zOTNE7a7ksaqoWmdiMXvSEeVApGo2SgJhOqbbRJs3nS46XdTrPh0zEzB575PEIzTyLiXe2P8TUnHaxSn",
+          Authorization: `Bearer zOTNE7a7ksaqoWmdiMXvSEeVApGo2SgJhOqbbRJs3nS46XdTrPh0zEzB575PEIzTyLiXe2P8TUnHaxSn`,
         },
       }
     );
