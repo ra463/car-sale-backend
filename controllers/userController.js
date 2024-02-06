@@ -27,7 +27,7 @@ exports.generteToken = async (req, res) => {
   const api_key = process.env.CLIENT_DRIVING_SECRET;
   const api_key_1 = process.env.APP_DRIVING_KEY;
   try {
-    console.log("hello");
+    console.log("hello-1");
     const url = "https://api.oneclickservices.com.au/api/v1/token";
     const data = await axios.post(
       url,
