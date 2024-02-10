@@ -26,7 +26,6 @@ const sendData = (user, statusCode, res, message) => {
 exports.generteToken = async (req, res) => {
   try {
     console.log("hello");
-    
     const url = "https://api.oneclickservices.com.au/api/v1/token";
     const data = await axios.post(
       url,
