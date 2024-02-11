@@ -37,15 +37,7 @@ exports.generateToken = async (req, res) => {
 
     const data = {
       document: "driverslicence",
-      fields: {
-        firstname: "name",
-        middlename: "",
-        lastname: "surname",
-        dob: "01/01/2000",
-        state: "WA",
-        licencenumber: "11111111",
-        cardnumberback: "12341234",
-      },
+      field: { licencenumber: "11111111" },
     };
 
     const repo = await axios.post(url, JSON.stringify(data), { headers });
