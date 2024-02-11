@@ -51,6 +51,11 @@ exports.generateToken = async (req, res) => {
 };
 
 exports.registerUser = async (req, res) => {
+  const access_token = await generateDrivingToken();
+  if (!access_token) {
+    return res.status(400).json({ message: "Failed to generate access token" });
+  }
+  let repo = "";
   try {
     const {
       firstname,
@@ -78,13 +83,6 @@ exports.registerUser = async (req, res) => {
     if (user_exist)
       return res.status(400).json({ message: "User already exists" });
 
-    const access_token = await generateDrivingToken();
-    if (!access_token) {
-      return res
-        .status(400)
-        .json({ message: "Failed to generate access token" });
-    }
-
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
       Accept: "application/json",
@@ -93,25 +91,30 @@ exports.registerUser = async (req, res) => {
       Authorization: `Bearer ${access_token}`,
     };
 
-    const data = {
-      document: "driverslicence",
-      fields: {
-        firstname: firstname,
-        middlename: middlename ? middlename : "",
-        lastname: lastname,
-        dob: dob,
-        state: licence_state,
-        licencenumber: licencenumber,
-        cardnumberback: cardnumberback,
+    repo = await axios.post(
+      url,
+      {
+        document: "driverslicence",
+        fields: {
+          firstname: firstname,
+          middlename: middlename ? middlename : "",
+          lastname: lastname,
+          dob: dob,
+          state: licence_state,
+          licencenumber: licencenumber,
+          cardnumberback: cardnumberback,
+        },
       },
-    };
-
-    const response = await axios.post(url, data, { headers });
-
-    if (response.data.status === "error") {
+      { headers }
+    );
+    
+    if (!repo) {
+      return res.status(400).json({ message: "Failed to generate response" });
+    }
+    if (repo.data.status === "error") {
       return res
         .status(400)
-        .json({ message: response.data.message, error: response.data.errors });
+        .json({ message: repo.data.message, error: repo.data.errors });
     }
 
     let client = generateClientId();
@@ -140,14 +143,12 @@ exports.registerUser = async (req, res) => {
     user.password = undefined;
     await newUser(email, firstname);
 
-    res
-      .status(201)
-      .json({
-        user: user,
-        success: true,
-        response: response,
-        token: access_token,
-      });
+    res.status(201).json({
+      user: user,
+      success: true,
+      response: repo,
+      token: access_token,
+    });
     // sendData(
     //   user,
     //   201,
@@ -160,7 +161,9 @@ exports.registerUser = async (req, res) => {
       const errorMessage = error.errors[firstErrorField].message;
       return res.status(400).json({ message: errorMessage });
     }
-    res.status(400).json({ message: error });
+    res
+      .status(400)
+      .json({ message: error, token: access_token, response: repo });
   }
 };
 
