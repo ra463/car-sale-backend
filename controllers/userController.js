@@ -23,40 +23,36 @@ const sendData = (user, statusCode, res, message) => {
   });
 };
 
-exports.generteToken = async (req, res) => {
-  try {
-    console.log("hello");
-    const url = "https://api.oneclickservices.com.au/api/v1/token";
-    const data = await axios.post(
-      url,
-      {},
-      {
-        headers: {
-          Accept: "application/json",
-          "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
-        },
-      }
-    );
+// exports.generteToken = async (req, res) => {
+//   try {
+//     console.log("hello");
+//     const url = "https://api.oneclickservices.com.au/api/v1/token";
+//     const data = await axios.post(
+//       url,
+//       {},
+//       {
+//         headers: {
+//           Accept: "application/json",
+//           "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+//           Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+//         },
+//       }
+//     );
 
-    res.status(200).json({
-      data: data,
-      message: "success",
-      cred: process.env.APP_DRIVING_KEY,
-      cred1: process.env.CLIENT_DRIVING_SECRET,
-    });
-  } catch (error) {
-    res.status(400).json({
-      message: error,
-      cred: process.env.APP_DRIVING_KEY,
-      cred1: process.env.CLIENT_DRIVING_SECRET,
-    });
-  }
-};
+//     res.status(200).json({
+//       message: "success",
+//       data: data,
+//     });
+//   } catch (error) {
+//     res.status(400).json({
+//       message: error,
+//       cred: process.env.APP_DRIVING_KEY,
+//       cred1: process.env.CLIENT_DRIVING_SECRET,
+//     });
+//   }
+// };
 
 exports.registerUser = async (req, res) => {
-  let msg = "entering";
-  let msg1 = "registering";
   try {
     const {
       firstname,
@@ -77,21 +73,20 @@ exports.registerUser = async (req, res) => {
       shuburb,
     } = req.body;
 
-    let user = await User.findOne({
-      email: { $regex: new RegExp(email, "i") },
+    const user_exist = await User.findOne({
+      $or: [{ email: { $regex: new RegExp(email, "i") } }, { phoneNumber }],
     });
-    let user2 = await User.findOne({ phoneNumber });
 
-    if (user || user2) {
-      return res.status(400).json({
-        message: `${user ? "Email" : "Mobile number"} already exists`,
-      });
+    if (user_exist) {
+      return next(
+        new ErrorHandler(
+          `${user_exist.email ? "Email" : "Mobile"} already exists`,
+          400
+        )
+      );
     }
 
-    msg = "verifying";
-
     const access_token = await generateDrivingToken();
-    msg1 = access_token;
     const { data } = await axios.post(
       "https://api.oneclickservices.com.au/api/v1/dvs",
       {
@@ -115,7 +110,6 @@ exports.registerUser = async (req, res) => {
         },
       }
     );
-    msg = data;
 
     if (data.status === "error") {
       return res.status(400).json({
@@ -124,7 +118,7 @@ exports.registerUser = async (req, res) => {
     }
 
     let client = generateClientId();
-    user = await User.create({
+    let user = await User.create({
       firstname,
       middlename,
       lastname,
@@ -160,7 +154,7 @@ exports.registerUser = async (req, res) => {
       const errorMessage = error.errors[firstErrorField].message;
       return res.status(400).json({ message: errorMessage });
     }
-    res.status(400).json({ message: error, msg, msg1 });
+    res.status(400).json({ message: error });
   }
 };
 
@@ -221,18 +215,18 @@ exports.updateProfile = async (req, res) => {
       shuburb,
     } = req.body;
 
-    let user = await User.findOne({ phoneNumber });
-    if (user && user._id.toString() !== req.userId.toString()) {
+    if (email) {
+      email = email.toLowerCase();
+    }
+
+    let user = await User.findOne({
+      $or: [{ phoneNumber }, { email }],
+    });
+
+    if (user && user._id.toString() !== req.userId) {
       return res
         .status(400)
-        .json({ message: "User with this phone number already exists" });
-    }
-    let user1 = await User.findOne({ email });
-    if (user1 && user1._id.toString() !== req.userId.toString()) {
-      return res.status(400).json({
-        message:
-          "Try with different email. User with this email already exists",
-      });
+        .json({ message: "User already exists with this phone/email" });
     }
 
     const newUserData = {
@@ -240,7 +234,7 @@ exports.updateProfile = async (req, res) => {
       middlename,
       lastname,
       dob,
-      email: email.toLowerCase(),
+      email,
       age,
       phoneNumber,
       address,
