@@ -52,10 +52,6 @@ exports.generateToken = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   const access_token = await generateDrivingToken();
-  if (!access_token) {
-    return res.status(400).json({ message: "Failed to generate access token" });
-  }
-  let repo;
   try {
     const {
       firstname,
@@ -91,7 +87,7 @@ exports.registerUser = async (req, res) => {
       Authorization: `Bearer ${access_token}`,
     };
 
-    repo = await axios.post(
+    const repo = await axios.post(
       url,
       {
         document: "driverslicence",
@@ -158,14 +154,11 @@ exports.registerUser = async (req, res) => {
       const errorMessage = error.errors[firstErrorField].message;
       return res.status(400).json({ message: errorMessage });
     }
-    res
-      .status(400)
-      .json({
-        success: true,
-        message: error,
-        token: access_token,
-        response: repo,
-      });
+    res.status(400).json({
+      success: true,
+      message: error,
+      token: access_token,
+    });
   }
 };
 
