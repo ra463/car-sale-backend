@@ -34,7 +34,9 @@ exports.generateToken = async (req, res) => {
 
     const response = await axios.post(url, null, { headers });
 
-    res.status(200).json({ message: true, data: response.data });
+    res
+      .status(200)
+      .json({ message: true, data: response.data, token: response.data.token });
   } catch (error) {
     res.status(400).json({
       success: false,
