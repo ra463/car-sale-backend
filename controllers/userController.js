@@ -23,34 +23,32 @@ const sendData = (user, statusCode, res, message) => {
   });
 };
 
-// exports.generteToken = async (req, res) => {
-//   try {
-//     console.log("hello");
-//     const url = "https://api.oneclickservices.com.au/api/v1/token";
-//     const data = await axios.post(
-//       url,
-//       {},
-//       {
-//         headers: {
-//           Accept: "application/json",
-//           "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-//           Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
-//         },
-//       }
-//     );
+exports.generateToken = async (req, res) => {
+  try {
+    const data = await axios.post(
+      "https://api.oneclickservices.com.au/api/v1/token",
+      {},
+      {
+        headers: {
+          Accept: "application/json",
+          "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+          Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+        },
+      }
+    );
 
-//     res.status(200).json({
-//       message: "success",
-//       data: data,
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error,
-//       cred: process.env.APP_DRIVING_KEY,
-//       cred1: process.env.CLIENT_DRIVING_SECRET,
-//     });
-//   }
-// };
+    return res.status(200).json({
+      message: "success",
+      data: data,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: error,
+      cred: process.env.APP_DRIVING_KEY,
+      cred1: process.env.CLIENT_DRIVING_SECRET,
+    });
+  }
+};
 
 exports.registerUser = async (req, res) => {
   try {
