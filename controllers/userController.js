@@ -39,12 +39,14 @@ exports.generateToken = async (req, res) => {
     //   .status(200)
     //   .json({ message: true, data: response.data, token: response.data.token });
 
+    const access_token = data.split("|")[1];
+
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
       "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-      Authorization: `Bearer ${data}`,
+      Authorization: `Bearer ${access_token}`,
     };
 
     const repo = await axios.post(
