@@ -55,7 +55,7 @@ exports.registerUser = async (req, res) => {
   if (!access_token) {
     return res.status(400).json({ message: "Failed to generate access token" });
   }
-  let repo = "";
+  let repo;
   try {
     const {
       firstname,
@@ -107,10 +107,7 @@ exports.registerUser = async (req, res) => {
       },
       { headers }
     );
-    
-    if (!repo) {
-      return res.status(400).json({ message: "Failed to generate response" });
-    }
+
     if (repo.data.status === "error") {
       return res
         .status(400)
@@ -163,7 +160,12 @@ exports.registerUser = async (req, res) => {
     }
     res
       .status(400)
-      .json({ message: error, token: access_token, response: repo });
+      .json({
+        success: true,
+        message: error,
+        token: access_token,
+        response: repo,
+      });
   }
 };
 
