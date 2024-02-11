@@ -32,9 +32,9 @@ exports.generateToken = async (req, res) => {
       Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
     };
 
-    const { response } = await axios.post(url, null, { headers });
+    const response = await axios.post(url, null, { headers });
 
-    res.status(200).json({ message: true, data: response.token });
+    res.status(200).json({ message: true, data: response });
   } catch (error) {
     res.status(400).json({
       success: false,
