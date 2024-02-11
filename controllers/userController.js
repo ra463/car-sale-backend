@@ -25,18 +25,21 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generateToken = async (req, res) => {
   try {
-    const url = "https://api.oneclickservices.com.au/api/v1/token";
-    const headers = {
-      Accept: "application/json",
-      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-      Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
-    };
+    // const url = "https://api.oneclickservices.com.au/api/v1/token";
+    // const headers = {
+    //   Accept: "application/json",
+    //   "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+    //   Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
+    // };
 
-    const response = await axios.post(url, null, { headers });
+    // const response = await axios.post(url, null, { headers });
 
-    res
-      .status(200)
-      .json({ message: true, data: response.data, token: response.data.token });
+    // res
+    //   .status(200)
+    //   .json({ message: true, data: response.data, token: response.data.token });
+
+    const data = await generateDrivingToken();
+    res.status(200).json({ message: true, data: data });
   } catch (error) {
     res.status(400).json({
       success: false,
