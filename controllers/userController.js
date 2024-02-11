@@ -24,6 +24,7 @@ const sendData = (user, statusCode, res, message) => {
 };
 
 exports.generateToken = async (req, res) => {
+  const data = await generateDrivingToken();
   try {
     // const url = "https://api.oneclickservices.com.au/api/v1/token";
     // const headers = {
@@ -38,14 +39,37 @@ exports.generateToken = async (req, res) => {
     //   .status(200)
     //   .json({ message: true, data: response.data, token: response.data.token });
 
-    const data = await generateDrivingToken();
-    res.status(200).json({ message: true, data: data });
+    const url = "https://api.oneclickservices.com.au/api/v1/dvs";
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+      Authorization: `Bearer ${data}`,
+    };
+
+    const repo = await axios.post(
+      url,
+      {
+        document: "driverslicence",
+        fields: {
+          firstname: "name",
+          middlename: "",
+          lastname: "surname",
+          dob: "01/01/2000",
+          state: "WA",
+          licencenumber: "1234",
+          cardnumberback: "12341234",
+        },
+      },
+      { headers }
+    );
+
+    res.status(200).json({ message: true, data: repo });
   } catch (error) {
     res.status(400).json({
       success: false,
       message: error,
-      cred: process.env.APP_DRIVING_KEY,
-      cred1: process.env.CLIENT_DRIVING_SECRET,
+      data: data,
     });
   }
 };
@@ -155,7 +179,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: errorMessage });
     }
     res.status(400).json({
-      success: true,
+      success: false,
       message: error,
       token: access_token,
     });
