@@ -95,7 +95,7 @@ exports.registerUser = async (req, res) => {
       document: "driverslicence",
       fields: {
         firstname: firstname,
-        middlename: middlename,
+        middlename: middlename ? middlename : "",
         lastname: lastname,
         dob: dob,
         state: licence_state,
@@ -106,10 +106,10 @@ exports.registerUser = async (req, res) => {
 
     const response = await axios.post(url, data, { headers });
 
-    if (!response) {
-      return res.status(400).json({
-        success: false,
-      });
+    if (response.data.status === "error") {
+      return res
+        .status(400)
+        .json({ message: response.data.message, error: response.data.errors });
     }
 
     let client = generateClientId();

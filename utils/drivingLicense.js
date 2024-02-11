@@ -16,9 +16,12 @@ const generateDrivingToken = async () => {
     };
 
     const response = await axios.post(url, null, { headers });
-    return response.data;
+    return response.data.token;
   } catch (error) {
-    console.log(error);
+    res.status(400).json({
+      success: false,
+      message: error,
+    });
   }
 };
 
