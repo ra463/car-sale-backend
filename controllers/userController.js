@@ -25,23 +25,9 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generateToken = async (req, res) => {
   const data = await generateDrivingToken();
-  let access_token = "";
+  let access_token;
   try {
-    // const url = "https://api.oneclickservices.com.au/api/v1/token";
-    // const headers = {
-    //   Accept: "application/json",
-    //   "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-    //   Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
-    // };
-
-    // const response = await axios.post(url, null, { headers });
-
-    // res
-    //   .status(200)
-    //   .json({ message: true, data: response.data, token: response.data.token });
-
     access_token = data.split("|")[1];
-
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
       Accept: "application/json",
@@ -50,22 +36,20 @@ exports.generateToken = async (req, res) => {
       Authorization: `Bearer ${access_token}`,
     };
 
-    const repo = await axios.post(
-      url,
-      {
-        document: "driverslicence",
-        fields: {
-          firstname: "name",
-          middlename: "",
-          lastname: "surname",
-          dob: "01/01/2000",
-          state: "WA",
-          licencenumber: "1234",
-          cardnumberback: "12341234",
-        },
+    const data = {
+      document: "driverslicence",
+      fields: {
+        firstname: "name",
+        middlename: "",
+        lastname: "surname",
+        dob: "01/01/2000",
+        state: "WA",
+        licencenumber: "11111111",
+        cardnumberback: "12341234",
       },
-      { headers }
-    );
+    };
+
+    const repo = await axios.post(url, JSON.stringify(data), { headers });
 
     res.status(200).json({ message: true, data: repo });
   } catch (error) {
