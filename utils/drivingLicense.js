@@ -16,7 +16,7 @@ const generateDrivingToken = async () => {
     };
 
     const response = await axios.post(url, null, { headers });
-    return response.token;
+    return response.data;
   } catch (error) {
     console.log(error);
   }

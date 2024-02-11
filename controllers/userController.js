@@ -34,7 +34,7 @@ exports.generateToken = async (req, res) => {
 
     const response = await axios.post(url, null, { headers });
 
-    res.status(200).json({ message: true, data: response });
+    res.status(200).json({ message: true, data: response.data });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -102,11 +102,11 @@ exports.registerUser = async (req, res) => {
       },
     };
 
-    const { response } = await axios.post(url, data, { headers });
+    const response = await axios.post(url, data, { headers });
 
-    if (response.status === "error") {
+    if (!response) {
       return res.status(400).json({
-        message: response.error,
+        success: false,
       });
     }
 
