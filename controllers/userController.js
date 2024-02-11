@@ -32,9 +32,9 @@ exports.generateToken = async (req, res) => {
       Authorization: `Bearer ${process.env.APP_DRIVING_KEY}`,
     };
 
-    const response = await axios.post(url, null, { headers });
+    const { response } = await axios.post(url, null, { headers });
 
-    res.status(200).json({ message: true, data: response.data });
+    res.status(200).json({ message: true, data: response.token });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -80,33 +80,33 @@ exports.registerUser = async (req, res) => {
     }
 
     const access_token = await generateDrivingToken();
-    const { data } = await axios.post(
-      "https://api.oneclickservices.com.au/api/v1/dvs",
-      {
-        document: "driverslicence",
-        fields: {
-          firstname: firstname,
-          middlename: middlename,
-          lastname: lastname,
-          dob: dob,
-          state: licence_state,
-          licencenumber: licencenumber,
-          cardnumberback: cardnumberback,
-        },
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
-          Authorization: `Bearer ${access_token.token}`,
-        },
-      }
-    );
 
-    if (data.status === "error") {
+    const url = "https://api.oneclickservices.com.au/api/v1/dvs";
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+      Authorization: `Bearer ${access_token}`,
+    };
+
+    const data = {
+      document: "driverslicence",
+      fields: {
+        firstname: firstname,
+        middlename: middlename,
+        lastname: lastname,
+        dob: dob,
+        state: licence_state,
+        licencenumber: licencenumber,
+        cardnumberback: cardnumberback,
+      },
+    };
+
+    const { response } = await axios.post(url, data, { headers });
+
+    if (response.status === "error") {
       return res.status(400).json({
-        message: data.error,
+        message: response.error,
       });
     }
 
