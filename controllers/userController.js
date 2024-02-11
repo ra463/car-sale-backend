@@ -25,6 +25,7 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generateToken = async (req, res) => {
   const data = await generateDrivingToken();
+  let access_token = "";
   try {
     // const url = "https://api.oneclickservices.com.au/api/v1/token";
     // const headers = {
@@ -39,7 +40,7 @@ exports.generateToken = async (req, res) => {
     //   .status(200)
     //   .json({ message: true, data: response.data, token: response.data.token });
 
-    const access_token = data.split("|")[1];
+    access_token = data.split("|")[1];
 
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
@@ -72,6 +73,7 @@ exports.generateToken = async (req, res) => {
       success: false,
       message: error,
       data: data,
+      access_token: access_token,
     });
   }
 };
