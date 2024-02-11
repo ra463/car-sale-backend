@@ -75,16 +75,15 @@ exports.registerUser = async (req, res) => {
       $or: [{ email: { $regex: new RegExp(email, "i") } }, { phoneNumber }],
     });
 
-    if (user_exist) {
-      return next(
-        new ErrorHandler(
-          `${user_exist.email ? "Email" : "Mobile"} already exists`,
-          400
-        )
-      );
-    }
+    if (user_exist)
+      return res.status(400).json({ message: "User already exists" });
 
     const access_token = await generateDrivingToken();
+    if (!access_token) {
+      return res
+        .status(400)
+        .json({ message: "Failed to generate access token" });
+    }
 
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
@@ -140,12 +139,21 @@ exports.registerUser = async (req, res) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-    sendData(
-      user,
-      201,
-      res,
-      `Welcome Sir!! Your License has been verified Successfully`
-    );
+
+    res
+      .status(201)
+      .json({
+        user: user,
+        success: true,
+        response: response,
+        token: access_token,
+      });
+    // sendData(
+    //   user,
+    //   201,
+    //   res,
+    //   `Welcome Sir!! Your License has been verified Successfully`
+    // );
   } catch (error) {
     if (error.name === "ValidationError") {
       const firstErrorField = Object.keys(error.errors)[0];
