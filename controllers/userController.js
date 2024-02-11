@@ -25,9 +25,8 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generateToken = async (req, res) => {
   const data = await generateDrivingToken();
-  let access_token;
+  const access_token = data.split("|")[1];
   try {
-    access_token = data.split("|")[1];
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
       Accept: "application/json",
