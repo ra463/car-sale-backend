@@ -86,7 +86,7 @@ exports.generateToken2 = async (req, res) => {
       {
         document: "driverslicence",
         fields: {
-          firstname: "name",
+          // firstname: "name",
           middlename: "",
           lastname: "surname",
           dob: "01/01/2000",
