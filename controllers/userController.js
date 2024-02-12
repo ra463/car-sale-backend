@@ -48,7 +48,7 @@ exports.generateToken = async (req, res) => {
       },
     };
 
-    const repo = await axios.post(url, JSON.stringify(data), { headers });
+    const repo = await axios.post(url, data, { headers });
 
     res.status(200).json({ message: true, data: repo });
   } catch (error) {
