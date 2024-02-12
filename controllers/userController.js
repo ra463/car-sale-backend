@@ -71,7 +71,7 @@ exports.generateToken2 = async (req, res) => {
         lastname: "surname",
         dob: "01/01/2000",
         state: "WA",
-        licencenumber: "1234",
+        // licencenumber: "1234",
         cardnumberback: "12341234",
       },
     };
