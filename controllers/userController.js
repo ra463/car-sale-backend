@@ -24,32 +24,39 @@ const sendData = (user, statusCode, res, message) => {
 };
 
 exports.generateToken = async (req, res) => {
-  const access_token = await generateDrivingToken();
-  const repo = await axios.post(
-    "https://api.oneclickservices.com.au/api/v1/dvs",
-    {
-      document: "driverslicence",
-      fields: {
-        firstname: "name",
-        middlename: "",
-        lastname: "surname",
-        dob: "01/01/2000",
-        state: "WA",
-        licencenumber: "1234",
-        cardnumberback: "12341234",
+  try {
+    const access_token = await generateDrivingToken();
+    const repo = await axios.post(
+      "https://api.oneclickservices.com.au/api/v1/dvs",
+      {
+        document: "driverslicence",
+        fields: {
+          firstname: "name",
+          middlename: "",
+          lastname: "surname",
+          dob: "01/01/2000",
+          state: "WA",
+          licencenumber: "1234",
+          cardnumberback: "12341234",
+        },
       },
-    },
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
 
-  res.status(200).json({ message: true, repo, access_token });
+    res.status(200).json({ success: true, repo, access_token });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error,
+    });
+  }
 };
 
 exports.generateToken2 = async (req, res) => {
@@ -79,7 +86,7 @@ exports.generateToken2 = async (req, res) => {
       }
     );
 
-    res.status(200).json({ message: true, repo });
+    res.status(200).json({ success: true, repo });
   } catch (error) {
     res.status(400).json({
       success: false,
