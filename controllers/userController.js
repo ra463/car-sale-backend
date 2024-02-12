@@ -68,10 +68,10 @@ exports.generateToken2 = async (req, res) => {
       fields: {
         firstname: "name",
         middlename: "",
-        lastname: "surname",
+        // lastname: "surname",
         dob: "01/01/2000",
         state: "WA",
-        // licencenumber: "1234",
+        licencenumber: "11111111",
         cardnumberback: "12341234",
       },
     };
