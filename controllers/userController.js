@@ -24,8 +24,8 @@ const sendData = (user, statusCode, res, message) => {
 };
 
 exports.generateToken = async (req, res) => {
-  const data = await generateDrivingToken();
-  const access_token = data.split("|")[1];
+  const access_token = await generateDrivingToken();
+  // const access_token = data.split("|")[1];
   try {
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const headers = {
@@ -37,7 +37,15 @@ exports.generateToken = async (req, res) => {
 
     const data = {
       document: "driverslicence",
-      field: { licencenumber: "11111111" },
+      fields: {
+        firstname: "name",
+        middlename: "",
+        lastname: "surname",
+        dob: "01/01/2000",
+        state: "WA",
+        licencenumber: "1234",
+        cardnumberback: "12341234",
+      },
     };
 
     const repo = await axios.post(url, JSON.stringify(data), { headers });
@@ -47,7 +55,7 @@ exports.generateToken = async (req, res) => {
     res.status(400).json({
       success: false,
       message: error,
-      data: data,
+      // data: data,
       access_token: access_token,
     });
   }
