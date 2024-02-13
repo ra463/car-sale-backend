@@ -63,40 +63,25 @@ exports.generateToken2 = async (req, res) => {
   const access_token = await generateDrivingToken();
   try {
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
-    // const data = {
-    //   document: "driverslicence",
-    //   fields: {
-    //     firstname: "name",
-    //     middlename: "",
-    //     lastname: "surname",
-    //     dob: "01/01/2000",
-    //     state: "WA",
-    //     licencenumber: "11111111",
-    //     cardnumberback: "12341234",
-    //   },
-    // };
+    const data = {
+      document: "driverslicence",
+      fields: {
+        firstname: "name",
+        middlename: "",
+        lastname: "surname",
+        dob: "01/01/2000",
+        state: "WA",
+        licencenumber: "11111111",
+        cardnumberback: "12341234",
+      },
+    };
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
       "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
       Authorization: `Bearer ${access_token}`,
     };
-    const repo = await axios.post(
-      url,
-      {
-        document: "driverslicence",
-        fields: {
-          // firstname: "name",
-          middlename: "",
-          lastname: "surname",
-          dob: "01/01/2000",
-          state: "WA",
-          licencenumber: "11111111",
-          cardnumberback: "11111111",
-        },
-      },
-      { headers }
-    );
+    const repo = await axios.post(url, { data }, { headers });
 
     res.status(200).json({ success: true, repo });
   } catch (error) {
