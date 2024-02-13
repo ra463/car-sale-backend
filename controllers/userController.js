@@ -95,6 +95,7 @@ exports.generateToken2 = async (req, res) => {
         cardnumberback: cardnumberback,
       },
     };
+    
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
