@@ -83,14 +83,16 @@ exports.generateToken2 = async (req, res) => {
         Authorization: `Bearer ${access_token}`,
       },
     };
-    await axios
-      .post("https://api.oneclickservices.com.au/api/v1/dvs", data, config)
-      .then((response) => {
-        res.status(200).json({ success: true, response });
-      })
-      .catch((error) => {
-        res.status(400).json({ success: false, error });
-      });
+    const response = await axios.post(
+      "https://api.oneclickservices.com.au/api/v1/dvs",
+      data,
+      config
+    );
+
+    res.status(200).json({
+      success: true,
+      response,
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
