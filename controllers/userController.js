@@ -59,7 +59,7 @@ exports.generateToken = async (req, res) => {
   }
 };
 
-const generate = async (req, res) => {
+exports.generateToken2 = async (req, res) => {
   const access_token = await generateDrivingToken();
   try {
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
@@ -71,7 +71,7 @@ const generate = async (req, res) => {
         lastname: "surname",
         dob: "01/01/2000",
         state: "WA",
-        licencenumber: "11111111",
+        licencenumber: "1234",
         cardnumberback: "12341234",
       },
     };
@@ -81,26 +81,14 @@ const generate = async (req, res) => {
       "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
       Authorization: `Bearer ${access_token}`,
     };
+    const repo = await axios.post(url, data, { headers });
 
-    const response = await axios.post(url, data, { headers });
-    return response;
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error,
-      access_token,
-    });
-  }
-};
-
-exports.generateToken2 = async (req, res) => {
-  try {
-    const response = await generate();
-    res.status(200).json({ success: true, response });
+    res.status(200).json({ success: true, repo });
   } catch (error) {
     res.status(400).json({
       success: false,
       message: error,
+      access_token,
     });
   }
 };
