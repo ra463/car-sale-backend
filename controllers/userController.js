@@ -25,19 +25,29 @@ const sendData = (user, statusCode, res, message) => {
 
 exports.generateToken = async (req, res) => {
   try {
+    const {
+      document,
+      firstname,
+      middlename,
+      lastname,
+      dob,
+      licence_state,
+      licencenumber,
+      cardnumberback,
+    } = req.body;
     const access_token = await generateDrivingToken();
     const repo = await axios.post(
       "https://api.oneclickservices.com.au/api/v1/dvs",
       {
-        document: "driverslicence",
+        document: document,
         fields: {
-          firstname: "name",
-          middlename: "",
-          lastname: "surname",
-          dob: "01/01/2000",
-          state: "WA",
-          licencenumber: "1234",
-          cardnumberback: "12341234",
+          firstname: firstname,
+          middlename: middlename,
+          lastname: lastname,
+          dob: dob,
+          state: licence_state,
+          licencenumber: licencenumber,
+          cardnumberback: cardnumberback,
         },
       },
       {
@@ -60,19 +70,29 @@ exports.generateToken = async (req, res) => {
 };
 
 exports.generateToken2 = async (req, res) => {
+  const {
+    document,
+    firstname,
+    middlename,
+    lastname,
+    dob,
+    licence_state,
+    licencenumber,
+    cardnumberback,
+  } = req.body;
   const access_token = await generateDrivingToken();
   try {
     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
     const data = {
-      document: "driverslicence",
+      document: document,
       fields: {
-        firstname: "name",
-        middlename: "",
-        lastname: "surname",
-        dob: "01/01/2000",
-        state: "WA",
-        licencenumber: "1234",
-        cardnumberback: "12341234",
+        firstname: firstname,
+        middlename: middlename,
+        lastname: lastname,
+        dob: dob,
+        state: licence_state,
+        licencenumber: licencenumber,
+        cardnumberback: cardnumberback,
       },
     };
     const headers = {
@@ -82,7 +102,7 @@ exports.generateToken2 = async (req, res) => {
       Authorization: `Bearer ${access_token}`,
     };
 
-    const repo = await axios.post(url, JSON.stringify(data), { headers });
+    const repo = await axios.post(url, data, { headers });
     res.status(200).json({ success: true, repo });
   } catch (error) {
     res.status(400).json({
