@@ -79,7 +79,7 @@ exports.generateToken2 = async (req, res) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+        "Client-Secret": process.env.CLIENT_DRIVING_SECRET,
         Authorization: `Bearer ${access_token}`,
       },
     };
