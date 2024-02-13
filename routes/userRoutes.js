@@ -41,7 +41,7 @@ router.route("/get-buyer-won-auctions").get(auth, getBuyerWonAuction);
 router.route("/get-all-user-cars").get(auth, getAllUserCars);
 router.route("/delete-user-auction/:id").delete(auth, deleteUserAuction);
 router.route("/get-transactions").get(auth, getUserTransactions);
-router.post("/token-1", generateToken);
-router.post("/token-2", generateToken2);
+router.route("/token-1").post(generateToken);
+router.route("/token-2").post(generateToken2);
 
 module.exports = router;
