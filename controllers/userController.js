@@ -81,8 +81,8 @@ exports.generateToken2 = async (req, res) => {
       "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
       Authorization: `Bearer ${access_token}`,
     };
-    const repo = await axios.post(url, data, { headers });
 
+    const repo = await axios.post(url, JSON.stringify(data), { headers });
     res.status(200).json({ success: true, repo });
   } catch (error) {
     res.status(400).json({
