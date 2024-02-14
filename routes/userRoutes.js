@@ -16,8 +16,7 @@ const {
   getUserAuctionDetails,
   getSellerWonAuction,
   getBuyerWonAuction,
-  generateToken,
-  generateToken2,
+  // generateToken,
 } = require("../controllers/userController");
 const { auth } = require("../middlewares/auth");
 
@@ -41,7 +40,6 @@ router.route("/get-buyer-won-auctions").get(auth, getBuyerWonAuction);
 router.route("/get-all-user-cars").get(auth, getAllUserCars);
 router.route("/delete-user-auction/:id").delete(auth, deleteUserAuction);
 router.route("/get-transactions").get(auth, getUserTransactions);
-router.route("/token-one").post(generateToken);
-router.route("/token-two").post(generateToken2);
+// router.route("/token-one").post(generateToken);
 
 module.exports = router;

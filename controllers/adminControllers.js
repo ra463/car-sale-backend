@@ -80,7 +80,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
     email,
     role,
     age,
-    phoneNumber,
+    phone,
     address,
     city,
     state,
@@ -88,7 +88,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
     shuburb,
   } = req.body;
 
-  const user2 = await User.findOne({ phoneNumber });
+  const user2 = await User.findOne({ phone });
   if (user2 && user2._id.toString() !== user._id.toString()) {
     return res
       .status(400)
@@ -102,7 +102,7 @@ exports.updateUser = catchAsyncError(async (req, res, next) => {
   if (email) user.email = email;
   if (role) user.role = role;
   if (age) user.age = age;
-  if (phoneNumber) user.phoneNumber = phoneNumber;
+  if (phone) user.phone = phone;
   if (address) user.address = address;
   if (city) user.city = city;
   if (state) user.state = state;
@@ -191,7 +191,7 @@ exports.getAllCars = catchAsyncError(async (req, res, next) => {
 exports.getCarById = catchAsyncError(async (req, res, next) => {
   const car = await Car.findById(req.params.id).populate(
     "seller",
-    "firstname middlename lastname dob email phoneNumber age address city state postal_code shuburb clientId"
+    "firstname middlename lastname dob email phone age address city state postal_code shuburb clientId"
   );
   if (!car) return next(new ErrorHandler("Car not found!", 404));
 
@@ -261,8 +261,11 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     if (car_shuburb) car.car_shuburb = car_shuburb;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;
-    if (is_registered === "true") car.expiry_date = expiry_date;
-    if (is_registered === "false") car.expiry_date = null;
+    if (is_registered === "true") {
+      car.expiry_date = expiry_date;
+    } else {
+      car.expiry_date = null;
+    }
     if (body_type) car.body_type = body_type;
     if (owner) car.owner = owner;
     if (autorized_person) car.autorized_person = autorized_person;
@@ -288,7 +291,11 @@ exports.updateCar = catchAsyncError(async (req, res, next) => {
     if (car_shuburb) car.car_shuburb = car_shuburb;
     if (description) car.description = description;
     if (is_registered) car.is_registered = is_registered;
-    if (is_registered === "true") car.expiry_date = expiry_date;
+    if (is_registered === "true") {
+      car.expiry_date = expiry_date;
+    } else {
+      car.expiry_date = null;
+    }
     if (body_type) car.body_type = body_type;
     if (owner) car.owner = owner;
     if (autorized_person) car.autorized_person = autorized_person;
@@ -380,7 +387,7 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.id)
     .populate(
       "seller",
-      "firstname middlename lastname dob email phoneNumber age address city state postal_code shuburb clientId"
+      "firstname middlename lastname dob email phone age address city state postal_code shuburb clientId"
     )
     .populate("car");
   if (!auction) return next(new ErrorHandler("Auction not found!", 404));
@@ -395,7 +402,7 @@ exports.getAdminAuctionById = catchAsyncError(async (req, res, next) => {
   if (bids.length > 0) {
     winner = await bids[0].populate(
       "bidder",
-      "firstname middlename lastname email phoneNumber age address city state postal_code shuburb clientId"
+      "firstname middlename lastname email phone age address city state postal_code shuburb clientId"
     );
   }
 

@@ -7,30 +7,34 @@ const schema = new mongoose.Schema(
   {
     firstname: {
       type: String,
-      // required: [true, "Firstname is required"],
+      trim: true,
+      required: [true, "Firstname is required"],
     },
     middlename: {
       type: String,
-      default: "",
     },
     lastname: {
       type: String,
-      // required: [true, "Name is required"],
+      required: [true, "Name is required"],
+      trim: true,
     },
     dob: {
       type: String,
-      // required: true,
+      required: true,
     },
     card_details: {
       licence_state: {
         type: String,
         enum: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
+        required: [true, "License card Details are required"],
       },
       licencenumber: {
         type: String,
+        required: [true, "License card Details are required"],
       },
       cardnumberback: {
         type: String,
+        required: [true, "License card Details are required"],
       },
     },
     email: {
@@ -55,17 +59,18 @@ const schema = new mongoose.Schema(
       type: String,
       unique: [true, "Client Id already exists"],
     },
-    profilePicUrl: {
+    avatar: {
       type: String,
       default:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh1MxDvWeEQ39D04ETGLuJ_pnSkd_gZf47R7qkQaxbHotxVs-aBvYjsHmbvxcKhTGn9gI&usqp=CAU",
     },
     age: {
       type: Number,
+      trim: true,
       required: [true, "Age is required"],
       minLength: [18, "Age must be 18 or above"],
     },
-    phoneNumber: {
+    phone: {
       type: String,
       required: [true, "Phone number is required"],
       unique: [true, "Phone number already exists"],
