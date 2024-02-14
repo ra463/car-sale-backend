@@ -182,6 +182,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     return res.status(400).json({ message: "Invalid credentials" });
 
   user.password = undefined;
+  user.card_details = undefined;
   sendData(user, 200, res, `${user.firstname} logged in successfully`);
 });
 
