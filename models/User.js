@@ -26,15 +26,17 @@ const schema = new mongoose.Schema(
       licence_state: {
         type: String,
         enum: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
-        required: [true, "License card Details are required"],
       },
       licencenumber: {
         type: String,
-        required: [true, "License card Details are required"],
       },
       cardnumberback: {
         type: String,
-        required: [true, "License card Details are required"],
+      },
+    },
+    passport_details: {
+      passportnumber: {
+        type: String,
       },
     },
     email: {

@@ -102,7 +102,7 @@ exports.captureAuctionOrder = catchAsyncError(async (req, res, next) => {
     auction: auctionId,
     amount: price,
     paypalOrderId: data.id,
-    status: "PENDING",
+    status: "COMPLETED",
   });
   const newOrder = await order.save();
 
@@ -111,17 +111,34 @@ exports.captureAuctionOrder = catchAsyncError(async (req, res, next) => {
     user: req.userId,
     amount: price,
     transactionId: data.purchase_units[0].payments.captures[0].id,
-    status: "PENDING",
+    status: "COMPLETED",
   });
   await transaction.save();
 
   await transaction.populate("user", "firstname email");
 
-  await confirmationPaymentEmail(
+  if (auction.seller.toString() === req.userId.toString()) {
+    auction.is_Seller_paid10_percent = true;
+    await auction.save();
+  } else {
+    auction.is_Winner_paid10_percent = true;
+    await auction.save();
+  }
+
+  if (
+    auction.is_Seller_paid10_percent === true &&
+    auction.is_Winner_paid10_percent === true
+  ) {
+    auction.status = "sold";
+    await auction.save();
+  }
+
+  await paymentDone(
     transaction.user.email,
     transaction.user.firstname,
     auction._id,
-    price
+    transaction.transactionId,
+    transaction.amount
   );
 
   res.status(200).json({
@@ -201,56 +218,57 @@ exports.createRefund = catchAsyncError(async (req, res, next) => {
 });
 
 exports.createAuctionWebhook = catchAsyncError(async (req, res, next) => {
-  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
+  // if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+  // const orderId = req.body.resource.supplementary_data.related_ids.order_id;
 
-    const order = await Order.findOne({ paypalOrderId: orderId });
-    if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
-    }
+  // const order = await Order.findOne({ paypalOrderId: orderId });
+  // if (!order) {
+  //   return res
+  //     .status(404)
+  //     .json({ success: false, message: "Order not found" });
+  // }
 
-    const transaction = await Transaction.findOne({
-      order: order._id,
-    }).populate("user", "firstname email");
-    if (!transaction) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Transaction not found" });
-    }
+  // const transaction = await Transaction.findOne({
+  //   order: order._id,
+  // }).populate("user", "firstname email");
+  // if (!transaction) {
+  //   return res
+  //     .status(404)
+  //     .json({ success: false, message: "Transaction not found" });
+  // }
 
-    order.status = req.body.resource.status;
-    await order.save();
+  // order.status = req.body.resource.status;
+  // await order.save();
 
-    transaction.status = req.body.resource.status;
-    await transaction.save();
+  // transaction.status = req.body.resource.status;
+  // await transaction.save();
 
-    const auction = await Auction.findById(order.auction);
-    if (auction.seller.toString() === order.user.toString()) {
-      auction.is_Seller_paid10_percent = true;
-      await auction.save();
-    } else {
-      auction.is_Winner_paid10_percent = true;
-      await auction.save();
-    }
+  // const auction = await Auction.findById(order.auction);
+  // if (auction.seller.toString() === order.user.toString()) {
+  //   auction.is_Seller_paid10_percent = true;
+  //   await auction.save();
+  // } else {
+  //   auction.is_Winner_paid10_percent = true;
+  //   await auction.save();
+  // }
 
-    if (
-      auction.is_Seller_paid10_percent === true &&
-      auction.is_Winner_paid10_percent === true
-    ) {
-      auction.status = "sold";
-      await auction.save();
-    }
+  // if (
+  //   auction.is_Seller_paid10_percent === true &&
+  //   auction.is_Winner_paid10_percent === true
+  // ) {
+  //   auction.status = "sold";
+  //   await auction.save();
+  // }
 
-    await paymentDone(
-      transaction.user.email,
-      transaction.user.firstname,
-      auction._id,
-      transaction.transactionId,
-      transaction.amount
-    );
-  } else if (req.body.event_type === "PAYMENT.CAPTURE.REFUNDED") {
+  // await paymentDone(
+  //   transaction.user.email,
+  //   transaction.user.firstname,
+  //   auction._id,
+  //   transaction.transactionId,
+  //   transaction.amount
+  // );
+  // } else
+  if (req.body.event_type === "PAYMENT.CAPTURE.REFUNDED") {
     // Refunding webhook
     let transactionId = null;
     req.body.resource.links.forEach((link) => {

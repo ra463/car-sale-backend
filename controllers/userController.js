@@ -17,7 +17,7 @@ dotenv.config({
 
 const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     user,
     token,
     message,
@@ -91,6 +91,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     postal_code,
     shuburb,
     document,
+    passportnumber,
   } = req.body;
 
   const user_exist = await User.findOne({
@@ -103,63 +104,188 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   const access_token = await generateDrivingToken();
   const url = "https://api.oneclickservices.com.au/api/v1/dvs";
-  const data = {
-    document: document,
-    fields: {
-      firstname: firstname,
-      middlename: middlename,
-      lastname: lastname,
-      dob: dob,
-      state: licence_state,
-      licencenumber: licencenumber,
-      cardnumberback: cardnumberback,
-    },
-  };
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-    Authorization: `Bearer ${access_token}`,
-  };
 
-  const repo = await axios.post(url, data, { headers });
+  if (document === "driverslicence") {
+    if (!licence_state || !licencenumber || !cardnumberback) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "All driving licence fields are required",
+        });
+    }
+    const data = {
+      document: document,
+      fields: {
+        firstname: firstname,
+        middlename: middlename,
+        lastname: lastname,
+        dob: dob,
+        state: licence_state,
+        licencenumber: licencenumber,
+        cardnumberback: cardnumberback,
+      },
+    };
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+      Authorization: `Bearer ${access_token}`,
+    };
 
-  if (repo.status == 200 && repo.data.result == "N") {
-    return res.status(200).json({ success: false, message: repo.data.errors });
+    const repo = await axios.post(url, data, { headers });
+
+    if (repo.status == 200 && repo.data.result == "N") {
+      return res
+        .status(200)
+        .json({ success: false, message: repo.data.errors });
+    }
+
+    let client = generateClientId();
+    let user = await User.create({
+      firstname,
+      middlename,
+      lastname,
+      dob,
+      card_details: {
+        licence_state,
+        licencenumber,
+        cardnumberback,
+      },
+      email: email.toLowerCase(),
+      password,
+      clientId: client,
+      age,
+      phone,
+      address,
+      city,
+      state,
+      postal_code,
+      shuburb,
+    });
+
+    user.password = undefined;
+    await newUser(email, firstname);
+
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your License has been verified Successfully`
+    );
+  } else if (document === "passport") {
+    const data = {
+      document: document,
+      fields: {
+        firstname: firstname,
+        middlename: middlename,
+        lastname: lastname,
+        dob: dob,
+        passportnumber: passportnumber,
+      },
+    };
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+      Authorization: `Bearer ${access_token}`,
+    };
+
+    const repo = await axios.post(url, data, { headers });
+
+    if (repo.status == 200 && repo.data.result == "N") {
+      return res
+        .status(200)
+        .json({ success: false, message: repo.data.errors });
+    }
+
+    let client = generateClientId();
+    let user = await User.create({
+      firstname,
+      middlename,
+      lastname,
+      dob,
+      passport_details: {
+        passportnumber,
+      },
+      email: email.toLowerCase(),
+      password,
+      clientId: client,
+      age,
+      phone,
+      address,
+      city,
+      state,
+      postal_code,
+      shuburb,
+    });
+
+    user.password = undefined;
+    await newUser(email, firstname);
+
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your Password has been verified Successfully`
+    );
+  } else {
+    const data = {
+      document: document,
+      fields: {
+        firstname: firstname,
+        middlename: middlename,
+        lastname: lastname,
+        dob: dob,
+        passportnumber: passportnumber,
+      },
+    };
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
+      Authorization: `Bearer ${access_token}`,
+    };
+
+    const repo = await axios.post(url, data, { headers });
+
+    if (repo.status == 200 && repo.data.result == "N") {
+      return res
+        .status(200)
+        .json({ success: false, message: repo.data.errors });
+    }
+
+    let client = generateClientId();
+    let user = await User.create({
+      firstname,
+      middlename,
+      lastname,
+      dob,
+      passport_details: {
+        passportnumber,
+      },
+      email: email.toLowerCase(),
+      password,
+      clientId: client,
+      age,
+      phone,
+      address,
+      city,
+      state,
+      postal_code,
+      shuburb,
+    });
+
+    user.password = undefined;
+    await newUser(email, firstname);
+
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your Password has been verified Successfully`
+    );
   }
-
-  let client = generateClientId();
-  let user = await User.create({
-    firstname,
-    middlename,
-    lastname,
-    dob,
-    card_details: {
-      licence_state,
-      licencenumber,
-      cardnumberback,
-    },
-    email: email.toLowerCase(),
-    password,
-    clientId: client,
-    age,
-    phone,
-    address,
-    city,
-    state,
-    postal_code,
-    shuburb,
-  });
-
-  user.password = undefined;
-  await newUser(email, firstname);
-
-  sendData(
-    user,
-    201,
-    res,
-    `Welcome Sir!! Your License has been verified Successfully`
-  );
 });
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
