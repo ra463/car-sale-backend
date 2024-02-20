@@ -75,7 +75,6 @@ const schema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, "Phone number is required"],
-      unique: [true, "Phone number already exists"],
       maxLength: [11, "Phone number must be 9 to 11 digits long"],
       minLength: [9, "Phone number must be 9 to 11 digits long"],
       trim: true,
