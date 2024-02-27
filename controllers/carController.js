@@ -178,12 +178,14 @@ exports.pushCarImagesIntoArray = catchAsyncError(async (req, res, next) => {
   const { images_url } = req.body;
   if (!images_url) return res.status(404).json({ message: "Url not pushed" });
 
+  let image_urls = images_url;
+
   const user = await User.findById(req.userId);
   if (!user) return res.status(404).json({ message: "User not found" });
   const car = await Car.findById(req.params.carId);
   if (!car) return res.status(404).json({ message: "Vehicle not found" });
 
-  car.images.push(...images_url);
+  car.images.push(...image_urls);
   car.save();
 
   res.status(200).json({
@@ -327,12 +329,14 @@ exports.editCarDetails = catchAsyncError(async (req, res, next) => {
     car_shuburb,
   } = req.body;
 
-  const carExists = await Car.findOne({ unique_identification_number });
+  if (unique_identification_number) {
+    const carExists = await Car.findOne({ unique_identification_number });
 
-  if (carExists._id.toString() !== car._id.toString()) {
-    return res
-      .status(400)
-      .json({ message: "Vehicle already exists with this Vin" });
+    if (carExists._id.toString() !== car._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Vehicle already exists with this Vin" });
+    }
   }
 
   if (car.vehicle_type === "Car") {
