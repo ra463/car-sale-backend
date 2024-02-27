@@ -169,12 +169,6 @@ exports.getAllAuctions = catchAsyncError(async (req, res, next) => {
         "carsInf.manufacture_company": {
           $regex: new RegExp(req.query.manufacture_company, "i"),
         },
-        // "carsInf.fuel_type": {
-        //   $regex: new RegExp(req.query.fuel_type, "i"),
-        // },
-        // "carsInf.vehicle_type": {
-        //   $regex: new RegExp(req.query.vehicle_type, "i"),
-        // },
       },
     };
 
@@ -185,7 +179,6 @@ exports.getAllAuctions = catchAsyncError(async (req, res, next) => {
       };
     }
 
-    // console.log("Debug: matchFilter", JSON.stringify(matchFilter, null, 2));
     aggregation.append(matchFilter);
 
     const result = await aggregation.exec();
@@ -291,9 +284,3 @@ exports.confirmBid = catchAsyncError(async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Bid Confirmed Successfully" });
 });
-
-exports.testingDateTime = async (req, res) => {
-  const auction = await Auction.find().populate("car");
-
-  res.status(200).json({ success: true, auction });
-};

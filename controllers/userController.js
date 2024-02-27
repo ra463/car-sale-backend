@@ -24,54 +24,6 @@ const sendData = (user, statusCode, res, message) => {
   });
 };
 
-// exports.generateToken = async (req, res) => {
-//   try {
-//     const {
-//       document,
-//       firstname,
-//       middlename,
-//       lastname,
-//       dob,
-//       licence_state,
-//       licencenumber,
-//       cardnumberback,
-//     } = req.body;
-//     const access_token = await generateDrivingToken();
-//     const url = "https://api.oneclickservices.com.au/api/v1/dvs";
-//     const data = {
-//       document: document,
-//       fields: {
-//         firstname: firstname,
-//         middlename: middlename,
-//         lastname: lastname,
-//         dob: dob,
-//         state: licence_state,
-//         licencenumber: licencenumber,
-//         cardnumberback: cardnumberback,
-//       },
-//     };
-//     const headers = {
-//       Accept: "application/json",
-//       "Content-Type": "application/json",
-//       "Client-Secret": `${process.env.CLIENT_DRIVING_SECRET}`,
-//       Authorization: `Bearer ${access_token}`,
-//     };
-//     const repo = await axios.post(url, data, { headers });
-//     if (repo.status == 200) {
-//       if (repo.data.result == "Y") {
-//         res.status(200).json({ success: true, message: repo.data.status });
-//       } else {
-//         res.status(200).json({ success: false, message: repo.data.errors });
-//       }
-//     }
-//   } catch (error) {
-//     res.status(400).json({
-//       success: false,
-//       message: error,
-//     });
-//   }
-// };
-
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   const {
     firstname,
