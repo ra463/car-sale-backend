@@ -1,4 +1,5 @@
 const Auction = require("../models/Auction");
+const AutoBid = require("../models/AutoBid");
 const Bid = require("../models/Bid");
 const User = require("../models/User");
 const catchAsyncError = require("../utils/catchAsyncError");
@@ -9,6 +10,18 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 
   const auction = await Auction.findById(req.params.auctionId);
   if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+  const autoBids = await AutoBid.findOne({
+    user: user._id,
+    auction: auction._id,
+  });
+
+  if (autoBids) {
+    if (autoBids.autobid_active === true)
+      return res.status(400).json({
+        message: "AutoBid is active. You can't place another bid",
+      });
+  }
 
   const bids = await Bid.find({ auction: auction._id });
 
@@ -29,15 +42,11 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 
   const { bid_amount } = req.body;
 
-  if (bid_amount == 0)
-    return res
-      .status(400)
-      .json({ message: "Bidding Amount should be greater than 0" });
-
-  if (bid_amount < 0) {
-    return res
-      .status(400)
-      .json({ message: "Bidding Amount cannot be negative" });
+  if (bid_amount <= 0) {
+    return res.status(400).json({
+      message:
+        "Bid Amount should be greater than 0. Please enter a valid amount",
+    });
   }
 
   if (bids.length === 0) {

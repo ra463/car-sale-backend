@@ -16,6 +16,9 @@ const schema = new mongoose.Schema(
       maxLength: [7, "Bid amount must be less than 7 digits"],
       trim: true,
     },
+    tag: {
+      type: String,
+    },
     is_confirmed_bid: {
       type: Boolean,
       default: false,

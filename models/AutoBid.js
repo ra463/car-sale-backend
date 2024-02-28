@@ -18,7 +18,7 @@ const schema = new mongoose.Schema(
       type: Number,
       required: [true, "Max amount is required"],
     },
-    increment: {
+    increment_amount: {
       type: Number,
       required: [true, "Increment amount is required"],
     },
