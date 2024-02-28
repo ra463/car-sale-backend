@@ -6,6 +6,7 @@ const Bid = require("../models/Bid");
 
 exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
   const { max_amount, increment_amount } = req.body;
+
   const [auction, user] = await Promise.all([
     await Auction.findById(req.params.auctionId),
     await User.findById(req.userId),
@@ -52,8 +53,14 @@ exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
         .json({ success: true, message: "AutoBid Enabled" });
     }
   } else {
-    const difference = Math.abs(max_amount - auction.highest_bid);
-    if (difference < increment_amount) {
+    if (max_amount < increment_amount || max_amount < auction.highest_bid)
+      return res.status(400).json({
+        success: false,
+        message:
+          "The max amount must be greater than the increment amount and the current highest bid",
+      });
+
+    if (max_amount - auction.highest_bid < increment_amount) {
       return res.status(400).json({
         success: false,
         message:
