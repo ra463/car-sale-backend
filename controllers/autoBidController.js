@@ -17,17 +17,20 @@ exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
 
   if (auction.status === "inactive" || auction.status === "closed")
     return res.status(400).json({
+      success: false,
       message: "Bid cannot be Placed. Auction is Inactive/Closed",
     });
 
   if (auction.auction_confirmed === true)
     return res.status(400).json({
+      success: false,
       message:
         "Auction is already confirmed. You can't turn on AutoBid Anymore",
     });
 
   if (auction.seller.toString() === user._id.toString())
     return res.status(400).json({
+      success: false,
       message: "You cannot turn on autobid on your own auction",
     });
 
@@ -156,7 +159,7 @@ exports.updateAutoBidDetails = catchAsyncError(async (req, res, next) => {
     bid_amount: auction.highest_bid + increment_amount,
   });
 
-  res
+  return res
     .status(200)
     .json({ success: true, message: "Bid Created & AutoBid Updated" });
 });
@@ -175,15 +178,17 @@ exports.getAutoBidOfUserInAuction = catchAsyncError(async (req, res, next) => {
     user: user._id,
   });
 
-  res.status(200).json({ success: true, auto_bid });
+  return res.status(200).json({ success: true, auto_bid });
 });
 
 exports.autoBid = catchAsyncError(async (req, res, next) => {
   const auction = await Auction.findById(req.params.auctionId);
   if (!auction) return res.status(404).json({ message: "Auction not found" });
 
-  if (auction.status === "inactive" || auction.status === "closed") return;
-  if (auction.auction_confirmed === true) return;
+  if (auction.status === "inactive" || auction.status === "closed")
+    return res.status(400).json({ message: "Auction is Inactive/Closed" });
+  if (auction.auction_confirmed === true)
+    return res.status(400).json({ message: "Auction is already confirmed" });
 
   const all_bids = await Bid.find({ auction: auction._id });
 
@@ -234,7 +239,7 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
           }
           const bid = await Bid.create({
             auction: auction._id,
-            user: autoBidsUserArray[i].user,
+            bidder: autoBidsUserArray[i].user,
             bid_amount:
               auction.highest_bid + autoBidsUserArray[i].increment_amount,
             tag: "via AutoBid",
@@ -257,22 +262,22 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "AutoBid Done" });
 });
 
-exports.test = catchAsyncError(async (req, res, next) => {
-  const auction = await Auction.findById(req.params.auctionId);
-  if (!auction) return res.status(404).json({ message: "Auction not found" });
+// exports.test = catchAsyncError(async (req, res, next) => {
+//   const auction = await Auction.findById(req.params.auctionId);
+//   if (!auction) return res.status(404).json({ message: "Auction not found" });
 
-  const autoBidsUser = await Bid.find({
-    auction: auction._id,
-  }).sort({
-    createdAt: -1,
-  });
+//   const autoBidsUser = await Bid.find({
+//     auction: auction._id,
+//   }).sort({
+//     createdAt: -1,
+//   });
 
-  const array1 = [];
-  for (let i = 0; i < autoBidsUser.length; i++) {
-    array1.push(autoBidsUser[i]);
-  }
+//   const array1 = [];
+//   for (let i = 0; i < autoBidsUser.length; i++) {
+//     array1.push(autoBidsUser[i]);
+//   }
 
-  const lastBid = autoBidsUser[autoBidsUser.length - 1];
+//   const lastBid = autoBidsUser[autoBidsUser.length - 1];
 
-  return res.status(200).json({ success: true, array1, lastBid });
-});
+//   return res.status(200).json({ success: true, array1, lastBid });
+// });
