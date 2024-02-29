@@ -263,144 +263,35 @@ exports.createRefund = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// exports.createAuctionWebhook = catchAsyncError(async (req, res, next) => {
-// if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-// const orderId = req.body.resource.supplementary_data.related_ids.order_id;
+exports.createAuctionWebhook = catchAsyncError(async (req, res, next) => {
+  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
 
-// const order = await Order.findOne({ paypalOrderId: orderId });
-// if (!order) {
-//   return res
-//     .status(404)
-//     .json({ success: false, message: "Order not found" });
-// }
+    const order = await Order.findOne({ paypalOrderId: orderId });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
 
-// const transaction = await Transaction.findOne({
-//   order: order._id,
-// }).populate("user", "firstname email");
-// if (!transaction) {
-//   return res
-//     .status(404)
-//     .json({ success: false, message: "Transaction not found" });
-// }
+    res.status(200).json({ success: true, message: "Webhook worked" });
+  } else if (req.body.event_type === "PAYMENT.CAPTURE.REFUNDED") {
+    let transactionId = null;
+    req.body.resource.links.forEach((link) => {
+      if (link.rel === "up") {
+        transactionId = link.href.split("/")[6];
+      }
+    });
 
-// order.status = req.body.resource.status;
-// await order.save();
+    const transaction = await Transaction.findOne({
+      transactionId: transactionId,
+    }).populate("order", "paypalOrderId");
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
 
-// transaction.status = req.body.resource.status;
-// await transaction.save();
-
-// const auction = await Auction.findById(order.auction);
-// if (auction.seller.toString() === order.user.toString()) {
-//   auction.is_Seller_paid10_percent = true;
-//   await auction.save();
-// } else {
-//   auction.is_Winner_paid10_percent = true;
-//   await auction.save();
-// }
-
-// if (
-//   auction.is_Seller_paid10_percent === true &&
-//   auction.is_Winner_paid10_percent === true
-// ) {
-//   auction.status = "sold";
-//   await auction.save();
-// }
-
-// await paymentDone(
-//   transaction.user.email,
-//   transaction.user.firstname,
-//   auction._id,
-//   transaction.transactionId,
-//   transaction.amount
-// );
-// } else
-//   if (req.body.event_type === "PAYMENT.CAPTURE.REFUNDED") {
-//     // Refunding webhook
-//     let transactionId = null;
-//     req.body.resource.links.forEach((link) => {
-//       if (link.rel === "up") {
-//         transactionId = link.href.split("/")[6];
-//       }
-//     });
-
-//     const transaction = await Transaction.findOne({
-//       transactionId: transactionId,
-//     }).populate("order", "paypalOrderId");
-//     if (!transaction) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Transaction not found" });
-//     }
-
-//     const order = await Order.findOne({
-//       paypalOrderId: transaction.order.paypalOrderId,
-//     });
-//     if (!order) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Order not found" });
-//     }
-
-//     const auction = await Auction.findById(order.auction);
-//     if (!auction) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Auction not found" });
-//     }
-
-// if (
-//   auction.is_Seller_paid10_percent === false &&
-//   auction.is_Winner_paid10_percent === true
-// ) {
-//   // console.log("entered-1");
-//   const bids = await Bid.find({ auction: auction._id }).sort({
-//     createdAt: -1,
-//   });
-//   const bid = bids[0];
-//   const winner = await User.findById(bid.bidder);
-//   const seller = await User.findById(auction.seller);
-//   seller.is_locked = true;
-//   auction.is_Winner_paid10_percent = false;
-//   auction.status = "refunded";
-//   await seller.save();
-//   await auction.save();
-//   // console.log(user.email, user.name, auction._id, transaction.amount);
-//   await refundEmail(
-//     winner.email,
-//     winner.firstname,
-//     auction._id,
-//     transaction.amount
-//   );
-// } else if (
-//   auction.is_Seller_paid10_percent === true &&
-//   auction.is_Winner_paid10_percent === false
-// ) {
-//   // console.log("entered-2");
-//   const bids = await Bid.find({ auction: auction._id }).sort({
-//     createdAt: -1,
-//   });
-//   const bid = bids[0];
-//   const winner = await User.findById(bid.bidder);
-//   const seller = await User.findById(auction.seller);
-//   winner.is_locked = true;
-//   auction.is_Seller_paid10_percent = false;
-//   auction.status = "refunded";
-//   await winner.save();
-//   await auction.save();
-//   // console.log(user.email, user.name, auction._id, transaction.amount);
-//   await refundEmail(
-//     seller.email,
-//     seller.firstname,
-//     auction._id,
-//     transaction.amount
-//   );
-// }
-
-// transaction.status = "REFUNDED";
-// order.status = "REFUNDED";
-// await transaction.save();
-// await order.save();
-//   }
-
-//   res.status(200).json({ success: true, message: "Webhook closes working" });
-// });
+    res.status(200).json({ success: true, message: "Webhook worked" });
+  }
+});

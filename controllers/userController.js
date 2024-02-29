@@ -10,10 +10,8 @@ const generateCode = require("../utils/generateCode");
 const generateDrivingToken = require("../utils/drivingLicense");
 const dotenv = require("dotenv");
 const axios = require("axios");
-
-dotenv.config({
-  path: "../config/config.env",
-});
+const { sendOTP, verifyOTP } = require("../utils/sendOtp");
+dotenv.config({ path: "../config/config.env" });
 
 const sendData = (user, statusCode, res, message) => {
   const token = user.getJWTToken();
@@ -59,12 +57,10 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   if (document === "driverslicence") {
     if (!licence_state || !licencenumber || !cardnumberback) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "All driving licence fields are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "All driving licence fields are required",
+      });
     }
     const data = {
       document: document,
@@ -264,6 +260,36 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   sendData(user, 200, res, `${user.firstname} logged in successfully`);
 });
 
+exports.sendOtp = catchAsyncError(async (req, res, next) => {
+  const { phone } = req.body;
+  if (!phone)
+    return res.status(400).json({ message: "Please enter the phone" });
+
+  const { status } = await sendOTP(`+91${phone}`);
+  if (status !== "pending")
+    return res.status(500).json({ message: "Error sending OTP" });
+
+  res.status(200).json({
+    success: true,
+    message: "OTP sent successfully",
+  });
+});
+
+exports.verifyOtp = catchAsyncError(async (req, res, next) => {
+  const { phone, code } = req.body;
+  if (!code || !phone)
+    return res
+      .status(400)
+      .json({ message: "Please enter the code & phone number" });
+
+  await verifyOTP(`+91${phone}`, code, res);
+
+  res.status(200).json({
+    success: true,
+    message: "OTP verified successfully",
+  });
+});
+
 exports.myProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if (!user) return res.status(404).json({ message: "User not found" });
@@ -409,19 +435,12 @@ exports.getAllUserBids = catchAsyncError(async (req, res, next) => {
       path: "auction",
       select:
         "car highest_bid auction_start auction_end status is_Seller_paid10_percent is_Winner_paid10_percent seller",
-      populate: [
-        {
-          path: "car",
-          model: "Car",
-          select:
-            "model manufacture_company color fuel_type transmission_type images unique_identification_number",
-        },
-        // {
-        //   path: "highest_bid",
-        //   model: "Bid",
-        //   select: "bid_amount",
-        // },
-      ],
+      populate: {
+        path: "car",
+        model: "Car",
+        select:
+          "model manufacture_company color fuel_type transmission_type images unique_identification_number",
+      },
     })
     .sort({ createdAt: -1 });
 

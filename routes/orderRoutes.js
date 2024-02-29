@@ -3,12 +3,13 @@ const { auth } = require("../middlewares/auth");
 const {
   createAuctionOrder,
   captureAuctionOrder,
+  createAuctionWebhook,
 } = require("../controllers/orderControllers");
 
 const router = express.Router();
 
 router.post("/create-auction-order", auth, createAuctionOrder);
 router.post("/capture-payment/:orderId", auth, captureAuctionOrder);
-// router.post("/auction-webhook", createAuctionWebhook);
+router.post("/auction-webhook", createAuctionWebhook);
 
 module.exports = router;
