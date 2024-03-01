@@ -56,11 +56,15 @@ exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
         .json({ success: true, message: "AutoBid Enabled" });
     }
   } else {
-    if (max_amount < increment_amount || max_amount < auction.highest_bid)
+    if (
+      max_amount < increment_amount ||
+      max_amount < auction.highest_bid ||
+      max_amount % 50 !== 0
+    )
       return res.status(400).json({
         success: false,
         message:
-          "The max amount must be greater than the increment amount and the current highest bid",
+          "The max amount must be multiple of 50 & greater than the increment amount & the current highest bid",
       });
 
     if (max_amount - auction.highest_bid < increment_amount) {
@@ -78,13 +82,21 @@ exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
       increment_amount,
     });
 
-    await Bid.create({
+    const bid = await Bid.create({
       auction: auction._id,
       bidder: user._id,
-      bid_amount: auction.highest_bid + increment_amount,
+      bid_amount:
+        auction.highest_bid === 0 || null
+          ? increment_amount
+          : auction.highest_bid + increment_amount,
     });
 
-    return res.status(200).json({ success: true, message: "AutoBid Enabled" });
+    auction.highest_bid = bid.bid_amount;
+    await auction.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Bid Created & AutoBid Enabled" });
   }
 });
 
@@ -153,11 +165,14 @@ exports.updateAutoBidDetails = catchAsyncError(async (req, res, next) => {
 
   await auto_bid.save();
 
-  await Bid.create({
+  const bid = await Bid.create({
     auction: auction._id,
     bidder: user._id,
     bid_amount: auction.highest_bid + increment_amount,
   });
+
+  auction.highest_bid = bid.bid_amount;
+  await auction.save();
 
   return res
     .status(200)
@@ -190,7 +205,7 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
   if (auction.auction_confirmed === true)
     return res.status(400).json({ message: "Auction is already confirmed" });
 
-  const all_bids = await Bid.find({ auction: auction._id });
+  let all_bids = await Bid.find({ auction: auction._id });
 
   let bidIncremented = false;
   do {
@@ -254,6 +269,8 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
           }
           await auction.save();
           bidIncremented = true;
+
+          all_bids = await Bid.find({ auction: auction._id });
         }
       }
     }
@@ -262,22 +279,14 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "AutoBid Done" });
 });
 
-// exports.test = catchAsyncError(async (req, res, next) => {
-//   const auction = await Auction.findById(req.params.auctionId);
-//   if (!auction) return res.status(404).json({ message: "Auction not found" });
+exports.test = catchAsyncError(async (req, res, next) => {
+  const bids = await Bid.find({
+    bidder: "65d4563e12fdf96d9db94a5a",
+  });
 
-//   const autoBidsUser = await Bid.find({
-//     auction: auction._id,
-//   }).sort({
-//     createdAt: -1,
-//   });
+  for (let i = 0; i < bids.length; i++) {
+    await bids[i].deleteOne();
+  }
 
-//   const array1 = [];
-//   for (let i = 0; i < autoBidsUser.length; i++) {
-//     array1.push(autoBidsUser[i]);
-//   }
-
-//   const lastBid = autoBidsUser[autoBidsUser.length - 1];
-
-//   return res.status(200).json({ success: true, array1, lastBid });
-// });
+  return res.status(200).json({ success: true });
+});

@@ -2,7 +2,7 @@ const express = require("express");
 const {
   turnOnAutoBid,
   autoBid,
-  // test,
+  test,
   getAutoBidOfUserInAuction,
   updateAutoBidDetails,
 } = require("../controllers/autoBidController");
@@ -14,6 +14,6 @@ router.route("/on-off-autobid/:auctionId").post(auth, turnOnAutoBid);
 router.route("/update-auto-bid/:auctionId").post(auth, updateAutoBidDetails);
 router.route("/get-auto-bid/:auctionId").get(auth, getAutoBidOfUserInAuction);
 router.route("/bid/:auctionId").post(autoBid);
-// router.route("/test/:auctionId").get(test);
+router.route("/test").delete(test);
 
 module.exports = router;

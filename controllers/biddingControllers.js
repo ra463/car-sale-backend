@@ -42,6 +42,12 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 
   const { bid_amount } = req.body;
 
+  if (bid_amount % 50 !== 0) {
+    return res.status(400).json({
+      message: "Bidding Amount should be increment of 50 dollars",
+    });
+  }
+
   if (bid_amount <= 0) {
     return res.status(400).json({
       message:
@@ -84,9 +90,8 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 
     let bidPlaced = false;
     // check that bid amount should be always 50 dollar more than the current highest bid
-    const high_bid = auction.highest_bid;
-    const diff = bid_amount - high_bid;
-    if (diff < 50) {
+    const diff = bid_amount - auction.highest_bid;
+    if (diff < 49) {
       return res.status(400).json({
         success: false,
         message:
