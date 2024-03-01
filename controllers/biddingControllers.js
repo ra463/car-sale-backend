@@ -5,11 +5,13 @@ const User = require("../models/User");
 const catchAsyncError = require("../utils/catchAsyncError");
 
 exports.createBidding = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId);
-  if (!user) return res.status(404).json({ message: "User not found" });
+  const [auction, user] = await Promise.all([
+    await Auction.findById(req.params.auctionId),
+    await User.findById(req.userId),
+  ]);
 
-  const auction = await Auction.findById(req.params.auctionId);
   if (!auction) return res.status(404).json({ message: "Auction not found" });
+  if (!user) return res.status(404).json({ message: "User not found" });
 
   const autoBids = await AutoBid.findOne({
     user: user._id,
@@ -19,7 +21,7 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
   if (autoBids) {
     if (autoBids.autobid_active === true)
       return res.status(400).json({
-        message: "AutoBid is active. You can't place another bid",
+        message: "AutoBid is active. You can't place bid",
       });
   }
 
@@ -130,20 +132,24 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAuctionBids = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId);
-  if (!user) return res.status(404).json({ message: "User not found" });
+  const [auction, user] = await Promise.all([
+    await Auction.findById(req.params.auctionId),
+    await User.findById(req.userId),
+  ]);
 
-  const auction = await Auction.findById(req.params.auctionId);
   if (!auction) return res.status(404).json({ message: "Auction not found" });
+  if (!user) return res.status(404).json({ message: "User not found" });
 
   if (auction.seller.toString() !== user._id.toString())
     return res.status(400).json({
       message: "You cannot view bids on this auction",
     });
 
-  const bids = await Bid.find({ auction: auction._id }).sort({
-    createdAt: -1,
-  });
+  const bids = await Bid.find({ auction: auction._id })
+    .sort({
+      createdAt: -1,
+    })
+    .populate("bidder", "clientId");
 
   if (
     auction.is_Seller_paid10_percent === true &&
@@ -151,7 +157,7 @@ exports.getAuctionBids = catchAsyncError(async (req, res, next) => {
   ) {
     await bids[0].populate(
       "bidder",
-      "firstname middlename lastname email phone"
+      "clientId firstname middlename lastname email phone"
     );
   }
 
