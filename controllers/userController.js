@@ -10,7 +10,7 @@ const generateCode = require("../utils/generateCode");
 const generateDrivingToken = require("../utils/drivingLicense");
 const dotenv = require("dotenv");
 const axios = require("axios");
-const { sendOTP, verifyOTP } = require("../utils/sendOtp");
+// const { sendOTP, verifyOTP } = require("../utils/sendOtp");
 dotenv.config({ path: "../config/config.env" });
 
 const sendData = (user, statusCode, res, message) => {
@@ -260,9 +260,9 @@ exports.sendOtp = catchAsyncError(async (req, res, next) => {
   if (!phone)
     return res.status(400).json({ message: "Please enter the phone" });
 
-  const { status } = await sendOTP(`+91${phone}`);
-  if (status !== "pending")
-    return res.status(500).json({ message: "Error sending OTP" });
+  // const { status } = await sendOTP(`+91${phone}`);
+  // if (status !== "pending")
+  //   return res.status(500).json({ message: "Error sending OTP" });
 
   res.status(200).json({
     success: true,
@@ -277,7 +277,7 @@ exports.verifyOtp = catchAsyncError(async (req, res, next) => {
       .status(400)
       .json({ message: "Please enter the code & phone number" });
 
-  await verifyOTP(`+91${phone}`, code, res);
+  // await verifyOTP(`+91${phone}`, code, res);
 
   res.status(200).json({
     success: true,
