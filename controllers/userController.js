@@ -49,7 +49,9 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   });
 
   if (user_exist) {
-    return res.status(400).json({ message: "User already exists" });
+    return res
+      .status(400)
+      .json({ message: "User already exists with this email/phone" });
   }
 
   const access_token = await generateDrivingToken();
