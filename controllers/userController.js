@@ -113,6 +113,13 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
+
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your Document has been verified Successfully`
+    );
   } else if (document === "passport") {
     const data = {
       document: document,
@@ -160,6 +167,13 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
+
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your Document has been verified Successfully`
+    );
   } else {
     const data = {
       document: document,
@@ -207,14 +221,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-  }
 
-  sendData(
-    user,
-    201,
-    res,
-    `Welcome Sir!! Your Document has been verified Successfully`
-  );
+    sendData(
+      user,
+      201,
+      res,
+      `Welcome Sir!! Your Document has been verified Successfully`
+    );
+  }
 });
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
