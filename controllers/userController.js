@@ -10,7 +10,7 @@ const generateCode = require("../utils/generateCode");
 const generateDrivingToken = require("../utils/drivingLicense");
 const dotenv = require("dotenv");
 const axios = require("axios");
-// const { sendOTP, verifyOTP } = require("../utils/sendOtp");
+const { sendOTP, verifyOTP } = require("../utils/sendOtp");
 dotenv.config({ path: "../config/config.env" });
 
 const sendData = (user, statusCode, res, message) => {
@@ -54,6 +54,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   const access_token = await generateDrivingToken();
   const url = "https://api.oneclickservices.com.au/api/v1/dvs";
+  let client = generateClientId();
 
   if (document === "driverslicence") {
     if (!licence_state || !licencenumber || !cardnumberback) {
@@ -82,14 +83,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     };
 
     const repo = await axios.post(url, data, { headers });
-
     if (repo.status == 200 && repo.data.result == "N") {
       return res
         .status(200)
         .json({ success: false, message: repo.data.errors });
     }
 
-    let client = generateClientId();
     let user = await User.create({
       firstname,
       middlename,
@@ -114,13 +113,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-
-    sendData(
-      user,
-      201,
-      res,
-      `Welcome Sir!! Your License has been verified Successfully`
-    );
   } else if (document === "passport") {
     const data = {
       document: document,
@@ -140,14 +132,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     };
 
     const repo = await axios.post(url, data, { headers });
-
     if (repo.status == 200 && repo.data.result == "N") {
       return res
         .status(200)
         .json({ success: false, message: repo.data.errors });
     }
 
-    let client = generateClientId();
     let user = await User.create({
       firstname,
       middlename,
@@ -170,13 +160,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-
-    sendData(
-      user,
-      201,
-      res,
-      `Welcome Sir!! Your Password has been verified Successfully`
-    );
   } else {
     const data = {
       document: document,
@@ -196,14 +179,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     };
 
     const repo = await axios.post(url, data, { headers });
-
     if (repo.status == 200 && repo.data.result == "N") {
       return res
         .status(200)
         .json({ success: false, message: repo.data.errors });
     }
 
-    let client = generateClientId();
     let user = await User.create({
       firstname,
       middlename,
@@ -226,14 +207,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
     user.password = undefined;
     await newUser(email, firstname);
-
-    sendData(
-      user,
-      201,
-      res,
-      `Welcome Sir!! Your Password has been verified Successfully`
-    );
   }
+
+  sendData(
+    user,
+    201,
+    res,
+    `Welcome Sir!! Your Document has been verified Successfully`
+  );
 });
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
@@ -265,9 +246,9 @@ exports.sendOtp = catchAsyncError(async (req, res, next) => {
   if (!phone)
     return res.status(400).json({ message: "Please enter the phone" });
 
-  // const { status } = await sendOTP(`+91${phone}`);
-  // if (status !== "pending")
-  //   return res.status(500).json({ message: "Error sending OTP" });
+  const { status } = await sendOTP(`+91${phone}`);
+  if (status !== "pending")
+    return res.status(500).json({ message: "Error sending OTP" });
 
   res.status(200).json({
     success: true,
@@ -282,7 +263,7 @@ exports.verifyOtp = catchAsyncError(async (req, res, next) => {
       .status(400)
       .json({ message: "Please enter the code & phone number" });
 
-  // await verifyOTP(`+91${phone}`, code, res);
+  await verifyOTP(`+91${phone}`, code, res);
 
   res.status(200).json({
     success: true,
@@ -578,10 +559,6 @@ exports.getBuyerWonAuction = catchAsyncError(async (req, res, next) => {
       },
     })
     .sort({ createdAt: -1 });
-
-  // const wonBuyerAuctions = bids.filter(
-  //   (bid) => bid.auction.status === "sold"
-  // );
 
   // populate seller when is_Winner_paid10_percent is_seller_paid10_percent are true
   const processedBids = await Promise.all(
