@@ -59,7 +59,7 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
 
   if (bids.length === 0) {
     if (bid_amount) {
-      await Bid.create({
+      const bid = await Bid.create({
         auction: auction._id,
         bidder: user._id,
         bid_amount: bid_amount,
@@ -73,10 +73,13 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
         auction.reserve_flag = "Reserve Met";
       }
       await auction.save();
+      const reserve_flag = auction.reserve_flag;
 
       res.status(201).json({
         success: true,
         message: `Bid Placed Successfully`,
+        bid,
+        reserve_flag,
       });
     }
   }
@@ -101,7 +104,7 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
       });
     }
 
-    await Bid.create({
+    const bid = await Bid.create({
       auction: auction._id,
       bidder: user._id,
       bid_amount: bid_amount,
@@ -116,11 +119,14 @@ exports.createBidding = catchAsyncError(async (req, res, next) => {
     }
     await auction.save();
     bidPlaced = true;
+    const reserve_flag = auction.reserve_flag;
 
     if (bidPlaced === true) {
       return res.status(201).json({
         success: true,
         message: "Bid Placed Successfully",
+        bid,
+        reserve_flag,
       });
     } else {
       return res.status(400).json({

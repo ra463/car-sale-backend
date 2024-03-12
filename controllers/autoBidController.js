@@ -93,10 +93,14 @@ exports.turnOnAutoBid = catchAsyncError(async (req, res, next) => {
 
     auction.highest_bid = bid.bid_amount;
     await auction.save();
+    const reserve_flag = auction.reserve_flag;
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Bid Created & AutoBid Enabled" });
+    return res.status(200).json({
+      success: true,
+      message: "Bid Created & AutoBid Enabled",
+      bid,
+      reserve_flag,
+    });
   }
 });
 
@@ -173,10 +177,14 @@ exports.updateAutoBidDetails = catchAsyncError(async (req, res, next) => {
 
   auction.highest_bid = bid.bid_amount;
   await auction.save();
+  const reserve_flag = auction.reserve_flag;
 
-  return res
-    .status(200)
-    .json({ success: true, message: "Bid Created & AutoBid Updated" });
+  return res.status(200).json({
+    success: true,
+    message: "Bid Created & AutoBid Updated",
+    bid,
+    reserve_flag,
+  });
 });
 
 exports.getAutoBidOfUserInAuction = catchAsyncError(async (req, res, next) => {
@@ -276,7 +284,12 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
     }
   } while (bidIncremented);
 
-  return res.status(200).json({ success: true, message: "AutoBid Done" });
+  let bid = all_bids[all_bids.length - 1];
+  const reserve_flag = auction.reserve_flag;
+
+  return res
+    .status(200)
+    .json({ success: true, message: "AutoBid Done", bid, reserve_flag });
 });
 
 exports.test = catchAsyncError(async (req, res, next) => {
