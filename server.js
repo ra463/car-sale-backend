@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
   // console.log(`⚡: ${socket.id} user just connected!`);
   socket.on("bidreceived", async (data) => {
     try {
-      io.to(data.bid.auction).emit("bidemitted", data);
+      io.to(data.auction).emit("bidemitted", data);
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit("error", error);
