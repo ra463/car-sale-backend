@@ -20,10 +20,12 @@ const io = require("socket.io")(server, {
 });
 
 io.on("connection", (socket) => {
-  // console.log(`⚡: ${socket.id} user just connected!`);
+  console.log(`⚡: ${socket.id} user just connected!`);
   socket.on("bidreceived", async (data) => {
+    console.log(data);
     try {
       io.to(data.auction).emit("bidemitted", data);
+      console.log("bidemitted");
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit("error", error);
