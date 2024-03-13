@@ -13,7 +13,7 @@ const server = app.listen(port, () => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: "https://asisauctions.com.au",
+    origin: "*",
     credentials: true,
   },
 });
