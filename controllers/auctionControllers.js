@@ -261,6 +261,10 @@ exports.confirmBid = catchAsyncError(async (req, res, next) => {
       message: "You cannot confirm bids on this auction",
     });
 
+  if (auction.status === "active") {
+    return res.status(400).json({ message: "Auction is still active" });
+  }
+
   const bid = await Bid.findById(bidId).populate("bidder", "firstname email");
   if (!bid) return res.status(404).json({ message: "Bid not found" });
 
