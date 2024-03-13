@@ -7,28 +7,32 @@ connectDB();
 require("./utils/scheduleAuction");
 
 const port = process.env.PORT || 4000;
-
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*",
+    origin: "https://asisauctions.com.au",
     credentials: true,
   },
 });
 
 io.on("connection", (socket) => {
-  console.log(`⚡: ${socket.id} user just connected!`);
+  socket.on("join", async (data) => {
+    socket.join(data.auctionId);
+  });
+
   socket.on("bidreceived", async (data) => {
-    console.log(data);
     try {
-      io.to(data.auction).emit("bidemitted", data);
-      console.log("bidemitted");
+      socket.to(data.auction).emit("bidemitted", { data });
     } catch (error) {
       console.log(error);
-      io.to(socket.id).emit("error", error);
+      socket.to(socket.id).emit("error", error);
     }
+  });
+
+  socket.on("disconnect", async (data) => {
+    console.log("disconnect");
   });
 });
