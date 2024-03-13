@@ -45,22 +45,6 @@ exports.uploadCarDetails = catchAsyncError(async (req, res, next) => {
       .json({ message: "Vehicle type must be Car or Truck" });
   }
 
-  const car_exists = await Car.findOne({ unique_identification_number });
-
-  if (car_exists)
-    return res
-      .status(400)
-      .json({ message: "Vehicle already exists with this Vin" });
-
-  // const files = req.files;
-
-  // let all_images = [];
-  // if (files) {
-  //   const result = await s3UploadMulti(files, user._id);
-  //   const location = result.map((item) => item.Location);
-  //   all_images.push(...location);
-  // }
-
   if (vehicle_type === "Car") {
     await Car.create({
       manufacture_company,
@@ -328,16 +312,6 @@ exports.editCarDetails = catchAsyncError(async (req, res, next) => {
     is_registered,
     car_shuburb,
   } = req.body;
-
-  if (unique_identification_number) {
-    const carExists = await Car.findOne({ unique_identification_number });
-
-    if (carExists._id.toString() !== car._id.toString()) {
-      return res
-        .status(400)
-        .json({ message: "Vehicle already exists with this Vin" });
-    }
-  }
 
   if (car.vehicle_type === "Car") {
     if (manufacture_company) car.manufacture_company = manufacture_company;
