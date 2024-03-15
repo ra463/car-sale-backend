@@ -223,7 +223,7 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
       auction: auction._id,
       autobid_active: true,
       max_amount: { $gt: auction.highest_bid },
-    });
+    }).sort({ max_amount: 1 });
 
     if (autoBidsUser.length === 0) {
       bidIncremented = false;
@@ -241,6 +241,8 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
         autoBidsUser[i].autobid_active = false;
       }
     }
+
+    console.log(autoBidsUserArray);
 
     if (autoBidsUserArray.length === 0) {
       bidIncremented = false;
@@ -283,6 +285,77 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
       }
     }
   } while (bidIncremented);
+
+  // --------------------------------- running loop in for resverse -------------
+
+  let bidReverseIncremented = true;
+  do {
+    bidReverseIncremented = false;
+
+    const autoBidsUser = await AutoBid.find({
+      auction: auction._id,
+      autobid_active: true,
+      max_amount: { $gt: auction.highest_bid },
+    }).sort({ max_amount: -1 });
+
+    if (autoBidsUser.length === 0) {
+      bidReverseIncremented = false;
+      break;
+    }
+
+    const autoBidsUserArray = [];
+    for (let i = 0; i < autoBidsUser.length; i++) {
+      if (
+        autoBidsUser[i].max_amount - auction.highest_bid >=
+        autoBidsUser[i].increment_amount
+      ) {
+        autoBidsUserArray.push(autoBidsUser[i]);
+      } else {
+        autoBidsUser[i].autobid_active = false;
+      }
+    }
+
+    if (autoBidsUserArray.length === 0) {
+      bidReverseIncremented = false;
+      break;
+    }
+
+    for (let i = 0; i < autoBidsUserArray.length; i++) {
+      if (autoBidsUserArray[i].max_amount > auction.highest_bid) {
+        if (
+          autoBidsUserArray[i].max_amount - auction.highest_bid >=
+          autoBidsUserArray[i].increment_amount
+        ) {
+          if (
+            all_bids[all_bids.length - 1].bidder.toString() ===
+            autoBidsUserArray[i].user.toString()
+          ) {
+            bidReverseIncremented = false;
+            break;
+          }
+          const bid = await Bid.create({
+            auction: auction._id,
+            bidder: autoBidsUserArray[i].user,
+            bid_amount:
+              auction.highest_bid + autoBidsUserArray[i].increment_amount,
+            tag: "via AutoBid",
+          });
+
+          auction.highest_bid = bid.bid_amount;
+          if (bid.bid_amount >= auction.asking_price * 0.9) {
+            auction.reserve_flag = "90% Reserve Met";
+          }
+          if (bid.bid_amount >= auction.asking_price) {
+            auction.reserve_flag = "Reserve Met";
+          }
+          await auction.save();
+          bidReverseIncremented = true;
+
+          all_bids = await Bid.find({ auction: auction._id });
+        }
+      }
+    }
+  } while (bidReverseIncremented);
 
   let bid = all_bids[all_bids.length - 1];
   const reserve_flag = auction.reserve_flag;
