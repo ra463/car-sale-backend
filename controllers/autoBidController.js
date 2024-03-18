@@ -223,7 +223,7 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
       auction: auction._id,
       autobid_active: true,
       max_amount: { $gt: auction.highest_bid },
-    }).sort({ max_amount: 1 });
+    });
 
     if (autoBidsUser.length === 0) {
       bidIncremented = false;
@@ -241,8 +241,6 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
         autoBidsUser[i].autobid_active = false;
       }
     }
-
-    console.log(autoBidsUserArray);
 
     if (autoBidsUserArray.length === 0) {
       bidIncremented = false;
@@ -296,14 +294,14 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
       auction: auction._id,
       autobid_active: true,
       max_amount: { $gt: auction.highest_bid },
-    }).sort({ max_amount: -1 });
+    });
 
     if (autoBidsUser.length === 0) {
       bidReverseIncremented = false;
       break;
     }
 
-    const autoBidsUserArray = [];
+    let autoBidsUserArray = [];
     for (let i = 0; i < autoBidsUser.length; i++) {
       if (
         autoBidsUser[i].max_amount - auction.highest_bid >=
@@ -320,6 +318,8 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
       break;
     }
 
+    autoBidsUserArray = autoBidsUserArray.reverse();
+
     for (let i = 0; i < autoBidsUserArray.length; i++) {
       if (autoBidsUserArray[i].max_amount > auction.highest_bid) {
         if (
@@ -330,6 +330,7 @@ exports.autoBid = catchAsyncError(async (req, res, next) => {
             all_bids[all_bids.length - 1].bidder.toString() ===
             autoBidsUserArray[i].user.toString()
           ) {
+            console.log(all_bids[all_bids.length - 1].bidder.toString());
             bidReverseIncremented = false;
             break;
           }
